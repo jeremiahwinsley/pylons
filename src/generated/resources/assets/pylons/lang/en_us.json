@@ -1,0 +1,6 @@
+{
+  "block.pylons.expulsion_pylon": "Expulsion Pylon",
+  "item.pylons.player_filter": "Player Filter",
+  "gui.pylons.owner": "Owner: %s",
+  "gui.pylons.whitelist": "Add players to whitelist:"
+}
