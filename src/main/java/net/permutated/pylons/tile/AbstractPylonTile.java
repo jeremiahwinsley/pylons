@@ -19,7 +19,6 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.util.Constants;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractPylonTile extends TileEntity implements ITickableTileEntity {

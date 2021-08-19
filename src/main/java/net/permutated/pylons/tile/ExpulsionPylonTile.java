@@ -92,27 +92,36 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-            List<UUID> whitelist = new ArrayList<>();
-            for (int i = 0; i < itemStackHandler.getSlots(); i++) {
-                ItemStack stack = itemStackHandler.getStackInSlot(i);
-                if (!stack.isEmpty() && stack.getItem() instanceof PlayerFilterCard) {
-                    CompoundNBT tag = stack.getTagElement(Pylons.MODID);
-                    if (tag != null && tag.hasUUID(Constants.NBT.UUID)) {
-                        whitelist.add(tag.getUUID(Constants.NBT.UUID));
-                    }
-                }
-            }
+            List<UUID> allowed = allowedPlayers();
 
             MinecraftServer server = level.getServer();
             for (ServerPlayerEntity player : players) {
                 if (server != null
                     && !player.hasPermissions(2)
                     && !player.getUUID().equals(owner)
-                    && !whitelist.contains(player.getUUID())) {
+                    && !allowed.contains(player.getUUID())) {
                     doRespawn(server, player);
                 }
             }
         }
+    }
+
+    /**
+     * Iterates over Player Filters in the inventory and returns a list with all found UUIDs
+     * @return list of allowed UUIDs
+     */
+    private List<UUID> allowedPlayers() {
+        List<UUID> allowed = new ArrayList<>();
+        for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+            ItemStack stack = itemStackHandler.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof PlayerFilterCard) {
+                CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+                if (tag != null && tag.hasUUID(Constants.NBT.UUID)) {
+                    allowed.add(tag.getUUID(Constants.NBT.UUID));
+                }
+            }
+        }
+        return allowed;
     }
 
     private void doRespawn(MinecraftServer server, ServerPlayerEntity player) {
@@ -144,8 +153,8 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             if (!blockstate.is(BlockTags.BEDS) && !isAnchor) {
                 actualAngle = respawnAngle;
             } else {
-                Vector3d vector3d1 = Vector3d.atBottomCenterOf(respawnPosition).subtract(spawnPos).normalize();
-                actualAngle = (float) MathHelper.wrapDegrees(MathHelper.atan2(vector3d1.z, vector3d1.x) * (180F / (float) Math.PI) - 90.0D);
+                Vector3d vector3d = Vector3d.atBottomCenterOf(respawnPosition).subtract(spawnPos).normalize();
+                actualAngle = (float) MathHelper.wrapDegrees(MathHelper.atan2(vector3d.z, vector3d.x) * (180F / (float) Math.PI) - 90.0D);
             }
 
             dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
