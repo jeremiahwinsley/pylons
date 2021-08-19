@@ -9,11 +9,16 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.UsernameCache;
 import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.Pylons;
+import net.permutated.pylons.util.Constants;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public class PlayerFilterCard extends Item {
@@ -22,14 +27,20 @@ public class PlayerFilterCard extends Item {
     }
 
     @Override
+    public boolean isFoil(ItemStack stack) {
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        return (tag != null && tag.hasUUID(Constants.NBT.UUID));
+    }
+
+    @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
-        CompoundNBT tag = stack.getTag();
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
         if (tag != null) {
-            String uuid = tag.getUUID("uuid").toString();
-            tooltip.add(new StringTextComponent("UUID: ".concat(uuid)));
+            UUID uuid = tag.getUUID(Constants.NBT.UUID);
+            tooltip.add(new StringTextComponent("UUID: ".concat(uuid.toString())));
         }
     }
 }

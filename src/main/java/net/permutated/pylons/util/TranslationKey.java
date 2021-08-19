@@ -17,6 +17,14 @@ public class TranslationKey {
         return String.format(FORMAT, "item", key);
     }
 
+    public static String gui(String key) {
+        return String.format(FORMAT, "gui", key);
+    }
+
+    public static String tab() {
+        return String.format("itemGroup.%s", Pylons.MODID);
+    }
+
     public static String jei(String key) {
         return String.format(Pylons.MODID + ".int.jei.category.%s", key);
     }

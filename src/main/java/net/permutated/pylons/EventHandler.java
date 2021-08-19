@@ -7,6 +7,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.permutated.pylons.item.PlayerFilterCard;
+import net.permutated.pylons.util.Constants;
 
 public class EventHandler {
     private EventHandler() {
@@ -23,8 +24,8 @@ public class EventHandler {
             if (event.getSide() == LogicalSide.SERVER) {
                 ItemStack itemStack = event.getItemStack();
 
-                CompoundNBT tag = itemStack.getOrCreateTag();
-                tag.putUUID("uuid", event.getTarget().getUUID());
+                CompoundNBT tag = itemStack.getOrCreateTagElement(Pylons.MODID);
+                tag.putUUID(Constants.NBT.UUID, event.getTarget().getUUID());
 
                 event.setCancellationResult(ActionResultType.SUCCESS);
             } else {

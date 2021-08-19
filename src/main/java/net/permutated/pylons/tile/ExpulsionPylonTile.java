@@ -5,38 +5,30 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.*;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.DemoPlayerInteractionManager;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.IWorldInfo;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.Pylons;
 import net.permutated.pylons.item.PlayerFilterCard;
+import net.permutated.pylons.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExpulsionPylonTile extends AbstractPylonTile {
@@ -53,6 +45,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     public ExpulsionPylonTile() {
         super(ModRegistry.EXPULSION_PYLON_TILE.get());
+    }
+
+    @Override
+    public int getInventorySize() {
+        return this.itemStackHandler.getSlots();
     }
 
     @Override
@@ -76,16 +73,30 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(10)) {
+        if (level != null && !level.isClientSide && canTick(10) && owner != null) {
             Chunk chunk = level.getChunkAt(worldPosition);
             List<ServerPlayerEntity> players = Arrays.stream(chunk.getEntitySections())
                 .map(multiMap -> multiMap.find(ServerPlayerEntity.class))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
+            List<UUID> whitelist = new ArrayList<>();
+            for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+                ItemStack stack = itemStackHandler.getStackInSlot(i);
+                if (!stack.isEmpty() && stack.getItem() instanceof PlayerFilterCard) {
+                    CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+                    if (tag != null && tag.hasUUID(Constants.NBT.UUID)) {
+                        whitelist.add(tag.getUUID(Constants.NBT.UUID));
+                    }
+                }
+            }
+
             MinecraftServer server = level.getServer();
             for (ServerPlayerEntity player : players) {
-                if (server != null && !player.hasPermissions(2) && !player.getUUID().equals(owner)) {
+                if (server != null
+                    && !player.hasPermissions(2)
+                    && !player.getUUID().equals(owner)
+                    && !whitelist.contains(player.getUUID())) {
                     doRespawn(server, player);
                 }
             }
@@ -116,22 +127,22 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         if (optional.isPresent()) {
             BlockState blockstate = actualLevel.getBlockState(respawnPosition);
             boolean isAnchor = blockstate.is(Blocks.RESPAWN_ANCHOR);
-            Vector3d vector3d = optional.get();
+            Vector3d spawnPos = optional.get();
             float actualAngle;
             if (!blockstate.is(BlockTags.BEDS) && !isAnchor) {
                 actualAngle = respawnAngle;
             } else {
-                Vector3d vector3d1 = Vector3d.atBottomCenterOf(respawnPosition).subtract(vector3d).normalize();
-                actualAngle = (float)MathHelper.wrapDegrees(MathHelper.atan2(vector3d1.z, vector3d1.x) * (180F / (float)Math.PI) - 90.0D);
+                Vector3d vector3d1 = Vector3d.atBottomCenterOf(respawnPosition).subtract(spawnPos).normalize();
+                actualAngle = (float) MathHelper.wrapDegrees(MathHelper.atan2(vector3d1.z, vector3d1.x) * (180F / (float) Math.PI) - 90.0D);
             }
 
-            dummyPlayer.moveTo(vector3d.x, vector3d.y, vector3d.z, actualAngle, 0.0F);
+            dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
             dummyPlayer.setRespawnPosition(actualLevel.dimension(), respawnPosition, respawnAngle, flag, false);
         } else if (respawnPosition != null) {
             player.connection.send(new SChangeGameStatePacket(SChangeGameStatePacket.NO_RESPAWN_BLOCK_AVAILABLE, 0.0F));
         }
 
-        while(!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
+        while (!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
             dummyPlayer.setPos(dummyPlayer.getX(), dummyPlayer.getY() + 1.0D, dummyPlayer.getZ());
         }
 

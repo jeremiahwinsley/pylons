@@ -6,8 +6,10 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.util.ResourceUtil;
+import net.permutated.pylons.util.TranslationKey;
 
 import java.util.Objects;
 
@@ -35,5 +37,17 @@ public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> ext
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         this.blit(matrixStack, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    protected void drawText(MatrixStack stack, ITextComponent component, int yPos) {
+        this.font.draw(stack, component, 8, yPos, 4210752);
+    }
+
+    protected TranslationTextComponent translate(String key) {
+        return new TranslationTextComponent(TranslationKey.gui(key));
+    }
+
+    protected TranslationTextComponent translate(String key, Object... values) {
+        return new TranslationTextComponent(TranslationKey.gui(key), values);
     }
 }

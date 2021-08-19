@@ -1,6 +1,8 @@
 {
   "block.pylons.expulsion_pylon": "Expulsion Pylon",
-  "item.pylons.player_filter": "Player Filter",
+  "gui.pylons.noOwner": "Owner not found. Pylon disabled.",
   "gui.pylons.owner": "Owner: %s",
-  "gui.pylons.whitelist": "Add players to whitelist:"
+  "gui.pylons.whitelist": "Add players to whitelist:",
+  "item.pylons.player_filter": "Player Filter",
+  "itemGroup.pylons": "Pylons"
 }

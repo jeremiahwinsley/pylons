@@ -4,13 +4,14 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.permutated.pylons.tile.AbstractPylonTile;
-
 
 import javax.annotation.Nullable;
 
@@ -24,6 +25,11 @@ public abstract class AbstractPylonContainer extends Container {
 
     protected abstract RegistryObject<Block> getBlock();
 
+    @Nullable
+    public String getOwnerName() {
+        return tileEntity.getOwnerName();
+    }
+
     @Override
     public boolean stillValid(PlayerEntity playerEntity) {
         World world = tileEntity.getLevel();
@@ -34,6 +40,34 @@ public abstract class AbstractPylonContainer extends Container {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+        ItemStack itemstack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+
+        int inventorySize = this.tileEntity.getInventorySize();
+
+        if (slot != null && slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            itemstack = stack.copy();
+
+            if (index < inventorySize) {
+                if (!this.moveItemStackTo(stack, inventorySize, this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(stack, 0, inventorySize, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (stack.getCount() == 0) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+        }
+        return itemstack;
     }
 
     public void registerPlayerSlots(IItemHandler wrappedInventory) {

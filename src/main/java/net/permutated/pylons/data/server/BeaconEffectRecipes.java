@@ -11,8 +11,6 @@ import net.permutated.pylons.registry.ItemTagRegistry;
 
 import java.util.function.Consumer;
 
-import static net.permutated.pylons.util.ResourceUtil.fromAE2;
-
 public class BeaconEffectRecipes extends RecipeProvider {
     public BeaconEffectRecipes(DataGenerator generator) {
         super(generator);

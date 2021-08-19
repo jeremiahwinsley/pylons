@@ -4,6 +4,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.util.TranslationKey;
 
 public class Languages {
     private Languages() {
@@ -20,8 +21,10 @@ public class Languages {
         protected void addTranslations() {
             addBlock(ModRegistry.EXPULSION_PYLON, "Expulsion Pylon");
             addItem(ModRegistry.PLAYER_FILTER, "Player Filter");
-            add("gui.pylons.owner", "Owner: %s");
-            add("gui.pylons.whitelist", "Add players to whitelist:");
+            add(TranslationKey.gui("owner"), "Owner: %s");
+            add(TranslationKey.gui("noOwner"), "Owner not found. Pylon disabled.");
+            add(TranslationKey.gui("whitelist"), "Add players to whitelist:");
+            add(TranslationKey.tab(), "Pylons");
         }
     }
 }

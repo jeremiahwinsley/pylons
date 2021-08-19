@@ -8,8 +8,18 @@ public class Constants {
     public static final String EXPULSION_PYLON = "expulsion_pylon";
     public static final String BEACON_PYLON = "beacon_pylon";
 
-    public static class JSON
-    {
+
+    public static class NBT {
+        private NBT() {
+            // nothing to do
+        }
+
+        public static final String ENERGY = "energy";
+        public static final String OWNER = "owner";
+        public static final String UUID = "uuid";
+    }
+
+    public static class JSON {
         private JSON() {
             // nothing to do
         }

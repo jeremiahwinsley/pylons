@@ -4,8 +4,9 @@
 		"4": "minecraft:block/diamond_block",
 		"5": "minecraft:block/iron_bars",
 		"6": "minecraft:block/polished_blackstone",
-		"7": "minecraft:block/quartz_block_top"
-	},
+		"7": "minecraft:block/quartz_block_top",
+    "particle": "minecraft:block/diamond_block"
+  },
 	"elements": [
 		{
 			"from": [0, 0, 0],
