@@ -19,6 +19,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.util.Constants;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractPylonTile extends TileEntity implements ITickableTileEntity {
@@ -32,7 +33,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     public void setOwner(UUID owner) {
         this.owner = owner;
-        this.ownerName = UsernameCache.getLastKnownUsername(owner);
         this.setChanged();
     }
 
@@ -67,48 +67,79 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         }
     }
 
+    // Save TE data to disk
     @Override
     public CompoundNBT save(CompoundNBT tag) {
-        super.save(tag);
+        writeOwner(tag);
+        return super.save(tag);
+    }
 
+    // Write TE data to a provided CompoundNBT
+    private void writeOwner(CompoundNBT tag) {
         if (owner != null) {
             tag.putUUID(Constants.NBT.OWNER, owner);
         }
+    }
 
+    // Write username to a provided CompoundNBT
+    // Only used for server -> client sync
+    private void writeUsername(CompoundNBT tag) {
+        if (owner != null) {
+            ownerName = UsernameCache.getLastKnownUsername(owner);
+            if (ownerName != null) {
+                tag.putString(Constants.NBT.NAME, ownerName);
+            }
+        }
+    }
+
+    // Load TE data from disk
+    @Override
+    public void load(BlockState state, CompoundNBT tag) {
+        readOwner(tag);
+        super.load(state, tag);
+    }
+
+    // Read TE data from a provided CompoundNBT
+    private void readOwner(CompoundNBT tag) {
+        if (tag.hasUUID(Constants.NBT.OWNER)) {
+            owner = tag.getUUID(Constants.NBT.OWNER);
+        }
+    }
+
+    // Read username from a provided CompoundNBT
+    // Only used for server -> client sync
+    private void readUsername(CompoundNBT tag) {
+        if (tag.contains(Constants.NBT.NAME)) {
+            ownerName = tag.getString(Constants.NBT.NAME);
+        }
+    }
+
+    // Called whenever a client loads a new chunk
+    @Override
+    public CompoundNBT getUpdateTag() {
+        CompoundNBT tag = super.getUpdateTag();
+        writeOwner(tag);
+        writeUsername(tag);
         return tag;
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT tag) {
-        super.load(state, tag);
-
-        if (tag.hasUUID(Constants.NBT.OWNER)) {
-            this.setOwner(tag.getUUID(Constants.NBT.OWNER));
-        }
+    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+        readOwner(tag);
+        readUsername(tag);
     }
 
+    // Called whenever a block update happens on the client
     @Nullable
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(worldPosition, 0, this.getUpdateTag());
+        return new SUpdateTileEntityPacket(worldPosition, -1, getUpdateTag());
     }
 
+    // Handles the update packet received from the server
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        if (level != null) {
-            BlockState blockState = level.getBlockState(worldPosition);
-            handleUpdateTag(blockState, pkt.getTag());
-        }
-    }
-
-    @Override
-    public CompoundNBT getUpdateTag() {
-        return save(new CompoundNBT());
-    }
-
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        load(state, tag);
+        this.handleUpdateTag(this.getBlockState(), pkt.getTag());
     }
 
     public class PylonItemStackHandler extends ItemStackHandler {

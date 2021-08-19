@@ -72,6 +72,18 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     @Override
+    public CompoundNBT save(CompoundNBT tag) {
+        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
+        return super.save(tag);
+    }
+
+    @Override
+    public void load(BlockState state, CompoundNBT tag) {
+        itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
+        super.load(state, tag);
+    }
+
+    @Override
     public void tick() {
         if (level != null && !level.isClientSide && canTick(10) && owner != null) {
             Chunk chunk = level.getChunkAt(worldPosition);
