@@ -3,24 +3,16 @@ package net.permutated.pylons.block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.IContainerFactory;
-import net.permutated.pylons.Pylons;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
 import net.permutated.pylons.tile.ExpulsionPylonTile;
-import net.permutated.pylons.util.Constants;
-import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.UUID;
 
 public class ExpulsionPylonBlock extends AbstractPylonBlock {
     @Override

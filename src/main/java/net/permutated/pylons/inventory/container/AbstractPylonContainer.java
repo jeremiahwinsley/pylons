@@ -17,13 +17,12 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.permutated.pylons.tile.AbstractPylonTile;
-import net.permutated.pylons.tile.ExpulsionPylonTile;
 
 import javax.annotation.Nullable;
 
 public abstract class AbstractPylonContainer extends Container {
 
-    protected AbstractPylonTile tileEntity;
+    protected final AbstractPylonTile tileEntity;
 
     protected AbstractPylonContainer(@Nullable ContainerType<?> containerType, int windowId, PlayerInventory playerInventory, PacketBuffer packetBuffer) {
         super(containerType, windowId);
@@ -36,7 +35,7 @@ public abstract class AbstractPylonContainer extends Container {
 
         if (tileEntity != null) {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-                for (int slot = 0; slot < ExpulsionPylonTile.SLOTS; slot++) {
+                for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
                     addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 48));
                 }
             });

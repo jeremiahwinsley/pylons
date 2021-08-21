@@ -6,7 +6,6 @@ import net.minecraft.util.IItemProvider;
 import net.minecraftforge.common.Tags;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.ResourceUtil;
 
 import java.util.function.Consumer;
 

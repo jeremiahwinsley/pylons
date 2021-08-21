@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.util.ResourceUtil;
@@ -37,6 +38,20 @@ public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> ext
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         this.blit(matrixStack, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    @Override
+    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+        super.renderLabels(matrixStack, mouseX, mouseY);
+        String owner = this.menu.getOwnerName();
+
+        ITextComponent component;
+        if (owner != null) {
+            component = translate("owner", owner);
+        } else {
+            component = translate("noOwner").withStyle(TextFormatting.RED);
+        }
+        drawText(matrixStack, component, 24);
     }
 
     protected void drawText(MatrixStack stack, ITextComponent component, int yPos) {

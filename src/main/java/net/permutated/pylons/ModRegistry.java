@@ -29,6 +29,7 @@ import net.permutated.pylons.tile.ExpulsionPylonTile;
 import net.permutated.pylons.tile.InfusionPylonTile;
 import net.permutated.pylons.util.Constants;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class ModRegistry {
@@ -126,6 +127,7 @@ public class ModRegistry {
             this.iconSupplier = iconSupplier;
         }
 
+        @Nonnull
         @Override
         public ItemStack makeIcon() {
             return iconSupplier.get();

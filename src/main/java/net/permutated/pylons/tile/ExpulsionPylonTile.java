@@ -85,7 +85,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
         Optional<Vector3d> optional;
         if (respawnLevel != null && respawnPosition != null) {
-            optional = PlayerEntity.findRespawnPositionAndUseSpawnBlock(respawnLevel, respawnPosition, respawnAngle, flag, alive);
+            optional = PlayerEntity.findRespawnPositionAndUseSpawnBlock(respawnLevel, respawnPosition, respawnAngle, flag, true);
         } else {
             optional = Optional.empty();
         }
