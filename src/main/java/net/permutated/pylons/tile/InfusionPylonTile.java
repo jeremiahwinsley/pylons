@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.server.MinecraftServer;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
 
@@ -23,11 +24,15 @@ public class InfusionPylonTile extends AbstractPylonTile {
     @Override
     public void tick() {
         if (level != null && !level.isClientSide && canTick(60) && owner != null) {
-            PlayerEntity player = level.getPlayerByUUID(owner);
+            MinecraftServer server = level.getServer();
 
-            if (player != null && player.isAffectedByPotions()) {
-                for (EffectInstance effect : getEffects()) {
-                    player.addEffect(effect);
+            if (server != null) {
+                PlayerEntity player = server.getPlayerList().getPlayer(owner);
+
+                if (player != null && player.isAffectedByPotions()) {
+                    for (EffectInstance effect : getEffects()) {
+                        player.addEffect(effect);
+                    }
                 }
             }
         }
