@@ -1,6 +1,7 @@
 package net.permutated.pylons.item;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,7 +18,6 @@ import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.UUID;
 
 public class PlayerFilterCard extends Item {
     public PlayerFilterCard() {
@@ -30,6 +30,7 @@ public class PlayerFilterCard extends Item {
             if (event.getSide() == LogicalSide.SERVER) {
                 CompoundNBT tag = itemStack.getOrCreateTagElement(Pylons.MODID);
                 tag.putUUID(Constants.NBT.UUID, event.getTarget().getUUID());
+                tag.putString(Constants.NBT.NAME, getProfileName(event.getTarget()));
 
                 event.setCancellationResult(ActionResultType.SUCCESS);
             } else {
@@ -37,6 +38,14 @@ public class PlayerFilterCard extends Item {
             }
             event.setCanceled(true);
         }
+    }
+
+    protected static String getProfileName(Entity entity) {
+        if (entity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) entity;
+            return player.getGameProfile().getName();
+        }
+        return "unknown";
     }
 
     @Override
@@ -51,8 +60,8 @@ public class PlayerFilterCard extends Item {
 
         CompoundNBT tag = stack.getTagElement(Pylons.MODID);
         if (tag != null) {
-            UUID uuid = tag.getUUID(Constants.NBT.UUID);
-            tooltip.add(new StringTextComponent("UUID: ".concat(uuid.toString())).withStyle(TextFormatting.BLUE));
+            String username = tag.getString(Constants.NBT.NAME);
+            tooltip.add(translate("player", username).withStyle(TextFormatting.BLUE));
 
             tooltip.add(new StringTextComponent(""));
             tooltip.add(translate("insert1"));
@@ -64,5 +73,9 @@ public class PlayerFilterCard extends Item {
 
     protected IFormattableTextComponent translate(String key) {
         return new TranslationTextComponent(TranslationKey.tooltip(key)).withStyle(TextFormatting.GRAY);
+    }
+
+    protected TranslationTextComponent translate(String key, Object... values) {
+        return new TranslationTextComponent(TranslationKey.tooltip(key), values);
     }
 }

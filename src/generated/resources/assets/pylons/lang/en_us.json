@@ -22,5 +22,6 @@
   "tooltip.pylons.no_effect1": "Right-click with an active effect",
   "tooltip.pylons.no_effect2": "to apply it to the card.",
   "tooltip.pylons.no_player": "Right-click on a player to select them.",
+  "tooltip.pylons.player": "Player: %s",
   "tooltip.pylons.progress": "Progress: %d/%d seconds"
 }

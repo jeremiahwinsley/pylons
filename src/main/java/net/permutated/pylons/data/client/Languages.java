@@ -55,6 +55,8 @@ public class Languages {
 
             add(tooltip("activated"), "Activated");
             add(tooltip("progress"), "Progress: %d/%d seconds");
+
+            add(tooltip("player"), "Player: %s");
         }
     }
 }
