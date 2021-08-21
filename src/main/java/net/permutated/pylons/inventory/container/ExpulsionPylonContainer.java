@@ -16,23 +16,7 @@ import net.permutated.pylons.tile.ExpulsionPylonTile;
 public class ExpulsionPylonContainer extends AbstractPylonContainer {
 
     public ExpulsionPylonContainer(int windowId, PlayerInventory playerInventory, PacketBuffer packetBuffer) {
-        super(ModRegistry.EXPULSION_PYLON_CONTAINER.get(), windowId);
-
-        BlockPos pos = packetBuffer.readBlockPos();
-        World world = playerInventory.player.getCommandSenderWorld();
-
-        tileEntity = (ExpulsionPylonTile) world.getBlockEntity(pos);
-        IItemHandler wrappedInventory = new InvWrapper(playerInventory);
-
-        if (tileEntity != null) {
-            tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-                for (int slot = 0; slot < ExpulsionPylonTile.SLOTS; slot++) {
-                    addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 48));
-                }
-            });
-        }
-
-        registerPlayerSlots(wrappedInventory);
+        super(ModRegistry.EXPULSION_PYLON_CONTAINER.get(), windowId, playerInventory, packetBuffer);
     }
 
     @Override

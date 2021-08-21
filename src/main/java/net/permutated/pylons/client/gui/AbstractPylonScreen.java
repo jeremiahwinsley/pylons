@@ -16,9 +16,9 @@ import java.util.Objects;
 public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends ContainerScreen<T> {
     protected final ResourceLocation gui;
 
-    protected AbstractPylonScreen(T container, PlayerInventory inv, ITextComponent name, String machine) {
+    protected AbstractPylonScreen(T container, PlayerInventory inv, ITextComponent name, String pylonType) {
         super(container, inv, name);
-        this.gui = ResourceUtil.gui(machine);
+        this.gui = ResourceUtil.gui("pylon");
         this.imageWidth = 176;
         this.imageHeight = 166;
     }

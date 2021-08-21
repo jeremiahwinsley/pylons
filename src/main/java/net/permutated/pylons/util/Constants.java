@@ -6,7 +6,7 @@ public class Constants {
     }
 
     public static final String EXPULSION_PYLON = "expulsion_pylon";
-    public static final String BEACON_PYLON = "beacon_pylon";
+    public static final String INFUSION_PYLON = "infusion_pylon";
 
 
     public static class NBT {
@@ -19,6 +19,10 @@ public class Constants {
         public static final String NAME = "name";
         public static final String UUID = "uuid";
         public static final String INV = "inv";
+
+        public static final String EFFECT = "effect";
+        public static final String DURATION = "duration";
+        public static final String AMPLIFIER = "amplifier";
     }
 
     public static class JSON {

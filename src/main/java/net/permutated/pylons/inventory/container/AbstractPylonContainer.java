@@ -2,16 +2,22 @@ package net.permutated.pylons.inventory.container;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import net.permutated.pylons.tile.AbstractPylonTile;
+import net.permutated.pylons.tile.ExpulsionPylonTile;
 
 import javax.annotation.Nullable;
 
@@ -19,8 +25,24 @@ public abstract class AbstractPylonContainer extends Container {
 
     protected AbstractPylonTile tileEntity;
 
-    protected AbstractPylonContainer(@Nullable ContainerType<?> containerType, int windowId) {
+    protected AbstractPylonContainer(@Nullable ContainerType<?> containerType, int windowId, PlayerInventory playerInventory, PacketBuffer packetBuffer) {
         super(containerType, windowId);
+
+        BlockPos pos = packetBuffer.readBlockPos();
+        World world = playerInventory.player.getCommandSenderWorld();
+
+        tileEntity = (AbstractPylonTile) world.getBlockEntity(pos);
+        IItemHandler wrappedInventory = new InvWrapper(playerInventory);
+
+        if (tileEntity != null) {
+            tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
+                for (int slot = 0; slot < ExpulsionPylonTile.SLOTS; slot++) {
+                    addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 48));
+                }
+            });
+        }
+
+        registerPlayerSlots(wrappedInventory);
     }
 
     protected abstract RegistryObject<Block> getBlock();

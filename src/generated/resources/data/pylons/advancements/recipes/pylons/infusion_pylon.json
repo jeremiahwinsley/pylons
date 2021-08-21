@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "pylons:infusion_pylon"
+    ]
+  },
+  "criteria": {
+    "has_emerald_block": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:emerald_block"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "pylons:infusion_pylon"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_emerald_block",
+      "has_the_recipe"
+    ]
+  ]
+}

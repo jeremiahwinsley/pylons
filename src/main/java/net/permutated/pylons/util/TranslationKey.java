@@ -9,6 +9,10 @@ public class TranslationKey {
 
     private static final String FORMAT = "%s." + Pylons.MODID + ".%s";
 
+    public static String tooltip(String key) {
+        return String.format(FORMAT, "tooltip", key);
+    }
+
     public static String block(String key) {
         return String.format(FORMAT, "block", key);
     }

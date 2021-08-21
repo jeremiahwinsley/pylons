@@ -20,7 +20,9 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
@@ -31,6 +33,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.tile.AbstractPylonTile;
+import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -125,5 +128,9 @@ public abstract class AbstractPylonBlock extends Block {
             }
         }
         return ActionResultType.SUCCESS;
+    }
+
+    protected IFormattableTextComponent translate(String key) {
+        return new TranslationTextComponent(TranslationKey.tooltip(key)).withStyle(TextFormatting.GRAY);
     }
 }

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "pylons",
+  "pattern": [
+    "qqq",
+    "idi",
+    "bbb"
+  ],
+  "key": {
+    "d": {
+      "item": "minecraft:emerald_block"
+    },
+    "b": {
+      "item": "minecraft:polished_blackstone"
+    },
+    "q": {
+      "item": "minecraft:quartz_slab"
+    },
+    "i": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "item": "pylons:infusion_pylon"
+  }
+}

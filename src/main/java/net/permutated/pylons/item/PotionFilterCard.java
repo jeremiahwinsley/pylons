@@ -1,0 +1,228 @@
+package net.permutated.pylons.item;
+
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.*;
+import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.Pylons;
+import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.util.TranslationKey;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+public class PotionFilterCard extends Item {
+    public PotionFilterCard() {
+        super(new Item.Properties().stacksTo(1).tab(ModRegistry.CREATIVE_TAB).setNoRepair());
+    }
+
+    // required duration to activate
+    // 72000 ticks / 3600 seconds / 1 hour
+    public static final int REQUIRED = 3600 * 20;
+
+    @Override
+    public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
+        final ItemStack stack = player.getItemInHand(hand);
+
+        if (stack.getItem() instanceof PotionFilterCard) {
+            if (!level.isClientSide) {
+
+                Effect effect = PotionFilterCard.getEffect(stack);
+                int amplifier = PotionFilterCard.getAmplifier(stack);
+                int duration = PotionFilterCard.getDuration(stack);
+
+                if (duration >= PotionFilterCard.REQUIRED) {
+                    return ActionResult.success(stack);
+                }
+
+                Optional<EffectInstance> active;
+                if (effect == null) {
+                    active = player.getActiveEffects().stream()
+                        // Require 30 seconds minimum effect length
+                        .filter(effectInstance -> effectInstance.getDuration() >= 600)
+                        .findFirst();
+                } else {
+                    active = player.getActiveEffects().stream()
+                        // Require 30 seconds minimum effect length
+                        .filter(effectInstance -> effectInstance.getDuration() >= 600)
+                        // Effect must match saved effect
+                        .filter(effectInstance -> Objects.equals(effectInstance.getEffect(), effect))
+                        // Amplifier must match saved amplifier
+                        .filter(effectInstance -> Objects.equals(effectInstance.getAmplifier(), amplifier))
+                        .findFirst();
+                }
+
+
+                if (active.isPresent()) {
+                    Effect activeEffect = active.get().getEffect();
+                    int activeAmplifier = active.get().getAmplifier();
+                    int activeDuration = active.get().getDuration();
+
+                    ItemStack copy;
+                    if (effect == null) {
+                        // new effect
+                        copy = withEffect(stack, activeEffect, activeAmplifier, activeDuration);
+                    } else {
+                        // same effect
+                        copy = addDuration(stack, activeDuration);
+                    }
+
+                    player.removeEffect(activeEffect);
+                    return ActionResult.success(copy);
+                }
+            } else {
+                return ActionResult.consume(stack);
+            }
+        }
+        return ActionResult.pass(stack);
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        return (tag != null && tag.contains(Constants.NBT.EFFECT));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+
+        Effect effect = getEffect(stack);
+        int duration = getDuration(stack);
+        int amplifier = getAmplifier(stack);
+
+        // if duration in ticks is less than 20, display 0.
+        // Otherwise, divide by 20 to get duration in seconds.
+        int display = (duration < 20) ? 0 : duration / 20;
+
+        if (effect != null) {
+            IFormattableTextComponent component = effect.getDisplayName().copy();
+            if (amplifier > 0) {
+                component = withAmplifier(component, amplifier);
+            }
+
+            tooltip.add(component.withStyle(TextFormatting.BLUE));
+            tooltip.add(new StringTextComponent(""));
+
+            if (duration >= REQUIRED) {
+                tooltip.add(translate("insert1"));
+                tooltip.add(translate("insert2"));
+                tooltip.add(translate("activated").withStyle(TextFormatting.GREEN));
+            } else {
+                tooltip.add(translate("increase1"));
+                tooltip.add(translate("increase2"));
+                tooltip.add(translate("progress", display, REQUIRED / 20).withStyle(TextFormatting.RED));
+            }
+        } else {
+            tooltip.add(translate("no_effect1"));
+            tooltip.add(translate("no_effect2"));
+        }
+    }
+
+
+    /**
+     * Returns a copy of the ItemStack with a new effect tag added.
+     * <p>
+     * No validation on the effect is performed here.
+     * This should be completed before calling this method.
+     *
+     * @param stack     the input ItemStack
+     * @param effect    the Effect to be added
+     * @param amplifier the effect amplifier
+     * @param duration  the initial effect duration (in ticks)
+     * @return a copy of the ItemStack with the new NBT
+     */
+    public static ItemStack withEffect(final ItemStack stack, Effect effect, int amplifier, int duration) {
+        ResourceLocation registryName = effect.getRegistryName();
+        if (registryName == null) {
+            return stack;
+        }
+
+        CompoundNBT tag = new CompoundNBT();
+        tag.putString(Constants.NBT.EFFECT, registryName.toString());
+        tag.putInt(Constants.NBT.AMPLIFIER, amplifier);
+        tag.putInt(Constants.NBT.DURATION, Math.min(REQUIRED, duration));
+
+        ItemStack copy = stack.copy();
+        copy.addTagElement(Pylons.MODID, tag);
+        return copy;
+    }
+
+
+    /**
+     * Returns a copy of the ItemStack with the duration added to the existing amount.
+     * <p>
+     * No validation on the effect is performed here.
+     * This should be completed before calling this method.
+     *
+     * @param stack    the input ItemStack
+     * @param duration the duration (in ticks) to be added to the existing amount
+     * @return a copy of the ItemStack with the new NBT
+     */
+    public static ItemStack addDuration(final ItemStack stack, int duration) {
+        ItemStack copy = stack.copy();
+        CompoundNBT tag = copy.getOrCreateTagElement(Pylons.MODID);
+        int current = tag.getInt(Constants.NBT.DURATION);
+
+        // already activated
+        if (current >= REQUIRED) {
+            return stack;
+        }
+
+        int total = Math.min(REQUIRED, current + duration);
+
+        tag.putInt(Constants.NBT.DURATION, total);
+        return copy;
+    }
+
+    @Nullable
+    public static Effect getEffect(ItemStack stack) {
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
+            String effectName = tag.getString(Constants.NBT.EFFECT);
+            return ForgeRegistries.POTIONS.getValue(new ResourceLocation(effectName));
+        }
+        return null;
+    }
+
+    public static int getDuration(ItemStack stack) {
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        if (tag != null && tag.contains(Constants.NBT.DURATION)) {
+            return tag.getInt(Constants.NBT.DURATION);
+        }
+        return 0;
+    }
+
+    public static int getAmplifier(ItemStack stack) {
+        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        if (tag != null && tag.contains(Constants.NBT.AMPLIFIER)) {
+            return tag.getInt(Constants.NBT.AMPLIFIER);
+        }
+        return 0;
+    }
+
+    protected IFormattableTextComponent translate(String key) {
+        return new TranslationTextComponent(TranslationKey.tooltip(key)).withStyle(TextFormatting.GRAY);
+    }
+
+    protected TranslationTextComponent translate(String key, Object... values) {
+        return new TranslationTextComponent(TranslationKey.tooltip(key), values);
+    }
+
+    protected TranslationTextComponent withAmplifier(IFormattableTextComponent component, int amplifier) {
+        return new TranslationTextComponent("potion.withAmplifier", component,
+            new TranslationTextComponent("potion.potency." + amplifier));
+    }
+}

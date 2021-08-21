@@ -1,7 +1,6 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"4": "minecraft:block/diamond_block",
 		"5": "minecraft:block/iron_bars",
 		"6": "minecraft:block/polished_blackstone",
 		"7": "minecraft:block/quartz_block_top",
@@ -105,12 +104,12 @@
 			"to": [11, 12, 11],
 			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#4"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#4"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#4"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#4"},
-				"up": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#4"},
-				"down": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#4"}
+				"north": {"uv": [0, 0, 16, 16], "texture": "#center"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#center"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#center"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#center"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#center"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#center"}
 			}
 		}
 	],

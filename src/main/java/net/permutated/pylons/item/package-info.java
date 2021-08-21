@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package net.permutated.pylons.data.builder;
+package net.permutated.pylons.item;
 
 import mcp.MethodsReturnNonnullByDefault;
 

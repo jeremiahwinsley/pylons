@@ -10,77 +10,27 @@ import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.util.Constants;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExpulsionPylonTile extends AbstractPylonTile {
-    public static final int SLOTS = 9;
-
-    private final ItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS) {
-        @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return stack.getItem() instanceof PlayerFilterCard;
-        }
-    };
-
-    private final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
-
     public ExpulsionPylonTile() {
         super(ModRegistry.EXPULSION_PYLON_TILE.get());
     }
 
     @Override
-    public int getInventorySize() {
-        return this.itemStackHandler.getSlots();
-    }
-
-    @Override
-    public void dropItems() {
-        AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return handler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        handler.invalidate();
-    }
-
-    @Override
-    public CompoundNBT save(CompoundNBT tag) {
-        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
-        return super.save(tag);
-    }
-
-    @Override
-    public void load(BlockState state, CompoundNBT tag) {
-        itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
-        super.load(state, tag);
+    protected boolean isItemValid(ItemStack stack) {
+        return stack.getItem() instanceof PlayerFilterCard;
     }
 
     @Override
@@ -125,7 +75,6 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     private void doRespawn(MinecraftServer server, ServerPlayerEntity player) {
-
         boolean alive = true;
         BlockPos respawnPosition = player.getRespawnPosition();
         float respawnAngle = player.getRespawnAngle();

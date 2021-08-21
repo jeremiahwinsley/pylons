@@ -10,7 +10,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,11 +19,14 @@ import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.block.ExpulsionPylonBlock;
+import net.permutated.pylons.block.InfusionPylonBlock;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
+import net.permutated.pylons.inventory.container.InfusionPylonContainer;
 import net.permutated.pylons.item.PlayerFilterCard;
-import net.permutated.pylons.recipe.BeaconEffectRecipe;
+import net.permutated.pylons.item.PotionFilterCard;
 import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.tile.ExpulsionPylonTile;
+import net.permutated.pylons.tile.InfusionPylonTile;
 import net.permutated.pylons.util.Constants;
 
 import java.util.function.Supplier;
@@ -38,7 +40,6 @@ public class ModRegistry {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Pylons.MODID);
     public static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Pylons.MODID);
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, Pylons.MODID);
-    public static final DeferredRegister<IRecipeSerializer<?>> SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Pylons.MODID);
 
 
     public static final ItemGroup CREATIVE_TAB = new ModItemGroup(Pylons.MODID,
@@ -46,21 +47,23 @@ public class ModRegistry {
 
     // Items
     public static final RegistryObject<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);
+    public static final RegistryObject<Item> POTION_FILTER = ITEMS.register("potion_filter", PotionFilterCard::new);
 
     // Blocks
     public static final RegistryObject<Block> EXPULSION_PYLON = BLOCKS.register(Constants.EXPULSION_PYLON, ExpulsionPylonBlock::new);
+    public static final RegistryObject<Block> INFUSION_PYLON = BLOCKS.register(Constants.INFUSION_PYLON, InfusionPylonBlock::new);
 
     // BlockItems
     public static final RegistryObject<BlockItem> EXPULSION_PYLON_ITEM = blockItem(EXPULSION_PYLON);
+    public static final RegistryObject<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON);
 
     // Tiles
     public static final RegistryObject<TileEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = tile(EXPULSION_PYLON, ExpulsionPylonTile::new);
+    public static final RegistryObject<TileEntityType<InfusionPylonTile>> INFUSION_PYLON_TILE = tile(INFUSION_PYLON, InfusionPylonTile::new);
 
     // Containers
     public static final RegistryObject<ContainerType<ExpulsionPylonContainer>> EXPULSION_PYLON_CONTAINER = container(Constants.EXPULSION_PYLON, ExpulsionPylonContainer::new);
-
-    // Serializers
-    public static final RegistryObject<IRecipeSerializer<?>> BEACON_EFFECT_SERIALIZER = SERIALIZERS.register(Constants.BEACON_PYLON, BeaconEffectRecipe.Serializer::new);
+    public static final RegistryObject<ContainerType<InfusionPylonContainer>> INFUSION_PYLON_CONTAINER = container(Constants.INFUSION_PYLON, InfusionPylonContainer::new);
 
     /**
      * Register a BlockItem for a Block
@@ -113,7 +116,6 @@ public class ModRegistry {
         BLOCKS.register(bus);
         TILES.register(bus);
         CONTAINERS.register(bus);
-        SERIALIZERS.register(bus);
     }
 
     public static final class ModItemGroup extends ItemGroup {

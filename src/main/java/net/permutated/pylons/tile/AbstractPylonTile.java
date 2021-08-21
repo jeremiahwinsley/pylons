@@ -9,15 +9,20 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.UsernameCache;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.EnergyStorage;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.util.Constants;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -25,6 +30,42 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     protected AbstractPylonTile(TileEntityType<?> tileEntityType) {
         super(tileEntityType);
+    }
+
+    public static final int SLOTS = 9;
+
+    protected final ItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS) {
+        @Override
+        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+            return AbstractPylonTile.this.isItemValid(stack);
+        }
+    };
+
+    protected abstract boolean isItemValid(ItemStack stack);
+
+    protected final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return handler.cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    public int getInventorySize() {
+        return this.itemStackHandler.getSlots();
+    }
+
+    public void dropItems() {
+        AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        handler.invalidate();
     }
 
     protected UUID owner = null;
@@ -40,8 +81,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         return this.ownerName;
     }
 
-    public abstract int getInventorySize();
-
     private long lastTicked = 0L;
 
     public boolean canTick(final int every) {
@@ -53,8 +92,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
             return false;
         }
     }
-
-    public abstract void dropItems();
 
     protected static void dropItems(@Nullable World world, BlockPos pos, IItemHandler itemHandler) {
         for (int i = 0; i < itemHandler.getSlots(); ++i) {
@@ -69,6 +106,7 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     // Save TE data to disk
     @Override
     public CompoundNBT save(CompoundNBT tag) {
+        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
         writeOwner(tag);
         return super.save(tag);
     }
@@ -94,6 +132,7 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     // Load TE data from disk
     @Override
     public void load(BlockState state, CompoundNBT tag) {
+        itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
         readOwner(tag);
         super.load(state, tag);
     }

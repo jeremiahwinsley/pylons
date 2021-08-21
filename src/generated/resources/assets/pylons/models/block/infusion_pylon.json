@@ -1,6 +1,6 @@
 {
   "parent": "pylons:block/pylon",
   "textures": {
-    "center": "minecraft:block/diamond_block"
+    "center": "minecraft:block/emerald_block"
   }
 }

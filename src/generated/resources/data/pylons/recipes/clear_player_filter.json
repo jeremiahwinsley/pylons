@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "pylons",
+  "ingredients": [
+    {
+      "item": "pylons:player_filter"
+    }
+  ],
+  "result": {
+    "item": "pylons:player_filter"
+  }
+}

@@ -1,6 +1,5 @@
 package net.permutated.pylons.data;
 
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,11 +20,6 @@ public final class DataGenerators {
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
 
         if (event.includeServer()) {
-//            BlockTagsProvider blockTagsProvider = new BlockTags(generator, fileHelper);
-//            generator.addProvider(new ItemTags(generator, blockTagsProvider, fileHelper));
-
-//            generator.addProvider(new BeaconEffectRecipes(generator));
-
             generator.addProvider(new CraftingRecipes(generator));
             generator.addProvider(new LootTables(generator));
         }
