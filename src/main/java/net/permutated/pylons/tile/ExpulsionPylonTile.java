@@ -6,13 +6,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SChangeGameStatePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
 import net.permutated.pylons.ModRegistry;
@@ -58,6 +58,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     /**
      * Iterates over Player Filters in the inventory and returns a list with all found UUIDs
+     *
      * @return list of allowed UUIDs
      */
     private List<UUID> allowedPlayers() {
@@ -95,6 +96,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         ServerPlayerEntity dummyPlayer = new ServerPlayerEntity(server, actualLevel, player.getGameProfile(), manager);
 
         if (optional.isPresent()) {
+            // player has a spawn position, is this in the same chunk?
+            if (sameChunk(actualLevel, dummyPlayer.blockPosition())) {
+                return;
+            }
+
             BlockState blockstate = actualLevel.getBlockState(respawnPosition);
             boolean isAnchor = blockstate.is(Blocks.RESPAWN_ANCHOR);
             Vector3d spawnPos = optional.get();
@@ -107,9 +113,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             }
 
             dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
-            dummyPlayer.setRespawnPosition(actualLevel.dimension(), respawnPosition, respawnAngle, flag, false);
-        } else if (respawnPosition != null) {
-            player.connection.send(new SChangeGameStatePacket(SChangeGameStatePacket.NO_RESPAWN_BLOCK_AVAILABLE, 0.0F));
+        } else {
+            // player does not have a spawn position, is this in the world spawn?
+            if (sameChunk(actualLevel, actualLevel.getSharedSpawnPos())) {
+                return;
+            }
         }
 
         while (!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
@@ -117,5 +125,18 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
 
         player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.yRot, dummyPlayer.xRot);
+    }
+
+    private boolean sameChunk(World world, BlockPos target) {
+        if (level != null && level.dimension() == world.dimension()) {
+            int thisX = worldPosition.getX() >> 4;
+            int thisZ = worldPosition.getZ() >> 4;
+
+            int thatX = target.getX() >> 4;
+            int thatZ = target.getZ() >> 4;
+
+            return thisX == thatX && thisZ == thatZ;
+        }
+        return false;
     }
 }
