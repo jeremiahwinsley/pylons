@@ -87,10 +87,14 @@ public abstract class AbstractPylonBlock extends Block {
     }
 
     /**
-     * Block should only be broken by the owner.
+     * Block should only be broken by the owner or ops.
      * @param event the BreakEvent
      */
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+        if (event.getPlayer().hasPermissions(2)) {
+            return;
+        }
+
         if (event.getState().getBlock() instanceof AbstractPylonBlock) {
             TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
 
