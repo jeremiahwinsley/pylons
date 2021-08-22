@@ -5,6 +5,7 @@
   "gui.pylons.noOwner": "Owner not found. Pylon disabled.",
   "gui.pylons.owner": "Owner: %s",
   "gui.pylons.whitelist": "Add players to whitelist:",
+  "gui.pylons.wrongDimension": "This dimension is disabled.",
   "item.pylons.player_filter": "Player Filter",
   "item.pylons.potion_filter": "Potion Filter",
   "itemGroup.pylons": "Pylons",

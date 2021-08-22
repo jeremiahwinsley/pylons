@@ -43,7 +43,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(10) && owner != null && allowedDimension()) {
+        if (level != null && !level.isClientSide && canTick(10) && owner != null && isAllowedDimension()) {
             Chunk chunk = level.getChunkAt(worldPosition);
             List<ServerPlayerEntity> players = Arrays.stream(chunk.getEntitySections())
                 .map(multiMap -> multiMap.find(ServerPlayerEntity.class))
@@ -64,7 +64,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
     }
 
-    private boolean allowedDimension() {
+    public boolean isAllowedDimension() {
         if (level != null) {
             if (allowedDimensions == null) {
                 List<RegistryKey<World>> temp = new ArrayList<>();
