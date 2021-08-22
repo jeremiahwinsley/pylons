@@ -1,5 +1,6 @@
 package net.permutated.pylons.tile;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,12 +10,16 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
+import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.item.PlayerFilterCard;
@@ -24,6 +29,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExpulsionPylonTile extends AbstractPylonTile {
+
+    private List<RegistryKey<World>> allowedDimensions = null;
+
     public ExpulsionPylonTile() {
         super(ModRegistry.EXPULSION_PYLON_TILE.get());
     }
@@ -35,7 +43,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(10) && owner != null) {
+        if (level != null && !level.isClientSide && canTick(10) && owner != null && allowedDimension()) {
             Chunk chunk = level.getChunkAt(worldPosition);
             List<ServerPlayerEntity> players = Arrays.stream(chunk.getEntitySections())
                 .map(multiMap -> multiMap.find(ServerPlayerEntity.class))
@@ -54,6 +62,21 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
                 }
             }
         }
+    }
+
+    private boolean allowedDimension() {
+        if (level != null) {
+            if (allowedDimensions == null) {
+                List<RegistryKey<World>> temp = new ArrayList<>();
+                List<? extends String> allowed = ConfigManager.COMMON.expulsionAllowedDimensions.get();
+                for (String key : allowed) {
+                    temp.add(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(key)));
+                }
+                allowedDimensions = ImmutableList.copyOf(temp);
+            }
+            return allowedDimensions.contains(level.dimension());
+        }
+        return false;
     }
 
     /**
@@ -76,7 +99,6 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     private void doRespawn(MinecraftServer server, ServerPlayerEntity player) {
-        boolean alive = true;
         BlockPos respawnPosition = player.getRespawnPosition();
         float respawnAngle = player.getRespawnAngle();
         boolean flag = player.isRespawnForced();

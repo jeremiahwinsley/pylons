@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.Constants;
@@ -28,9 +29,11 @@ public class PotionFilterCard extends Item {
         super(new Item.Properties().stacksTo(1).tab(ModRegistry.CREATIVE_TAB).setNoRepair());
     }
 
-    // required duration to activate
-    // 72000 ticks / 3600 seconds / 1 hour
-    public static final int REQUIRED = 3600 * 20;
+    // minimum duration of effect that can be copied to the filter
+    public static final int MINIMUM = ConfigManager.COMMON.infusionMinimumDuration.get() * 20;
+
+    // required duration to activate the filter in a pylon
+    public static final int REQUIRED = ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
 
     @Override
     public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
@@ -50,13 +53,13 @@ public class PotionFilterCard extends Item {
                 Optional<EffectInstance> active;
                 if (effect == null) {
                     active = player.getActiveEffects().stream()
-                        // Require 30 seconds minimum effect length
-                        .filter(effectInstance -> effectInstance.getDuration() >= 600)
+                        // Require a configured minimum effect length
+                        .filter(effectInstance -> effectInstance.getDuration() >= MINIMUM)
                         .findFirst();
                 } else {
                     active = player.getActiveEffects().stream()
-                        // Require 30 seconds minimum effect length
-                        .filter(effectInstance -> effectInstance.getDuration() >= 600)
+                        // Require a configured minimum effect length
+                        .filter(effectInstance -> effectInstance.getDuration() >= MINIMUM)
                         // Effect must match saved effect
                         .filter(effectInstance -> Objects.equals(effectInstance.getEffect(), effect))
                         // Amplifier must match saved amplifier
@@ -113,7 +116,12 @@ public class PotionFilterCard extends Item {
                 component = withAmplifier(component, amplifier);
             }
 
-            tooltip.add(component.withStyle(TextFormatting.BLUE));
+            if (effect.isBeneficial()) {
+                tooltip.add(component.withStyle(TextFormatting.BLUE));
+            } else {
+                tooltip.add(component.withStyle(TextFormatting.RED));
+            }
+
             tooltip.add(new StringTextComponent(""));
 
             if (duration >= REQUIRED) {
