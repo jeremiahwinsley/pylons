@@ -28,6 +28,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
@@ -45,7 +46,7 @@ public abstract class AbstractPylonBlock extends Block {
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).harvestTool(ToolType.PICKAXE));
+        super(Properties.of(Material.METAL).harvestTool(ToolType.PICKAXE).strength(2F, 1200F));
     }
 
     @Override
@@ -85,6 +86,24 @@ public abstract class AbstractPylonBlock extends Block {
         super.destroy(world, blockPos, blockState);
     }
 
+    /**
+     * Block should only be broken by the owner.
+     * @param event the BreakEvent
+     */
+    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+        if (event.getState().getBlock() instanceof AbstractPylonBlock) {
+            TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+
+            if (tileEntity instanceof AbstractPylonTile) {
+                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+                if (!event.getPlayer().getUUID().equals(pylonTile.getOwner())) {
+                    event.setCanceled(true);
+                }
+            }
+        }
+
+    }
+
     @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
     public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving)
@@ -121,7 +140,13 @@ public abstract class AbstractPylonBlock extends Block {
                         return containerFactory().create(i, playerInventory, buffer.writeBlockPos(pos));
                     }
                 };
-                NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, tileEntity.getBlockPos());
+
+                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+                if (player.getUUID().equals(pylonTile.getOwner()) || player.hasPermissions(2)) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, tileEntity.getBlockPos());
+                } else {
+                    return ActionResultType.FAIL;
+                }
             } else {
                 Pylons.LOGGER.error("tile entity not instance of AbstractPylonTile");
                 return ActionResultType.FAIL;

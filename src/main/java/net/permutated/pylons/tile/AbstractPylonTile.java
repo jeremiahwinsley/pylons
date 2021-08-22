@@ -48,7 +48,7 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && side == null) {
             return handler.cast();
         }
         return super.getCapability(cap, side);
@@ -70,6 +70,11 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     protected UUID owner = null;
     protected String ownerName = null;
+
+    @Nullable
+    public UUID getOwner() {
+        return this.owner;
+    }
 
     public void setOwner(UUID owner) {
         this.owner = owner;
