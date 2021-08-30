@@ -132,6 +132,8 @@ public abstract class AbstractPylonBlock extends Block {
         if (!world.isClientSide) {
             TileEntity tileEntity = world.getBlockEntity(pos);
             if (tileEntity instanceof AbstractPylonTile) {
+                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+
                 INamedContainerProvider containerProvider = new INamedContainerProvider() {
                     @Override
                     public ITextComponent getDisplayName() {
@@ -141,13 +143,13 @@ public abstract class AbstractPylonBlock extends Block {
                     @Override
                     public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
                         PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-                        return containerFactory().create(i, playerInventory, buffer.writeBlockPos(pos));
+                        pylonTile.updateContainer(buffer);
+                        return containerFactory().create(i, playerInventory, buffer);
                     }
                 };
 
-                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
                 if (player.getUUID().equals(pylonTile.getOwner()) || player.hasPermissions(2)) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, tileEntity.getBlockPos());
+                    NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, pylonTile::updateContainer);
                 } else {
                     return ActionResultType.FAIL;
                 }

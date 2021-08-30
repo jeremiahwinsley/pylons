@@ -9,6 +9,8 @@ public class Constants {
     public static final String INFUSION_PYLON = "infusion_pylon";
 
 
+    public static final String UNKNOWN = "unknown";
+
     public static class NBT {
         private NBT() {
             // nothing to do

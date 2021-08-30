@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tags.BlockTags;
@@ -62,6 +63,12 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateContainer(PacketBuffer packetBuffer) {
+        super.updateContainer(packetBuffer);
+        packetBuffer.writeBoolean(isAllowedDimension());
     }
 
     public boolean isAllowedDimension() {

@@ -9,6 +9,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
+import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
 import net.permutated.pylons.util.TranslationKey;
 
@@ -46,10 +47,10 @@ public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> ext
         String owner = this.menu.getOwnerName();
 
         ITextComponent component;
-        if (owner != null) {
-            component = translate("owner", owner);
-        } else {
+        if (owner.equals(Constants.UNKNOWN)) {
             component = translate("noOwner").withStyle(TextFormatting.RED);
+        } else {
+            component = translate("owner", owner);
         }
         drawText(matrixStack, component, 24);
     }

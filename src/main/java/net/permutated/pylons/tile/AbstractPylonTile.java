@@ -5,6 +5,7 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -21,6 +22,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.util.Constants;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,10 +56,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         return super.getCapability(cap, side);
     }
 
-    public int getInventorySize() {
-        return this.itemStackHandler.getSlots();
-    }
-
     public void dropItems() {
         AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
     }
@@ -79,11 +77,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     public void setOwner(UUID owner) {
         this.owner = owner;
         this.setChanged();
-    }
-
-    @Nullable
-    public String getOwnerName() {
-        return this.ownerName;
     }
 
     private long lastTicked = 0L;
@@ -108,6 +101,21 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         }
     }
 
+    /**
+     * Serialize data to be sent to the GUI on the client.
+     *
+     * Overrides MUST call the super method first to ensure correct deserialization.
+     * @param packetBuffer the packet ready to be filled
+     */
+    public void updateContainer(PacketBuffer packetBuffer) {
+        String lastKnown = UsernameCache.getLastKnownUsername(owner);
+        String username = StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
+
+        packetBuffer.writeBlockPos(worldPosition);
+        packetBuffer.writeInt(username.length());
+        packetBuffer.writeUtf(username);
+    }
+
     // Save TE data to disk
     @Override
     public CompoundNBT save(CompoundNBT tag) {
@@ -120,17 +128,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     private void writeOwner(CompoundNBT tag) {
         if (owner != null) {
             tag.putUUID(Constants.NBT.OWNER, owner);
-        }
-    }
-
-    // Write username to a provided CompoundNBT
-    // Only used for server -> client sync
-    private void writeUsername(CompoundNBT tag) {
-        if (owner != null) {
-            ownerName = UsernameCache.getLastKnownUsername(owner);
-            if (ownerName != null) {
-                tag.putString(Constants.NBT.NAME, ownerName);
-            }
         }
     }
 
@@ -149,27 +146,17 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         }
     }
 
-    // Read username from a provided CompoundNBT
-    // Only used for server -> client sync
-    private void readUsername(CompoundNBT tag) {
-        if (tag.contains(Constants.NBT.NAME)) {
-            ownerName = tag.getString(Constants.NBT.NAME);
-        }
-    }
-
     // Called whenever a client loads a new chunk
     @Override
     public CompoundNBT getUpdateTag() {
         CompoundNBT tag = super.getUpdateTag();
         writeOwner(tag);
-        writeUsername(tag);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT tag) {
         readOwner(tag);
-        readUsername(tag);
     }
 
     // Called whenever a block update happens on the client

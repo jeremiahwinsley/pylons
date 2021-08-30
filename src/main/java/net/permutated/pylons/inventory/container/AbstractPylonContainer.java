@@ -22,7 +22,9 @@ import javax.annotation.Nullable;
 
 public abstract class AbstractPylonContainer extends Container {
 
-    protected final AbstractPylonTile tileEntity;
+    @Nullable // should only be accessed from server
+    private final AbstractPylonTile tileEntity;
+    protected final String ownerName;
 
     protected AbstractPylonContainer(@Nullable ContainerType<?> containerType, int windowId, PlayerInventory playerInventory, PacketBuffer packetBuffer) {
         super(containerType, windowId);
@@ -41,26 +43,32 @@ public abstract class AbstractPylonContainer extends Container {
             });
         }
 
+        int nameLength = packetBuffer.readInt();
+        ownerName = packetBuffer.readUtf(nameLength);
+
         registerPlayerSlots(wrappedInventory);
     }
 
     protected abstract RegistryObject<Block> getBlock();
 
-    @Nullable
+    protected int getInventorySize() {
+        return AbstractPylonTile.SLOTS;
+    }
+
     public String getOwnerName() {
-        return tileEntity.getOwnerName();
+        return ownerName;
     }
 
     @Override
     public boolean stillValid(PlayerEntity playerEntity) {
-        World world = tileEntity.getLevel();
-
-        if (world != null) {
-            IWorldPosCallable callable = IWorldPosCallable.create(world, tileEntity.getBlockPos());
-            return stillValid(callable, playerEntity, getBlock().get());
-        } else {
-            return false;
+        if (tileEntity != null) {
+            World world = tileEntity.getLevel();
+            if (world != null) {
+                IWorldPosCallable callable = IWorldPosCallable.create(world, tileEntity.getBlockPos());
+                return stillValid(callable, playerEntity, getBlock().get());
+            }
         }
+        return false;
     }
 
     @Override
@@ -68,7 +76,7 @@ public abstract class AbstractPylonContainer extends Container {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
 
-        int inventorySize = this.tileEntity.getInventorySize();
+        int inventorySize = getInventorySize();
 
         if (slot != null && slot.hasItem()) {
             ItemStack stack = slot.getItem();
