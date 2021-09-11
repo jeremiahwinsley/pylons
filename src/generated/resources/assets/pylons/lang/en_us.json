@@ -20,6 +20,7 @@
   "tooltip.pylons.infusion3": "at any distance.",
   "tooltip.pylons.insert1": "Insert this filter into",
   "tooltip.pylons.insert2": "a pylon to use it!",
+  "tooltip.pylons.minimum_duration": "Minimum effect duration: %s seconds",
   "tooltip.pylons.no_effect1": "Right-click with an active effect",
   "tooltip.pylons.no_effect2": "to apply it to the card.",
   "tooltip.pylons.no_player": "Right-click on a player to select them.",

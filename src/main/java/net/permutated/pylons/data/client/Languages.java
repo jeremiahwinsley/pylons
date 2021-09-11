@@ -47,6 +47,7 @@ public class Languages {
 
             add(tooltip("no_effect1"), "Right-click with an active effect");
             add(tooltip("no_effect2"), "to apply it to the card.");
+            add(tooltip("minimum_duration"), "Minimum effect duration: %s seconds");
 
             add(tooltip("insert1"), "Insert this filter into");
             add(tooltip("insert2"), "a pylon to use it!");
