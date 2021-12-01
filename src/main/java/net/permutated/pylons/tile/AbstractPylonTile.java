@@ -1,23 +1,20 @@
 package net.permutated.pylons.tile;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -28,10 +25,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public abstract class AbstractPylonTile extends TileEntity implements ITickableTileEntity {
+public abstract class AbstractPylonTile extends BlockEntity {
 
-    protected AbstractPylonTile(TileEntityType<?> tileEntityType) {
-        super(tileEntityType);
+    protected AbstractPylonTile(BlockEntityType<?> tileEntityType, BlockPos pos, BlockState state) {
+        super(tileEntityType, pos, state);
     }
 
     public static final int SLOTS = 9;
@@ -91,12 +88,21 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         }
     }
 
-    protected static void dropItems(@Nullable World world, BlockPos pos, IItemHandler itemHandler) {
+    public abstract void tick();
+
+    @SuppressWarnings("java:S1172") // unused arguments are required
+    public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
+        if (blockEntity instanceof AbstractPylonTile pylonTile) {
+            pylonTile.tick();
+        }
+    }
+
+    protected static void dropItems(@Nullable Level world, BlockPos pos, IItemHandler itemHandler) {
         for (int i = 0; i < itemHandler.getSlots(); ++i) {
             ItemStack itemstack = itemHandler.getStackInSlot(i);
 
             if (itemstack.getCount() > 0 && world != null) {
-                InventoryHelper.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), itemstack);
+                Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), itemstack);
             }
         }
     }
@@ -107,7 +113,7 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
      * Overrides MUST call the super method first to ensure correct deserialization.
      * @param packetBuffer the packet ready to be filled
      */
-    public void updateContainer(PacketBuffer packetBuffer) {
+    public void updateContainer(FriendlyByteBuf packetBuffer) {
         String lastKnown = UsernameCache.getLastKnownUsername(owner);
         String username = StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
 
@@ -118,14 +124,13 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     // Save TE data to disk
     @Override
-    public CompoundNBT save(CompoundNBT tag) {
+    protected void saveAdditional(CompoundTag tag) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
         writeOwner(tag);
-        return super.save(tag);
     }
 
     // Write TE data to a provided CompoundNBT
-    private void writeOwner(CompoundNBT tag) {
+    private void writeOwner(CompoundTag tag) {
         if (owner != null) {
             tag.putUUID(Constants.NBT.OWNER, owner);
         }
@@ -133,43 +138,43 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     // Load TE data from disk
     @Override
-    public void load(BlockState state, CompoundNBT tag) {
+    public void load(CompoundTag tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
         readOwner(tag);
-        super.load(state, tag);
+        super.load(tag);
     }
 
     // Read TE data from a provided CompoundNBT
-    private void readOwner(CompoundNBT tag) {
-        if (tag.hasUUID(Constants.NBT.OWNER)) {
+    private void readOwner(@Nullable CompoundTag tag) {
+        if (tag != null && tag.hasUUID(Constants.NBT.OWNER)) {
             owner = tag.getUUID(Constants.NBT.OWNER);
         }
     }
 
     // Called whenever a client loads a new chunk
     @Override
-    public CompoundNBT getUpdateTag() {
-        CompoundNBT tag = super.getUpdateTag();
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
         writeOwner(tag);
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+    public void handleUpdateTag(@Nullable CompoundTag tag) {
         readOwner(tag);
     }
 
     // Called whenever a block update happens on the client
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(worldPosition, -1, getUpdateTag());
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this, BlockEntity::getUpdateTag);
     }
 
     // Handles the update packet received from the server
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        this.handleUpdateTag(this.getBlockState(), pkt.getTag());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        this.handleUpdateTag(pkt.getTag());
     }
 
     public class PylonItemStackHandler extends ItemStackHandler {
@@ -180,50 +185,6 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-        }
-    }
-
-    public class PylonEnergyStorage extends EnergyStorage implements INBTSerializable<CompoundNBT> {
-
-        public PylonEnergyStorage(int capacity, int maxTransfer) {
-            super(capacity, maxTransfer);
-        }
-
-        public void onEnergyChanged() {
-            setChanged();
-        }
-
-        public void setEnergy(int energy) {
-            this.energy = energy;
-            onEnergyChanged();
-        }
-
-        public void addEnergy(int energy) {
-            this.energy += energy;
-            if (this.energy > getMaxEnergyStored()) {
-                this.energy = getEnergyStored();
-            }
-            onEnergyChanged();
-        }
-
-        public void consumeEnergy(int energy) {
-            this.energy -= energy;
-            if (this.energy < 0) {
-                this.energy = 0;
-            }
-            onEnergyChanged();
-        }
-
-        @Override
-        public CompoundNBT serializeNBT() {
-            CompoundNBT tag = new CompoundNBT();
-            tag.putInt(Constants.NBT.ENERGY, getEnergyStored());
-            return tag;
-        }
-
-        @Override
-        public void deserializeNBT(CompoundNBT nbt) {
-            setEnergy(nbt.getInt(Constants.NBT.ENERGY));
         }
     }
 }

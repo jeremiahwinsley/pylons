@@ -3,21 +3,22 @@ package net.permutated.pylons;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.constant.EmptyPart;
 import com.mojang.datafixers.util.Unit;
-import net.minecraft.block.Block;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.block.ExpulsionPylonBlock;
 import net.permutated.pylons.block.InfusionPylonBlock;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
@@ -39,11 +40,11 @@ public class ModRegistry {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Pylons.MODID);
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Pylons.MODID);
-    public static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Pylons.MODID);
-    public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, Pylons.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, Pylons.MODID);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, Pylons.MODID);
 
 
-    public static final ItemGroup CREATIVE_TAB = new ModItemGroup(Pylons.MODID,
+    public static final CreativeModeTab CREATIVE_TAB = new ModItemGroup(Pylons.MODID,
         () -> new ItemStack(ModRegistry.PLAYER_FILTER.get()));
 
     // Items
@@ -59,12 +60,12 @@ public class ModRegistry {
     public static final RegistryObject<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON);
 
     // Tiles
-    public static final RegistryObject<TileEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = tile(EXPULSION_PYLON, ExpulsionPylonTile::new);
-    public static final RegistryObject<TileEntityType<InfusionPylonTile>> INFUSION_PYLON_TILE = tile(INFUSION_PYLON, InfusionPylonTile::new);
+    public static final RegistryObject<BlockEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = blockEntity(EXPULSION_PYLON, ExpulsionPylonTile::new);
+    public static final RegistryObject<BlockEntityType<InfusionPylonTile>> INFUSION_PYLON_TILE = blockEntity(INFUSION_PYLON, InfusionPylonTile::new);
 
     // Containers
-    public static final RegistryObject<ContainerType<ExpulsionPylonContainer>> EXPULSION_PYLON_CONTAINER = container(Constants.EXPULSION_PYLON, ExpulsionPylonContainer::new);
-    public static final RegistryObject<ContainerType<InfusionPylonContainer>> INFUSION_PYLON_CONTAINER = container(Constants.INFUSION_PYLON, InfusionPylonContainer::new);
+    public static final RegistryObject<MenuType<ExpulsionPylonContainer>> EXPULSION_PYLON_CONTAINER = container(Constants.EXPULSION_PYLON, ExpulsionPylonContainer::new);
+    public static final RegistryObject<MenuType<InfusionPylonContainer>> INFUSION_PYLON_CONTAINER = container(Constants.INFUSION_PYLON, InfusionPylonContainer::new);
 
     /**
      * Register a BlockItem for a Block
@@ -90,8 +91,8 @@ public class ModRegistry {
     /**
      * Used as a NOOP type for the tile registry builder to avoid passing null
      *
-     * @see TileEntityType.Builder#build(Type)
-     * @see #tile(RegistryObject, Supplier)
+     * @see BlockEntityType.Builder#build(Type)
+     * @see #blockEntity(RegistryObject, BlockEntitySupplier)
      */
     private static final Type<Unit> EMPTY_PART = new EmptyPart();
 
@@ -99,16 +100,16 @@ public class ModRegistry {
      * Register a tile entity for a Block
      *
      * @param registryObject a registry object containing a Block
-     * @param supplier       a Supplier that returns the new Tile Entity
+     * @param supplier       a Supplier that returns the new Block Entity
      * @return the new registry object
      */
-    private static <T extends AbstractPylonTile> RegistryObject<TileEntityType<T>> tile(RegistryObject<Block> registryObject, Supplier<T> supplier) {
+    private static <T extends AbstractPylonTile> RegistryObject<BlockEntityType<T>> blockEntity(RegistryObject<Block> registryObject, BlockEntitySupplier<T> supplier) {
         return TILES.register(registryObject.getId().getPath(),
-            () -> TileEntityType.Builder.of(supplier, registryObject.get()).build(EMPTY_PART));
+            () -> BlockEntityType.Builder.of(supplier, registryObject.get()).build(EMPTY_PART));
     }
 
-    private static <T extends Container> RegistryObject<ContainerType<T>> container(String path, IContainerFactory<T> supplier) {
-        return CONTAINERS.register(path, () -> IForgeContainerType.create(supplier));
+    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> container(String path, IContainerFactory<T> supplier) {
+        return CONTAINERS.register(path, () -> IForgeMenuType.create(supplier));
     }
 
     public static void register() {
@@ -119,7 +120,7 @@ public class ModRegistry {
         CONTAINERS.register(bus);
     }
 
-    public static final class ModItemGroup extends ItemGroup {
+    public static final class ModItemGroup extends CreativeModeTab {
         private final Supplier<ItemStack> iconSupplier;
 
         public ModItemGroup(final String name, final Supplier<ItemStack> iconSupplier) {

@@ -1,8 +1,8 @@
 package net.permutated.pylons.data.server;
 
 import net.minecraft.data.*;
-import net.minecraft.item.Items;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
@@ -12,18 +12,23 @@ import java.util.function.Consumer;
 import static net.permutated.pylons.util.ResourceUtil.prefix;
 
 
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+
 public class CraftingRecipes extends RecipeProvider {
     public CraftingRecipes(DataGenerator generatorIn) {
         super(generatorIn);
     }
 
-    private ShapedRecipeBuilder shaped(IItemProvider provider) {
+    private ShapedRecipeBuilder shaped(ItemLike provider) {
         return ShapedRecipeBuilder.shaped(provider)
             .group(Pylons.MODID);
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
         // Expulsion Pylong
         shaped(ModRegistry.EXPULSION_PYLON.get())

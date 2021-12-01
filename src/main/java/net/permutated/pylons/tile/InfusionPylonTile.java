@@ -1,10 +1,12 @@
 package net.permutated.pylons.tile;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
 
@@ -12,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InfusionPylonTile extends AbstractPylonTile {
-    public InfusionPylonTile() {
-        super(ModRegistry.INFUSION_PYLON_TILE.get());
+    public InfusionPylonTile(BlockPos pos, BlockState state) {
+        super(ModRegistry.INFUSION_PYLON_TILE.get(), pos, state);
     }
 
     @Override
@@ -27,10 +29,10 @@ public class InfusionPylonTile extends AbstractPylonTile {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
-                PlayerEntity player = server.getPlayerList().getPlayer(owner);
+                Player player = server.getPlayerList().getPlayer(owner);
 
                 if (player != null && player.isAffectedByPotions()) {
-                    for (EffectInstance effect : getEffects()) {
+                    for (MobEffectInstance effect : getEffects()) {
                         player.addEffect(effect);
                     }
                 }
@@ -38,18 +40,18 @@ public class InfusionPylonTile extends AbstractPylonTile {
         }
     }
 
-    public List<EffectInstance> getEffects() {
-        List<EffectInstance> effects = new ArrayList<>();
+    public List<MobEffectInstance> getEffects() {
+        List<MobEffectInstance> effects = new ArrayList<>();
         for (int i = 0; i < itemStackHandler.getSlots(); i++) {
             ItemStack stack = itemStackHandler.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard) {
-                Effect effect = PotionFilterCard.getEffect(stack);
+                MobEffect effect = PotionFilterCard.getEffect(stack);
                 int duration = PotionFilterCard.getDuration(stack);
                 int amplifier = PotionFilterCard.getAmplifier(stack);
 
                 if (duration >= PotionFilterCard.REQUIRED && effect != null) {
                     // 300 ticks - 15 seconds
-                    effects.add(new EffectInstance(effect, 300, amplifier, false, false));
+                    effects.add(new MobEffectInstance(effect, 300, amplifier, false, false));
                 }
             }
         }

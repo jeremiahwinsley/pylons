@@ -1,36 +1,38 @@
 package net.permutated.pylons.block;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.IContainerFactory;
+import net.minecraftforge.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.tile.AbstractPylonTile;
@@ -39,46 +41,45 @@ import net.permutated.pylons.util.TranslationKey;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class AbstractPylonBlock extends Block {
-    private static final VoxelShape SHAPE = VoxelShapes.or(
+public abstract class AbstractPylonBlock extends Block implements EntityBlock {
+    private static final VoxelShape SHAPE = Shapes.or(
         Block.box(0.0D, 0.0D, 0.0D, 16.0D, 3.0D, 16.0D),
         Block.box(1.0D, 3.0D, 1.0D, 15.0D, 16.0D, 15.0D)
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).harvestTool(ToolType.PICKAXE).strength(2F, 1200F));
+        super(Properties.of(Material.METAL).strength(2F, 1200F));
     }
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated
-    public VoxelShape getShape(BlockState blockState, IBlockReader reader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState blockState, BlockGetter reader, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
+    public abstract IContainerFactory<AbstractPylonContainer> containerFactory();
+
+    @SuppressWarnings("java:S1452") // wildcard required here
+    public abstract BlockEntityType<? extends AbstractPylonTile> getTileType();
+
+    @Nullable
     @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == getTileType() ? AbstractPylonTile::tick : null;
     }
 
     @Override
-    @SuppressWarnings("java:S3038") // method is required here to override default from IForgeBlock
-    public abstract TileEntity createTileEntity(BlockState state, IBlockReader world);
-
-    public abstract IContainerFactory<AbstractPylonContainer> containerFactory();
-
-    @Override
-    public void setPlacedBy(World level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (!level.isClientSide && entity instanceof PlayerEntity) {
-            TileEntity tileEntity = level.getBlockEntity(blockPos);
-            if (tileEntity instanceof AbstractPylonTile) {
-                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+    public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
+        if (!level.isClientSide && entity instanceof Player) {
+            BlockEntity tileEntity = level.getBlockEntity(blockPos);
+            if (tileEntity instanceof AbstractPylonTile pylonTile) {
                 pylonTile.setOwner(entity.getUUID());
             }
         }
     }
 
     @Override
-    public void destroy(IWorld world, BlockPos blockPos, BlockState blockState) {
+    public void destroy(LevelAccessor world, BlockPos blockPos, BlockState blockState) {
         Optional.ofNullable(world.getBlockEntity(blockPos))
             .map(AbstractPylonTile.class::cast)
             .ifPresent(AbstractPylonTile::dropItems);
@@ -96,10 +97,9 @@ public abstract class AbstractPylonBlock extends Block {
         }
 
         if (event.getState().getBlock() instanceof AbstractPylonBlock) {
-            TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
 
-            if (tileEntity instanceof AbstractPylonTile) {
-                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+            if (tileEntity instanceof AbstractPylonTile pylonTile) {
                 if (!event.getPlayer().getUUID().equals(pylonTile.getOwner())) {
                     event.setCanceled(true);
                 }
@@ -110,14 +110,14 @@ public abstract class AbstractPylonBlock extends Block {
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
-    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving)
+    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving)
     {
         if (!state.is(newState.getBlock()))
         {
-            TileEntity tileentity = worldIn.getBlockEntity(pos);
-            if (tileentity instanceof AbstractPylonTile)
+            BlockEntity tileentity = worldIn.getBlockEntity(pos);
+            if (tileentity instanceof AbstractPylonTile pylonTile)
             {
-                ((AbstractPylonTile) tileentity).dropItems();
+                pylonTile.dropItems();
                 worldIn.updateNeighbourForOutputSignal(pos, this);
             }
 
@@ -127,41 +127,39 @@ public abstract class AbstractPylonBlock extends Block {
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult)
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockRayTraceResult)
     {
         if (!world.isClientSide) {
-            TileEntity tileEntity = world.getBlockEntity(pos);
-            if (tileEntity instanceof AbstractPylonTile) {
-                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
-
-                INamedContainerProvider containerProvider = new INamedContainerProvider() {
+            BlockEntity tileEntity = world.getBlockEntity(pos);
+            if (tileEntity instanceof AbstractPylonTile pylonTile) {
+                MenuProvider containerProvider = new MenuProvider() {
                     @Override
-                    public ITextComponent getDisplayName() {
-                        return new TranslationTextComponent(getDescriptionId());
+                    public Component getDisplayName() {
+                        return new TranslatableComponent(getDescriptionId());
                     }
 
                     @Override
-                    public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-                        PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
+                    public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
+                        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
                         pylonTile.updateContainer(buffer);
                         return containerFactory().create(i, playerInventory, buffer);
                     }
                 };
 
                 if (player.getUUID().equals(pylonTile.getOwner()) || player.hasPermissions(2)) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, pylonTile::updateContainer);
+                    NetworkHooks.openGui((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
                 } else {
-                    return ActionResultType.FAIL;
+                    return InteractionResult.FAIL;
                 }
             } else {
                 Pylons.LOGGER.error("tile entity not instance of AbstractPylonTile");
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
             }
         }
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    protected IFormattableTextComponent translate(String key) {
-        return new TranslationTextComponent(TranslationKey.tooltip(key)).withStyle(TextFormatting.GRAY);
+    protected MutableComponent translate(String key) {
+        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 }

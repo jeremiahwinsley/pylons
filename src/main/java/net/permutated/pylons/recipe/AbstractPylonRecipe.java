@@ -1,15 +1,15 @@
 package net.permutated.pylons.recipe;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public abstract class AbstractPylonRecipe implements IRecipe<IInventory> {
+public abstract class AbstractPylonRecipe implements Recipe<Container> {
 
     private final ResourceLocation id;
 
@@ -34,12 +34,12 @@ public abstract class AbstractPylonRecipe implements IRecipe<IInventory> {
     }
 
     @Override
-    public boolean matches(IInventory inventory, World world) {
+    public boolean matches(Container inventory, Level world) {
         return true;
     }
 
     @Override
-    public ItemStack assemble(IInventory inv)
+    public ItemStack assemble(Container inv)
     {
         return ItemStack.EMPTY;
     }
@@ -50,10 +50,10 @@ public abstract class AbstractPylonRecipe implements IRecipe<IInventory> {
         return ItemStack.EMPTY;
     }
 
-    public abstract void write(PacketBuffer buffer);
+    public abstract void write(FriendlyByteBuf buffer);
 
     protected abstract static class AbstractSerializer<T extends AbstractPylonRecipe>
-        extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<T> {
+        extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T> {
 
     }
 }

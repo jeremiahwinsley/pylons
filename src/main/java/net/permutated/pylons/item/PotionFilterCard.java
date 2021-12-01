@@ -1,17 +1,16 @@
 package net.permutated.pylons.item;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
@@ -23,6 +22,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class PotionFilterCard extends Item {
     public PotionFilterCard() {
@@ -36,21 +41,21 @@ public class PotionFilterCard extends Item {
     public static final int REQUIRED = ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
 
     @Override
-    public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
 
         if (stack.getItem() instanceof PotionFilterCard) {
             if (!level.isClientSide) {
 
-                Effect effect = PotionFilterCard.getEffect(stack);
+                MobEffect effect = PotionFilterCard.getEffect(stack);
                 int amplifier = PotionFilterCard.getAmplifier(stack);
                 int duration = PotionFilterCard.getDuration(stack);
 
                 if (duration >= PotionFilterCard.REQUIRED) {
-                    return ActionResult.success(stack);
+                    return InteractionResultHolder.success(stack);
                 }
 
-                Optional<EffectInstance> active;
+                Optional<MobEffectInstance> active;
                 if (effect == null) {
                     active = player.getActiveEffects().stream()
                         // Require a configured minimum effect length
@@ -69,7 +74,7 @@ public class PotionFilterCard extends Item {
 
 
                 if (active.isPresent()) {
-                    Effect activeEffect = active.get().getEffect();
+                    MobEffect activeEffect = active.get().getEffect();
                     int activeAmplifier = active.get().getAmplifier();
                     int activeDuration = active.get().getDuration();
 
@@ -83,26 +88,26 @@ public class PotionFilterCard extends Item {
                     }
 
                     player.removeEffect(activeEffect);
-                    return ActionResult.success(copy);
+                    return InteractionResultHolder.success(copy);
                 }
             } else {
-                return ActionResult.consume(stack);
+                return InteractionResultHolder.consume(stack);
             }
         }
-        return ActionResult.pass(stack);
+        return InteractionResultHolder.pass(stack);
     }
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        CompoundTag tag = stack.getTagElement(Pylons.MODID);
         return (tag != null && tag.contains(Constants.NBT.EFFECT));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
-        Effect effect = getEffect(stack);
+        MobEffect effect = getEffect(stack);
         int duration = getDuration(stack);
         int amplifier = getAmplifier(stack);
 
@@ -111,27 +116,27 @@ public class PotionFilterCard extends Item {
         int display = (duration < 20) ? 0 : duration / 20;
 
         if (effect != null) {
-            IFormattableTextComponent component = effect.getDisplayName().copy();
+            MutableComponent component = effect.getDisplayName().copy();
             if (amplifier > 0) {
                 component = withAmplifier(component, amplifier);
             }
 
             if (effect.isBeneficial()) {
-                tooltip.add(component.withStyle(TextFormatting.BLUE));
+                tooltip.add(component.withStyle(ChatFormatting.BLUE));
             } else {
-                tooltip.add(component.withStyle(TextFormatting.RED));
+                tooltip.add(component.withStyle(ChatFormatting.RED));
             }
 
-            tooltip.add(new StringTextComponent(""));
+            tooltip.add(new TextComponent(""));
 
             if (duration >= REQUIRED) {
                 tooltip.add(translate("insert1"));
                 tooltip.add(translate("insert2"));
-                tooltip.add(translate("activated").withStyle(TextFormatting.GREEN));
+                tooltip.add(translate("activated").withStyle(ChatFormatting.GREEN));
             } else {
                 tooltip.add(translate("increase1"));
                 tooltip.add(translate("increase2"));
-                tooltip.add(translate("progress", display, REQUIRED / 20).withStyle(TextFormatting.RED));
+                tooltip.add(translate("progress", display, REQUIRED / 20).withStyle(ChatFormatting.RED));
             }
         } else {
             tooltip.add(translate("no_effect1"));
@@ -153,13 +158,13 @@ public class PotionFilterCard extends Item {
      * @param duration  the initial effect duration (in ticks)
      * @return a copy of the ItemStack with the new NBT
      */
-    public static ItemStack withEffect(final ItemStack stack, Effect effect, int amplifier, int duration) {
+    public static ItemStack withEffect(final ItemStack stack, MobEffect effect, int amplifier, int duration) {
         ResourceLocation registryName = effect.getRegistryName();
         if (registryName == null) {
             return stack;
         }
 
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         tag.putString(Constants.NBT.EFFECT, registryName.toString());
         tag.putInt(Constants.NBT.AMPLIFIER, amplifier);
         tag.putInt(Constants.NBT.DURATION, Math.min(REQUIRED, duration));
@@ -182,7 +187,7 @@ public class PotionFilterCard extends Item {
      */
     public static ItemStack addDuration(final ItemStack stack, int duration) {
         ItemStack copy = stack.copy();
-        CompoundNBT tag = copy.getOrCreateTagElement(Pylons.MODID);
+        CompoundTag tag = copy.getOrCreateTagElement(Pylons.MODID);
         int current = tag.getInt(Constants.NBT.DURATION);
 
         // already activated
@@ -197,17 +202,17 @@ public class PotionFilterCard extends Item {
     }
 
     @Nullable
-    public static Effect getEffect(ItemStack stack) {
-        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+    public static MobEffect getEffect(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(Pylons.MODID);
         if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
             String effectName = tag.getString(Constants.NBT.EFFECT);
-            return ForgeRegistries.POTIONS.getValue(new ResourceLocation(effectName));
+            return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effectName));
         }
         return null;
     }
 
     public static int getDuration(ItemStack stack) {
-        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        CompoundTag tag = stack.getTagElement(Pylons.MODID);
         if (tag != null && tag.contains(Constants.NBT.DURATION)) {
             return tag.getInt(Constants.NBT.DURATION);
         }
@@ -215,23 +220,23 @@ public class PotionFilterCard extends Item {
     }
 
     public static int getAmplifier(ItemStack stack) {
-        CompoundNBT tag = stack.getTagElement(Pylons.MODID);
+        CompoundTag tag = stack.getTagElement(Pylons.MODID);
         if (tag != null && tag.contains(Constants.NBT.AMPLIFIER)) {
             return tag.getInt(Constants.NBT.AMPLIFIER);
         }
         return 0;
     }
 
-    protected IFormattableTextComponent translate(String key) {
-        return new TranslationTextComponent(TranslationKey.tooltip(key)).withStyle(TextFormatting.GRAY);
+    protected MutableComponent translate(String key) {
+        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 
-    protected TranslationTextComponent translate(String key, Object... values) {
-        return new TranslationTextComponent(TranslationKey.tooltip(key), values);
+    protected TranslatableComponent translate(String key, Object... values) {
+        return new TranslatableComponent(TranslationKey.tooltip(key), values);
     }
 
-    protected TranslationTextComponent withAmplifier(IFormattableTextComponent component, int amplifier) {
-        return new TranslationTextComponent("potion.withAmplifier", component,
-            new TranslationTextComponent("potion.potency." + amplifier));
+    protected TranslatableComponent withAmplifier(MutableComponent component, int amplifier) {
+        return new TranslatableComponent("potion.withAmplifier", component,
+            new TranslatableComponent("potion.potency." + amplifier));
     }
 }

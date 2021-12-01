@@ -1,6 +1,6 @@
 package net.permutated.pylons.client;
 
-import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.client.gui.ExpulsionPylonScreen;
 import net.permutated.pylons.client.gui.InfusionPylonScreen;
@@ -11,7 +11,7 @@ public class ClientSetup {
     }
 
     public static void register() {
-        ScreenManager.register(ModRegistry.EXPULSION_PYLON_CONTAINER.get(), ExpulsionPylonScreen::new);
-        ScreenManager.register(ModRegistry.INFUSION_PYLON_CONTAINER.get(), InfusionPylonScreen::new);
+        MenuScreens.register(ModRegistry.EXPULSION_PYLON_CONTAINER.get(), ExpulsionPylonScreen::new);
+        MenuScreens.register(ModRegistry.INFUSION_PYLON_CONTAINER.get(), InfusionPylonScreen::new);
     }
 }

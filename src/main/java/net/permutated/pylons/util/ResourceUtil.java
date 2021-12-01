@@ -1,9 +1,11 @@
 package net.permutated.pylons.util;
 
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.Tags;
 import net.permutated.pylons.Pylons;
 
 public class ResourceUtil {
@@ -23,8 +25,12 @@ public class ResourceUtil {
         return new ResourceLocation("forge", path);
     }
 
-    public static ITag<Item> tag(String path) {
+    public static Tags.IOptionalNamedTag<Item> tag(String path) {
         return ItemTags.createOptional(new ResourceLocation(path));
+    }
+
+    public static Tags.IOptionalNamedTag<Block> blockTag(String path) {
+        return BlockTags.createOptional(new ResourceLocation(path));
     }
 
     public static ResourceLocation gui(String path) {

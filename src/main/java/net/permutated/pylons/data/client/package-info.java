@@ -2,6 +2,6 @@
 @MethodsReturnNonnullByDefault
 package net.permutated.pylons.data.client;
 
-import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,17 +1,17 @@
 package net.permutated.pylons.inventory.container;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -20,17 +20,17 @@ import net.permutated.pylons.tile.AbstractPylonTile;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractPylonContainer extends Container {
+public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     @Nullable // should only be accessed from server
     private final AbstractPylonTile tileEntity;
     protected final String ownerName;
 
-    protected AbstractPylonContainer(@Nullable ContainerType<?> containerType, int windowId, PlayerInventory playerInventory, PacketBuffer packetBuffer) {
+    protected AbstractPylonContainer(@Nullable MenuType<?> containerType, int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer) {
         super(containerType, windowId);
 
         BlockPos pos = packetBuffer.readBlockPos();
-        World world = playerInventory.player.getCommandSenderWorld();
+        Level world = playerInventory.player.getCommandSenderWorld();
 
         tileEntity = (AbstractPylonTile) world.getBlockEntity(pos);
         IItemHandler wrappedInventory = new InvWrapper(playerInventory);
@@ -60,11 +60,11 @@ public abstract class AbstractPylonContainer extends Container {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerEntity) {
+    public boolean stillValid(Player playerEntity) {
         if (tileEntity != null) {
-            World world = tileEntity.getLevel();
+            Level world = tileEntity.getLevel();
             if (world != null) {
-                IWorldPosCallable callable = IWorldPosCallable.create(world, tileEntity.getBlockPos());
+                ContainerLevelAccess callable = ContainerLevelAccess.create(world, tileEntity.getBlockPos());
                 return stillValid(callable, playerEntity, getBlock().get());
             }
         }
@@ -72,7 +72,7 @@ public abstract class AbstractPylonContainer extends Container {
     }
 
     @Override
-    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+    public ItemStack quickMoveStack(Player playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
 
