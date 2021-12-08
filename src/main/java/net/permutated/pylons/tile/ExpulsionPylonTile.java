@@ -134,11 +134,6 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile());
 
         if (optional.isPresent()) {
-            // player has a spawn position, is this in the same chunk?
-            if (sameChunk(actualLevel, dummyPlayer.blockPosition())) {
-                return;
-            }
-
             BlockState blockstate = actualLevel.getBlockState(respawnPosition);
             boolean isAnchor = blockstate.is(Blocks.RESPAWN_ANCHOR);
             Vec3 spawnPos = optional.get();
@@ -151,6 +146,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             }
 
             dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
+
+            // player has a spawn position, is this in the same chunk?
+            if (sameChunk(actualLevel, dummyPlayer.blockPosition())) {
+                return;
+            }
         } else {
             int spawnRadius = server.getSpawnRadius(actualLevel);
 
