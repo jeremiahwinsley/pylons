@@ -3,6 +3,7 @@
   "block.pylons.infusion_pylon": "Infusion Pylon",
   "chat.pylons.expelled": "You have been expelled from %s's chunk!",
   "gui.pylons.effects": "Active potion effects:",
+  "gui.pylons.insideWorldSpawn": "Too close to world spawn.",
   "gui.pylons.noOwner": "Owner not found. Pylon disabled.",
   "gui.pylons.owner": "Owner: %s",
   "gui.pylons.whitelist": "Add players to whitelist:",

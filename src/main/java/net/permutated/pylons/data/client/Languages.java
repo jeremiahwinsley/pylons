@@ -29,6 +29,7 @@ public class Languages {
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
             add(gui("wrongDimension"), "This dimension is disabled.");
+            add(gui("insideWorldSpawn"), "Too close to world spawn.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("effects"), "Active potion effects:");
             add(tab(), "Pylons");

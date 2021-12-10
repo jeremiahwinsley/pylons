@@ -16,6 +16,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -50,7 +51,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(10) && owner != null && isAllowedDimension()) {
+        if (level != null && !level.isClientSide && canTick(10) && owner != null && isAllowedDimension() && isAllowedLocation()) {
             LevelChunk chunk = level.getChunkAt(worldPosition);
 
             var chunkPos = chunk.getPos();
@@ -83,6 +84,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     public void updateContainer(FriendlyByteBuf packetBuffer) {
         super.updateContainer(packetBuffer);
         packetBuffer.writeBoolean(isAllowedDimension());
+        packetBuffer.writeBoolean(isAllowedLocation());
     }
 
     public boolean isAllowedDimension() {
@@ -98,6 +100,20 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             return allowedDimensions.contains(level.dimension());
         }
         return false;
+    }
+
+    public boolean isAllowedLocation() {
+        if (level instanceof ServerLevel serverLevel) {
+            int spawnRadius = serverLevel.getGameRules().getInt(GameRules.RULE_SPAWN_RADIUS);
+            int configRadius = ConfigManager.COMMON.expulsionWorldSpawnRadius.get();
+
+            var bb = new BoundingBox(serverLevel.getSharedSpawnPos());
+            var area = bb.inflatedBy(Math.max(configRadius, spawnRadius));
+
+            return !area.intersects(getBlockPos().getX(), getBlockPos().getZ(), getBlockPos().getX(), getBlockPos().getZ());
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -156,11 +172,6 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             }
         }
 
-        // is the pylon within the world spawn radius?
-        if (inWorldSpawn(server, actualLevel)) {
-            return;
-        }
-
         while (!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
             dummyPlayer.setPos(dummyPlayer.getX(), dummyPlayer.getY() + 1.0D, dummyPlayer.getZ());
         }
@@ -169,15 +180,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         player.sendMessage(new TranslatableComponent(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED), player.getUUID());
     }
 
-    private boolean inWorldSpawn(MinecraftServer server, ServerLevel actualLevel) {
-        int spawnRadius = server.getSpawnRadius(actualLevel);
-        int configRadius = ConfigManager.COMMON.expulsionWorldSpawnRadius.get();
 
-        var bb = new BoundingBox(actualLevel.getSharedSpawnPos());
-        var area = bb.inflatedBy(Math.max(configRadius, spawnRadius));
-
-        return area.intersects(getBlockPos().getX(), getBlockPos().getZ(), getBlockPos().getX(), getBlockPos().getZ());
-    }
 
     private boolean sameChunk(Level world, BlockPos target) {
         if (level != null && level.dimension() == world.dimension()) {

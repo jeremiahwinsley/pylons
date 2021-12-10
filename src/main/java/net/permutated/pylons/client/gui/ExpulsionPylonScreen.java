@@ -16,10 +16,13 @@ public class ExpulsionPylonScreen extends AbstractPylonScreen<ExpulsionPylonCont
     @Override
     protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
         super.renderLabels(matrixStack, mouseX, mouseY);
-        if (this.menu.isAllowedDimension()) {
-            drawText(matrixStack, translate("whitelist"), 36);
-        } else {
+
+        if (!this.menu.isAllowedDimension()) {
             drawText(matrixStack, translate("wrongDimension").withStyle(ChatFormatting.RED), 36);
+        } else if (!this.menu.isAllowedLocation()) {
+            drawText(matrixStack, translate("insideWorldSpawn").withStyle(ChatFormatting.RED), 36);
+        } else {
+            drawText(matrixStack, translate("whitelist"), 36);
         }
     }
 }
