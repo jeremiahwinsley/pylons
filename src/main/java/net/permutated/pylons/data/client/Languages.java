@@ -6,8 +6,7 @@ import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.TranslationKey;
 
-import static net.permutated.pylons.util.TranslationKey.gui;
-import static net.permutated.pylons.util.TranslationKey.tooltip;
+import static net.permutated.pylons.util.TranslationKey.*;
 
 public class Languages {
     private Languages() {
@@ -33,7 +32,9 @@ public class Languages {
             add(gui("wrongDimension"), "This dimension is disabled.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("effects"), "Active potion effects:");
-            add(TranslationKey.tab(), "Pylons");
+            add(tab(), "Pylons");
+
+            add(chat("expelled"), "You have been expelled from %s's chunk!");
 
             add(tooltip("expulsion1"), "Expels other players from");
             add(tooltip("expulsion2"), "the chunk where the pylon");

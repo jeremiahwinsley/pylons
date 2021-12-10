@@ -32,4 +32,8 @@ public class TranslationKey {
     public static String jei(String key) {
         return String.format(Pylons.MODID + ".int.jei.category.%s", key);
     }
+
+    public static String chat(String key) {
+        return String.format(FORMAT, "chat", key);
+    }
 }

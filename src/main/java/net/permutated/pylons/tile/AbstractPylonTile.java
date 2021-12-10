@@ -107,6 +107,11 @@ public abstract class AbstractPylonTile extends BlockEntity {
         }
     }
 
+    public String getOwnerName() {
+        String lastKnown = UsernameCache.getLastKnownUsername(owner);
+        return StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
+    }
+
     /**
      * Serialize data to be sent to the GUI on the client.
      *
@@ -114,8 +119,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
      * @param packetBuffer the packet ready to be filled
      */
     public void updateContainer(FriendlyByteBuf packetBuffer) {
-        String lastKnown = UsernameCache.getLastKnownUsername(owner);
-        String username = StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
+        String username = getOwnerName();
 
         packetBuffer.writeBlockPos(worldPosition);
         packetBuffer.writeInt(username.length());

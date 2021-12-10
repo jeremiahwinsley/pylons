@@ -1,10 +1,13 @@
 package net.permutated.pylons.tile;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -26,6 +29,7 @@ import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.util.TranslationKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +173,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
 
         player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.getYRot(), dummyPlayer.getXRot());
+        player.sendMessage(new TranslatableComponent(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED), player.getUUID());
     }
 
     private boolean sameChunk(Level world, BlockPos target) {

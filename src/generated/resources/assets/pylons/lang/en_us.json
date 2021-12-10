@@ -1,6 +1,7 @@
 {
   "block.pylons.expulsion_pylon": "Expulsion Pylon",
   "block.pylons.infusion_pylon": "Infusion Pylon",
+  "chat.pylons.expelled": "You have been expelled from %s's chunk!",
   "gui.pylons.effects": "Active potion effects:",
   "gui.pylons.noOwner": "Owner not found. Pylon disabled.",
   "gui.pylons.owner": "Owner: %s",
