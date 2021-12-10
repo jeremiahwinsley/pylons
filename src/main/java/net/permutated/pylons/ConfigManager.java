@@ -1,6 +1,5 @@
 package net.permutated.pylons;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,6 +28,7 @@ public class ConfigManager {
     public static class CommonConfig {
         // CATEGORY_EXPULSION
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
+        public final ForgeConfigSpec.IntValue expulsionWorldSpawnRadius;
 
         // CATEGORY_INFUSION
         public final ForgeConfigSpec.IntValue infusionMinimumDuration;
@@ -40,8 +40,14 @@ public class ConfigManager {
 
             expulsionAllowedDimensions = builder
                 .comment("Which dimensions the Expulsion Pylon is allowed to operate in.")
-                .defineList("expulsionAllowedDimensions", ImmutableList.of("minecraft:overworld"),
-                    s -> s instanceof String && ((String) s).matches("^\\w+:\\w+$"));
+                .defineList("expulsionAllowedDimensions", List.of("minecraft:overworld"),
+                    s -> s instanceof String string && string.matches("^\\w+:\\w+$"));
+
+            expulsionWorldSpawnRadius = builder
+                .comment("The radius around the world spawn where the pylon is not allowed to operate.",
+                    "By default this uses the world spawn radius (/gamerule spawnRadius).",
+                    "This config will only take effect if it is larger than the world spawn radius.")
+                    .defineInRange("expulsionWorldSpawnRadius", 1, 1, 512);
 
             builder.pop();
 

@@ -4,7 +4,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.TranslationKey;
 
 import static net.permutated.pylons.util.TranslationKey.*;
 

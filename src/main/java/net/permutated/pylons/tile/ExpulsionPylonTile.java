@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -151,21 +150,15 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
             dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
 
-            // player has a spawn position, is this in the same chunk?
+            // player has a spawn position, is the pylon in the same chunk?
             if (sameChunk(actualLevel, dummyPlayer.blockPosition())) {
                 return;
             }
-        } else {
-            int spawnRadius = server.getSpawnRadius(actualLevel);
+        }
 
-            var bb = new BoundingBox(actualLevel.getSharedSpawnPos());
-            var area = bb.inflatedBy(spawnRadius);
-
-            // player does not have a spawn position, is this in the world spawn?
-            // sameChunk(actualLevel, actualLevel.getSharedSpawnPos()) ||
-            if (area.intersects(getBlockPos().getX(), getBlockPos().getZ(), getBlockPos().getX(), getBlockPos().getZ())) {
-                return;
-            }
+        // is the pylon within the world spawn radius?
+        if (inWorldSpawn(server, actualLevel)) {
+            return;
         }
 
         while (!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
@@ -174,6 +167,16 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
         player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.getYRot(), dummyPlayer.getXRot());
         player.sendMessage(new TranslatableComponent(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED), player.getUUID());
+    }
+
+    private boolean inWorldSpawn(MinecraftServer server, ServerLevel actualLevel) {
+        int spawnRadius = server.getSpawnRadius(actualLevel);
+        int configRadius = ConfigManager.COMMON.expulsionWorldSpawnRadius.get();
+
+        var bb = new BoundingBox(actualLevel.getSharedSpawnPos());
+        var area = bb.inflatedBy(Math.max(configRadius, spawnRadius));
+
+        return area.intersects(getBlockPos().getX(), getBlockPos().getZ(), getBlockPos().getX(), getBlockPos().getZ());
     }
 
     private boolean sameChunk(Level world, BlockPos target) {
