@@ -39,7 +39,6 @@ import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.Optional;
 
 public abstract class AbstractPylonBlock extends Block implements EntityBlock {
@@ -70,8 +69,8 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
      * @param player the player
      * @return the result
      */
-    public static boolean isPylonOwner(@Nullable BlockEntity blockEntity, Player player) {
-        return (blockEntity instanceof AbstractPylonTile tile && Objects.equals(tile.getOwner(), player.getUUID())) || player.hasPermissions(2);
+    public static boolean canAccessPylon(@Nullable BlockEntity blockEntity, Player player) {
+        return (blockEntity instanceof AbstractPylonTile tile && tile.canAccess(player));
     }
 
     @Nullable
@@ -106,7 +105,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
         BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
 
-        if (!isPylonOwner(tileEntity, event.getPlayer())) {
+        if (!canAccessPylon(tileEntity, event.getPlayer())) {
             event.setCanceled(true);
         }
     }
@@ -115,7 +114,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     @SuppressWarnings("java:S1874") // deprecated method from super class
     public float getDestroyProgress(BlockState state, Player player, BlockGetter getter, BlockPos blockPos) {
         BlockEntity blockEntity = getter.getBlockEntity(blockPos);
-        if (isPylonOwner(blockEntity, player)) {
+        if (canAccessPylon(blockEntity, player)) {
             int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
             return player.getDigSpeed(state, blockPos) / 2.0F / i;
         }
@@ -160,7 +159,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
                     }
                 };
 
-                if (isPylonOwner(tileEntity, player)) {
+                if (canAccessPylon(tileEntity, player)) {
                     NetworkHooks.openGui((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
                 } else {
                     return InteractionResult.FAIL;

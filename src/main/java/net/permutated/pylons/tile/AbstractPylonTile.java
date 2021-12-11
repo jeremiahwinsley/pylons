@@ -7,6 +7,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.UUID;
 
 public abstract class AbstractPylonTile extends BlockEntity {
@@ -76,6 +78,10 @@ public abstract class AbstractPylonTile extends BlockEntity {
         this.setChanged();
     }
 
+    public boolean canAccess(Player player) {
+        return Objects.equals(player.getUUID(), owner) || owner == null || player.hasPermissions(2);
+    }
+
     private long lastTicked = 0L;
 
     public boolean canTick(final int every) {
@@ -108,7 +114,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     public String getOwnerName() {
-        String lastKnown = UsernameCache.getLastKnownUsername(owner);
+        String lastKnown = owner == null ? null : UsernameCache.getLastKnownUsername(owner);
         return StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
     }
 
