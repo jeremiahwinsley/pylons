@@ -39,6 +39,7 @@ import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class AbstractPylonBlock extends Block implements EntityBlock {
@@ -48,7 +49,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).strength(2F, 1200F));
+        super(Properties.of(Material.METAL).strength(-1F, 1200F));
     }
 
     @Override
@@ -61,6 +62,17 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @SuppressWarnings("java:S1452") // wildcard required here
     public abstract BlockEntityType<? extends AbstractPylonTile> getTileType();
+
+
+    /**
+     * Check if player is either the pylon owner or has OP
+     * @param blockEntity the pylon tile
+     * @param player the player
+     * @return the result
+     */
+    public static boolean isPylonOwner(@Nullable BlockEntity blockEntity, Player player) {
+        return (blockEntity instanceof AbstractPylonTile tile && Objects.equals(tile.getOwner(), player.getUUID())) || player.hasPermissions(2);
+    }
 
     @Nullable
     @Override
@@ -92,20 +104,22 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
      * @param event the BreakEvent
      */
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
-        if (event.getPlayer().hasPermissions(2)) {
-            return;
+        BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+
+        if (!isPylonOwner(tileEntity, event.getPlayer())) {
+            event.setCanceled(true);
         }
+    }
 
-        if (event.getState().getBlock() instanceof AbstractPylonBlock) {
-            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
-
-            if (tileEntity instanceof AbstractPylonTile pylonTile) {
-                if (!event.getPlayer().getUUID().equals(pylonTile.getOwner())) {
-                    event.setCanceled(true);
-                }
-            }
+    @Override
+    @SuppressWarnings("java:S1874") // deprecated method from super class
+    public float getDestroyProgress(BlockState state, Player player, BlockGetter getter, BlockPos blockPos) {
+        BlockEntity blockEntity = getter.getBlockEntity(blockPos);
+        if (isPylonOwner(blockEntity, player)) {
+            int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
+            return player.getDigSpeed(state, blockPos) / 2.0F / i;
         }
-
+        return 0.0F;
     }
 
     @Override
@@ -146,7 +160,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
                     }
                 };
 
-                if (player.getUUID().equals(pylonTile.getOwner()) || player.hasPermissions(2)) {
+                if (isPylonOwner(tileEntity, player)) {
                     NetworkHooks.openGui((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
                 } else {
                     return InteractionResult.FAIL;
