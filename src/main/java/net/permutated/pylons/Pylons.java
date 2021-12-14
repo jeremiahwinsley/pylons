@@ -1,6 +1,8 @@
 package net.permutated.pylons;
 
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -29,10 +31,20 @@ public class Pylons
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigManager.COMMON_SPEC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
-        MinecraftForge.EVENT_BUS.addListener(AbstractPylonBlock::onBlockBreakEvent);
+        MinecraftForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
     }
 
     public void onClientSetupEvent(final FMLClientSetupEvent event) {
         ClientSetup.register();
+    }
+
+    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+        if (event.getState().getBlock() instanceof AbstractPylonBlock) {
+            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+
+            if (!AbstractPylonBlock.canAccessPylon(tileEntity, event.getPlayer())) {
+                event.setCanceled(true);
+            }
+        }
     }
 }

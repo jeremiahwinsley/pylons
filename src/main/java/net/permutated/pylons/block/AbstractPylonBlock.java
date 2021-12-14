@@ -30,7 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
@@ -96,18 +95,6 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
             .ifPresent(AbstractPylonTile::dropItems);
 
         super.destroy(world, blockPos, blockState);
-    }
-
-    /**
-     * Block should only be broken by the owner or ops.
-     * @param event the BreakEvent
-     */
-    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
-        BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
-
-        if (!canAccessPylon(tileEntity, event.getPlayer())) {
-            event.setCanceled(true);
-        }
     }
 
     @Override
