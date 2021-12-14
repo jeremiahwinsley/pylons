@@ -2,9 +2,12 @@ package net.permutated.pylons.data.server;
 
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.block.AbstractPylonBlock;
 
 import javax.annotation.Nullable;
 
@@ -17,9 +20,12 @@ public class BlockTags extends BlockTagsProvider {
 
     @Override
     protected void addTags() {
-        tag(blockTag("minecraft:mineable/pickaxe")).add(
-            ModRegistry.EXPULSION_PYLON.get(),
-            ModRegistry.INFUSION_PYLON.get()
-        );
+        Block[] pylons = ModRegistry.BLOCKS.getEntries().stream()
+            .map(RegistryObject::get)
+            .filter(AbstractPylonBlock.class::isInstance)
+            .toArray(Block[]::new);
+
+        tag(blockTag("minecraft:mineable/pickaxe")).add(pylons);
+        tag(blockTag("create:brittle")).add(pylons);
     }
 }
