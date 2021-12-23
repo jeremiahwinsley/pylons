@@ -33,6 +33,7 @@ public class ConfigManager {
         // CATEGORY_INFUSION
         public final ForgeConfigSpec.IntValue infusionMinimumDuration;
         public final ForgeConfigSpec.IntValue infusionRequiredDuration;
+        public final ForgeConfigSpec.BooleanValue infusionChunkloads;
 
         CommonConfig(ForgeConfigSpec.Builder builder) {
             // CATEGORY_EXPULSION
@@ -64,6 +65,11 @@ public class ConfigManager {
                 .comment("The total duration (in seconds) required before a Potion Filter can be used.",
                     "By default this is 3600 seconds/1 hour, which is equivalent to 7.5 vanilla extended potions.")
                 .defineInRange("infusionRequiredDuration", 3600, 1, 28800);
+
+            infusionChunkloads = builder
+                .comment("Whether the Infusion Pylon chunkloads itself.",
+                    "This is limited to one pylon per player, while the player is online.")
+                    .define("infusionChunkloads", true);
 
             builder.pop();
         }

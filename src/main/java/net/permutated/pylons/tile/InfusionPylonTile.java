@@ -1,12 +1,14 @@
 package net.permutated.pylons.tile;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.permutated.pylons.ChunkManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
 
@@ -29,6 +31,7 @@ public class InfusionPylonTile extends AbstractPylonTile {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
+                ChunkManager.loadChunk(owner, (ServerLevel) level, getBlockPos());
                 Player player = server.getPlayerList().getPlayer(owner);
 
                 if (player != null && player.isAffectedByPotions()) {

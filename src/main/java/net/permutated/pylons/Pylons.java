@@ -2,11 +2,13 @@ package net.permutated.pylons;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.permutated.pylons.block.AbstractPylonBlock;
 import net.permutated.pylons.client.ClientSetup;
@@ -29,9 +31,14 @@ public class Pylons
         ModRegistry.register();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigManager.COMMON_SPEC);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
         MinecraftForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
+    }
+
+    public void onCommonSetupEvent(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> ForgeChunkManager.setForcedChunkLoadingCallback(MODID, ChunkManager::validateTickets));
     }
 
     public void onClientSetupEvent(final FMLClientSetupEvent event) {

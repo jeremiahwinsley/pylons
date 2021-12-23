@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +20,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.permutated.pylons.ChunkManager;
 import net.permutated.pylons.util.Constants;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,6 +59,12 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     public void dropItems() {
         AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
+    }
+
+    public void removeChunkloads() {
+        if (owner != null && level instanceof ServerLevel serverLevel) {
+            ChunkManager.unloadChunk(owner, serverLevel, getBlockPos());
+        }
     }
 
     @Override

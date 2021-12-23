@@ -38,7 +38,6 @@ import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     private static final VoxelShape SHAPE = Shapes.or(
@@ -90,9 +89,10 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     public void destroy(LevelAccessor world, BlockPos blockPos, BlockState blockState) {
-        Optional.ofNullable(world.getBlockEntity(blockPos))
-            .map(AbstractPylonTile.class::cast)
-            .ifPresent(AbstractPylonTile::dropItems);
+        if (world.getBlockEntity(blockPos) instanceof AbstractPylonTile pylonTile) {
+            pylonTile.removeChunkloads();
+            pylonTile.dropItems();
+        }
 
         super.destroy(world, blockPos, blockState);
     }
@@ -110,18 +110,18 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
-    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving)
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
     {
         if (!state.is(newState.getBlock()))
         {
-            BlockEntity tileentity = worldIn.getBlockEntity(pos);
-            if (tileentity instanceof AbstractPylonTile pylonTile)
+            if (level.getBlockEntity(pos) instanceof AbstractPylonTile pylonTile)
             {
+                pylonTile.removeChunkloads();
                 pylonTile.dropItems();
-                worldIn.updateNeighbourForOutputSignal(pos, this);
+                level.updateNeighbourForOutputSignal(pos, this);
             }
 
-            super.onRemove(state, worldIn, pos, newState, isMoving);
+            super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 
