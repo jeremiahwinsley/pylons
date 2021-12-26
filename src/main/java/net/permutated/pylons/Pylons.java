@@ -13,6 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.permutated.pylons.block.AbstractPylonBlock;
 import net.permutated.pylons.client.ClientSetup;
 import net.permutated.pylons.item.PlayerFilterCard;
+import net.permutated.pylons.util.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

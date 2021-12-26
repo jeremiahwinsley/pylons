@@ -1,4 +1,4 @@
-package net.permutated.pylons;
+package net.permutated.pylons.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -11,6 +11,8 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.permutated.pylons.ConfigManager;
+import net.permutated.pylons.Pylons;
 
 import java.util.Map;
 import java.util.UUID;
@@ -45,7 +47,9 @@ public class ChunkManager {
             var server = event.getPlayer().getServer();
             if (location != null && server != null) {
                 var level = server.getLevel(location.level);
-                loadChunk(uuid, level, location.blockPos);
+                if (level != null) {
+                    loadChunk(uuid, level, location.blockPos);
+                }
             }
         }
     }
@@ -58,7 +62,9 @@ public class ChunkManager {
             var server = event.getPlayer().getServer();
             if (location != null && server != null) {
                 var level = server.getLevel(location.level);
-                unloadChunk(uuid, level, location.blockPos);
+                if (level != null) {
+                    unloadChunk(uuid, level, location.blockPos);
+                }
             }
         }
     }

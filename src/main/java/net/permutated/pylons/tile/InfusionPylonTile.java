@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.permutated.pylons.ChunkManager;
+import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
 

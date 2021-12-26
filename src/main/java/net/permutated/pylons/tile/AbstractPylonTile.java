@@ -20,7 +20,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.permutated.pylons.ChunkManager;
+import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
 import org.apache.commons.lang3.StringUtils;
 
