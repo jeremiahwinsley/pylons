@@ -1,21 +1,23 @@
 package net.permutated.pylons.inventory.container;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.registries.RegistryObject;
+import net.permutated.pylons.network.NetworkDispatcher;
+import net.permutated.pylons.network.PacketButtonClicked;
 import net.permutated.pylons.tile.AbstractPylonTile;
 
 import javax.annotation.Nullable;
@@ -25,14 +27,15 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     @Nullable // should only be accessed from server
     private final AbstractPylonTile tileEntity;
     protected final String ownerName;
+    protected final BlockPos blockPos;
 
     protected AbstractPylonContainer(@Nullable MenuType<?> containerType, int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer) {
         super(containerType, windowId);
 
-        BlockPos pos = packetBuffer.readBlockPos();
+        blockPos = packetBuffer.readBlockPos();
         Level world = playerInventory.player.getCommandSenderWorld();
 
-        tileEntity = (AbstractPylonTile) world.getBlockEntity(pos);
+        tileEntity = (AbstractPylonTile) world.getBlockEntity(blockPos);
         IItemHandler wrappedInventory = new InvWrapper(playerInventory);
 
         if (tileEntity != null) {
@@ -57,6 +60,19 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     public String getOwnerName() {
         return ownerName;
+    }
+
+    public boolean shouldRenderRange() {
+        return false;
+    }
+
+    public Component getRangeComponent() {
+        var range = tileEntity != null ? tileEntity.getSelectedRange() : 0;
+        return new TextComponent(String.format("%dx%d", range, range));
+    }
+
+    public void sendRangePacket(Button button) {
+        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(blockPos));
     }
 
     @Override
@@ -100,16 +116,13 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     }
 
     public void registerPlayerSlots(IItemHandler wrappedInventory) {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 9; j++) {
                 addSlot(new SlotItemHandler(wrappedInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
 
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             addSlot(new SlotItemHandler(wrappedInventory, i, 8 + i * 18, 142));
         }
     }

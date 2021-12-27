@@ -25,5 +25,9 @@ public class Constants {
         public static final String EFFECT = "effect";
         public static final String DURATION = "duration";
         public static final String AMPLIFIER = "amplifier";
+
+        public static final String RANGE = "range";
+        public static final String CONTENTS = "contents";
+        public static final String POSITION = "position";
     }
 }

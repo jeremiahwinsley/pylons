@@ -1,13 +1,14 @@
 package net.permutated.pylons.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
@@ -15,12 +16,39 @@ import net.permutated.pylons.util.TranslationKey;
 
 public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends AbstractContainerScreen<T> {
     protected final ResourceLocation gui;
+    protected Button rangeButton;
 
     protected AbstractPylonScreen(T container, Inventory inv, Component name, String pylonType) {
         super(container, inv, name);
         this.gui = ResourceUtil.gui("pylon");
         this.imageWidth = 176;
         this.imageHeight = 166;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        // x, y, width, height
+        rangeButton = new Button(this.leftPos + 140, this.height / 2 - 77, 30, 20,
+            this.menu.getRangeComponent(), this.menu::sendRangePacket, this::buttonTooltip);
+        if (this.menu.shouldRenderRange()) {
+            addRenderableWidget(rangeButton);
+            updateMessages();
+        }
+    }
+
+    private void buttonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
+        this.renderTooltip(poseStack, translate("workArea"), p_169460_, p_169461_);
+    }
+
+    public void updateMessages() {
+        this.rangeButton.setMessage(this.menu.getRangeComponent());
+    }
+
+    @Override
+    protected void containerTick() {
+        updateMessages();
+        super.containerTick();
     }
 
     @Override

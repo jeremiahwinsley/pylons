@@ -32,6 +32,7 @@ public class Languages {
             add(gui("insideWorldSpawn"), "Too close to world spawn.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("effects"), "Active potion effects:");
+            add(gui("workArea"), "Work area (in chunks)");
             add(tab(), "Pylons");
 
             add(chat("expelled"), "You have been expelled from %s's chunk!");

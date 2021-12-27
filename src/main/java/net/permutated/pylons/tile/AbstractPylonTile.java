@@ -22,6 +22,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.util.Range;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -128,8 +129,9 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     /**
      * Serialize data to be sent to the GUI on the client.
-     *
+     * <p>
      * Overrides MUST call the super method first to ensure correct deserialization.
+     *
      * @param packetBuffer the packet ready to be filled
      */
     public void updateContainer(FriendlyByteBuf packetBuffer) {
@@ -144,6 +146,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
+        tag.put(Constants.NBT.RANGE, range.serializeNBT());
         writeOwner(tag);
     }
 
@@ -158,6 +161,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     public void load(CompoundTag tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
+        range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
         readOwner(tag);
         super.load(tag);
     }
@@ -173,12 +177,16 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
+        tag.put(Constants.NBT.RANGE, range.serializeNBT());
         writeOwner(tag);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(@Nullable CompoundTag tag) {
+        if (tag != null) {
+            range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
+        }
         readOwner(tag);
     }
 
@@ -203,6 +211,23 @@ public abstract class AbstractPylonTile extends BlockEntity {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+        }
+    }
+
+    protected final Range range = new Range(getRange());
+
+    protected byte[] getRange() {
+        return new byte[]{1};
+    }
+
+    public int getSelectedRange() {
+        return range.get();
+    }
+
+    public void handleRangePacket() {
+        if (getRange().length > 1 && this.level != null) {
+            this.range.next();
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
     }
 }

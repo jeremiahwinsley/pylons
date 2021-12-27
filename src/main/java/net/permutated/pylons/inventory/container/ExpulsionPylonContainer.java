@@ -29,4 +29,9 @@ public class ExpulsionPylonContainer extends AbstractPylonContainer {
     public boolean isAllowedLocation() {
         return allowedLocation;
     }
+
+    @Override
+    public boolean shouldRenderRange() {
+        return true;
+    }
 }

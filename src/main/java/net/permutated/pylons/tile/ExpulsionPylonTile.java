@@ -20,8 +20,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.permutated.pylons.ConfigManager;
@@ -45,36 +43,46 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     @Override
+    protected byte[] getRange() {
+        return new byte[]{1, 3, 5};
+    }
+
+    @Override
     protected boolean isItemValid(ItemStack stack) {
         return stack.getItem() instanceof PlayerFilterCard;
     }
 
+    protected AABB getBoundingBox(ServerLevel level) {
+
+        var chunkPos = level.getChunkAt(worldPosition).getPos();
+        var aabb = new AABB(
+            chunkPos.getMinBlockX(),
+            level.getMinBuildHeight(),
+            chunkPos.getMinBlockZ(),
+            chunkPos.getMaxBlockX() + 1D,
+            level.getMaxBuildHeight() + 1D,
+            chunkPos.getMaxBlockZ() + 1D
+        );
+
+        var selected = range.get() - 1; // center chunk is already included
+        if (selected > 0) {
+            return aabb.inflate(selected * 8D); // range is diameter, inflate is radius
+        }
+        return aabb;
+    }
+
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(10) && owner != null && isAllowedDimension() && isAllowedLocation()) {
-            LevelChunk chunk = level.getChunkAt(worldPosition);
+        if (level instanceof ServerLevel serverLevel && canTick(10) && owner != null && isAllowedDimension() && isAllowedLocation()) {
+            var aabb = getBoundingBox(serverLevel);
+            var players = serverLevel.getEntitiesOfClass(ServerPlayer.class, aabb);
 
-            var chunkPos = chunk.getPos();
-            var aabb = new AABB(
-                chunkPos.getMinBlockX(),
-                level.getMinBuildHeight(),
-                chunkPos.getMinBlockZ(),
-                chunkPos.getMaxBlockX() + 1D,
-                level.getMaxBuildHeight() + 1D,
-                chunkPos.getMaxBlockZ() + 1D
-            );
-
-            var players = level.getEntitiesOfClass(ServerPlayer.class, aabb);
-
-            List<UUID> allowed = allowedPlayers();
-
-            MinecraftServer server = level.getServer();
-            for (ServerPlayer player : players) {
-                if (server != null
-                    && !player.hasPermissions(2)
-                    && !player.getUUID().equals(owner)
-                    && !allowed.contains(player.getUUID())) {
-                    doRespawn(server, player);
+            if (!players.isEmpty()) {
+                List<UUID> allowed = allowedPlayers();
+                for (ServerPlayer player : players) {
+                    if (!this.canAccess(player) && !allowed.contains(player.getUUID())) {
+                        doRespawn(serverLevel.getServer(), player);
+                    }
                 }
             }
         }
@@ -107,10 +115,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
             int spawnRadius = serverLevel.getGameRules().getInt(GameRules.RULE_SPAWN_RADIUS);
             int configRadius = ConfigManager.COMMON.expulsionWorldSpawnRadius.get();
 
-            var bb = new BoundingBox(serverLevel.getSharedSpawnPos());
-            var area = bb.inflatedBy(Math.max(configRadius, spawnRadius));
+            var bb = new AABB(serverLevel.getSharedSpawnPos());
+            var area = bb.inflate(Math.max(configRadius, spawnRadius));
 
-            return !area.intersects(getBlockPos().getX(), getBlockPos().getZ(), getBlockPos().getX(), getBlockPos().getZ());
+            var workArea = getBoundingBox(serverLevel);
+            return !area.intersects(workArea);
         } else {
             return false;
         }
@@ -166,8 +175,9 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
             dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
 
-            // player has a spawn position, is the pylon in the same chunk?
-            if (sameChunk(actualLevel, dummyPlayer.blockPosition())) {
+            // player has a spawn position, is the spawn position in the pylon's work area?
+            var spawnPosition = Vec3.atBottomCenterOf(dummyPlayer.blockPosition());
+            if (getBoundingBox(actualLevel).contains(spawnPosition)) {
                 return;
             }
         }
@@ -178,20 +188,5 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
 
         player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.getYRot(), dummyPlayer.getXRot());
         player.sendMessage(new TranslatableComponent(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED), player.getUUID());
-    }
-
-
-
-    private boolean sameChunk(Level world, BlockPos target) {
-        if (level != null && level.dimension() == world.dimension()) {
-            int thisX = worldPosition.getX() >> 4;
-            int thisZ = worldPosition.getZ() >> 4;
-
-            int thatX = target.getX() >> 4;
-            int thatZ = target.getZ() >> 4;
-
-            return thisX == thatX && thisZ == thatZ;
-        }
-        return false;
     }
 }
