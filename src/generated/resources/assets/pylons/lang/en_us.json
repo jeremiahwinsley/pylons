@@ -13,6 +13,7 @@
   "item.pylons.potion_filter": "Potion Filter",
   "itemGroup.pylons": "Pylons",
   "tooltip.pylons.activated": "Activated",
+  "tooltip.pylons.blacklisted_effect": "This effect has been disabled in the config.",
   "tooltip.pylons.expulsion1": "Expels other players from",
   "tooltip.pylons.expulsion2": "the chunk where the pylon",
   "tooltip.pylons.expulsion3": "is placed.",

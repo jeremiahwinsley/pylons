@@ -51,6 +51,8 @@ public class Languages {
             add(tooltip("no_effect2"), "to apply it to the card.");
             add(tooltip("minimum_duration"), "Minimum effect duration: %s seconds");
 
+            add(tooltip("blacklisted_effect"), "This effect has been disabled in the config.");
+
             add(tooltip("insert1"), "Insert this filter into");
             add(tooltip("insert2"), "a pylon to use it!");
 

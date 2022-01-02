@@ -47,14 +47,14 @@ public class InfusionPylonTile extends AbstractPylonTile {
         List<MobEffectInstance> effects = new ArrayList<>();
         for (int i = 0; i < itemStackHandler.getSlots(); i++) {
             ItemStack stack = itemStackHandler.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard) {
+            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowedEffect(stack)) {
                 MobEffect effect = PotionFilterCard.getEffect(stack);
                 int duration = PotionFilterCard.getDuration(stack);
                 int amplifier = PotionFilterCard.getAmplifier(stack);
 
                 if (duration >= PotionFilterCard.REQUIRED && effect != null) {
-                    // 300 ticks - 15 seconds
-                    effects.add(new MobEffectInstance(effect, 300, amplifier, false, false));
+                    // defaults to 400 ticks / 20 seconds of effect
+                    effects.add(new MobEffectInstance(effect, PotionFilterCard.APPLIED, amplifier, false, false));
                 }
             }
         }

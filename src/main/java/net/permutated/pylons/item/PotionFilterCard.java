@@ -1,15 +1,20 @@
 package net.permutated.pylons.item;
 
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.ConfigManager;
@@ -23,12 +28,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-
 public class PotionFilterCard extends Item {
     public PotionFilterCard() {
         super(new Item.Properties().stacksTo(1).tab(ModRegistry.CREATIVE_TAB).setNoRepair());
@@ -39,6 +38,9 @@ public class PotionFilterCard extends Item {
 
     // required duration to activate the filter in a pylon
     public static final int REQUIRED = ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
+
+    // duration applied to player each work cycle
+    public static final int APPLIED = ConfigManager.COMMON.infusionAppliedDuration.get() * 20;
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -125,6 +127,11 @@ public class PotionFilterCard extends Item {
                 tooltip.add(component.withStyle(ChatFormatting.BLUE));
             } else {
                 tooltip.add(component.withStyle(ChatFormatting.RED));
+            }
+
+            var registryName = effect.getRegistryName();
+            if (registryName != null && !isWhitelisted(registryName)) {
+                tooltip.add(translate("effect_blacklisted").withStyle(ChatFormatting.RED));
             }
 
             tooltip.add(new TextComponent(""));
@@ -225,6 +232,20 @@ public class PotionFilterCard extends Item {
             return tag.getInt(Constants.NBT.AMPLIFIER);
         }
         return 0;
+    }
+
+    public static boolean isAllowedEffect(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(Pylons.MODID);
+        if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
+            String effectName = tag.getString(Constants.NBT.EFFECT);
+            return isWhitelisted(new ResourceLocation(effectName));
+        }
+        return false;
+    }
+
+    protected static boolean isWhitelisted(ResourceLocation location) {
+        var whitelist = ConfigManager.COMMON.infusionEffectWhitelist.get();
+        return whitelist.contains(location.getNamespace()) || whitelist.contains(location.toString());
     }
 
     protected MutableComponent translate(String key) {

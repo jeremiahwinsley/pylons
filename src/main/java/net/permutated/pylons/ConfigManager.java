@@ -33,7 +33,9 @@ public class ConfigManager {
         // CATEGORY_INFUSION
         public final ForgeConfigSpec.IntValue infusionMinimumDuration;
         public final ForgeConfigSpec.IntValue infusionRequiredDuration;
+        public final ForgeConfigSpec.IntValue infusionAppliedDuration;
         public final ForgeConfigSpec.BooleanValue infusionChunkloads;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionEffectWhitelist;
 
         CommonConfig(ForgeConfigSpec.Builder builder) {
             // CATEGORY_EXPULSION
@@ -48,7 +50,7 @@ public class ConfigManager {
                 .comment("The radius around the world spawn where the pylon is not allowed to operate.",
                     "By default this uses the world spawn radius (/gamerule spawnRadius).",
                     "This config will only take effect if it is larger than the world spawn radius.")
-                    .defineInRange("expulsionWorldSpawnRadius", 1, 1, 512);
+                .defineInRange("expulsionWorldSpawnRadius", 1, 1, 512);
 
             builder.pop();
 
@@ -66,10 +68,20 @@ public class ConfigManager {
                     "By default this is 3600 seconds/1 hour, which is equivalent to 7.5 vanilla extended potions.")
                 .defineInRange("infusionRequiredDuration", 3600, 1, 28800);
 
+            infusionAppliedDuration = builder
+                .comment("The max duration of effects (in seconds) applied to the player.",
+                    "The duration is refreshed up to this amount every 60 ticks.")
+                .defineInRange("infusionAppliedDuration", 20, 5, 60);
+
             infusionChunkloads = builder
                 .comment("Whether the Infusion Pylon chunkloads itself.",
                     "This is limited to one pylon per player, while the player is online.")
-                    .define("infusionChunkloads", true);
+                .define("infusionChunkloads", true);
+
+            infusionEffectWhitelist = builder.comment("Effects that may be used in the Infusion Pylon.",
+                    "List may include either effect IDs (like `minecraft:strength`) or an entire namespace (like `minecraft`)")
+                .defineList("infusionEffectWhitelist", List.of("minecraft", "ars_nouveau", "tombstone"),
+                    s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             builder.pop();
         }
