@@ -14,8 +14,9 @@ import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
 import net.permutated.pylons.util.TranslationKey;
 
-public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends AbstractContainerScreen<T> {
+public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends AbstractContainerScreen<T> {
     protected final ResourceLocation gui;
+    protected Button workButton;
     protected Button rangeButton;
 
     protected AbstractPylonScreen(T container, Inventory inv, Component name, String pylonType) {
@@ -29,19 +30,28 @@ public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> ext
     protected void init() {
         super.init();
         // x, y, width, height
-        rangeButton = new Button(this.leftPos + 140, this.height / 2 - 77, 30, 20,
-            this.menu.getRangeComponent(), this.menu::sendRangePacket, this::buttonTooltip);
+        workButton = new Button(this.leftPos + 140, this.height / 2 - 77, 30, 20,
+            this.menu.getWorkComponent(), this.menu::sendWorkPacket, this::workButtonTooltip);
+        rangeButton = new Button(this.leftPos + 110, this.height / 2 - 77, 30, 20,
+            this.menu.getRangeComponent(), this.menu::sendRangePacket, this::rangeButtonTooltip);
+
+        addRenderableWidget(workButton);
         if (this.menu.shouldRenderRange()) {
             addRenderableWidget(rangeButton);
-            updateMessages();
         }
+        updateMessages();
     }
 
-    private void buttonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
+    private void workButtonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
+        this.renderTooltip(poseStack, translate("toggleWork"), p_169460_, p_169461_);
+    }
+
+    private void rangeButtonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
         this.renderTooltip(poseStack, translate("workArea"), p_169460_, p_169461_);
     }
 
     public void updateMessages() {
+        this.workButton.setMessage(this.menu.getWorkComponent());
         this.rangeButton.setMessage(this.menu.getRangeComponent());
     }
 

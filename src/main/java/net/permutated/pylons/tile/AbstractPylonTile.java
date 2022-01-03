@@ -107,7 +107,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     @SuppressWarnings("java:S1172") // unused arguments are required
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
-        if (blockEntity instanceof AbstractPylonTile pylonTile) {
+        if (blockEntity instanceof AbstractPylonTile pylonTile && pylonTile.shouldWork()) {
             pylonTile.tick();
         }
     }
@@ -147,6 +147,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
+        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
         writeOwner(tag);
     }
 
@@ -162,6 +163,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void load(CompoundTag tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
+        shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         readOwner(tag);
         super.load(tag);
     }
@@ -178,6 +180,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
+        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
         writeOwner(tag);
         return tag;
     }
@@ -186,6 +189,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void handleUpdateTag(@Nullable CompoundTag tag) {
         if (tag != null) {
             range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
+            shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         }
         readOwner(tag);
     }
@@ -211,6 +215,19 @@ public abstract class AbstractPylonTile extends BlockEntity {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+        }
+    }
+
+    protected boolean shouldWork = true;
+
+    public boolean shouldWork() {
+        return shouldWork;
+    }
+
+    public void handleWorkPacket() {
+        if (this.level != null) {
+            shouldWork = !shouldWork;
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
     }
 

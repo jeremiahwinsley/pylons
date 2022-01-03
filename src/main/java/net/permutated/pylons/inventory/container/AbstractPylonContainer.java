@@ -62,6 +62,16 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         return ownerName;
     }
 
+    public Component getWorkComponent() {
+        var shouldWork = tileEntity != null && tileEntity.shouldWork();
+        return new TextComponent(shouldWork ? "On" : "Off");
+    }
+
+    @SuppressWarnings("java:S1172") // parameter required
+    public void sendWorkPacket(Button button) {
+        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.WORK, blockPos));
+    }
+
     public boolean shouldRenderRange() {
         return false;
     }
@@ -71,8 +81,9 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         return new TextComponent(String.format("%dx%d", range, range));
     }
 
+    @SuppressWarnings("java:S1172") // parameter required
     public void sendRangePacket(Button button) {
-        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(blockPos));
+        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.RANGE, blockPos));
     }
 
     @Override

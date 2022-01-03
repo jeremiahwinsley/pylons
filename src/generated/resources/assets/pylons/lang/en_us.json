@@ -6,6 +6,7 @@
   "gui.pylons.insideWorldSpawn": "Too close to world spawn.",
   "gui.pylons.noOwner": "Owner not found. Pylon disabled.",
   "gui.pylons.owner": "Owner: %s",
+  "gui.pylons.toggleWork": "Working status",
   "gui.pylons.whitelist": "Add players to whitelist:",
   "gui.pylons.workArea": "Work area (in chunks)",
   "gui.pylons.wrongDimension": "This dimension is disabled.",

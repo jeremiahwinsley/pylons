@@ -12,17 +12,21 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class PacketButtonClicked {
+    private final ButtonType buttonType;
     private final BlockPos blockPos;
 
-    public PacketButtonClicked(BlockPos blockPos) {
+    public PacketButtonClicked(ButtonType buttonType, BlockPos blockPos) {
+        this.buttonType = buttonType;
         this.blockPos = blockPos;
     }
 
     public PacketButtonClicked(FriendlyByteBuf buffer) {
+        buttonType = buffer.readEnum(ButtonType.class);
         blockPos = buffer.readBlockPos();
     }
 
     public void toBytes(FriendlyByteBuf buffer) {
+        buffer.writeEnum(this.buttonType);
         buffer.writeBlockPos(this.blockPos);
     }
 
@@ -35,10 +39,17 @@ public class PacketButtonClicked {
             if (player.isPresent() && world.get() instanceof ServerLevel serverLevel && serverLevel.isLoaded(event.blockPos)) {
                 var be = serverLevel.getBlockEntity(event.blockPos);
                 if (be instanceof AbstractPylonTile pylonTile) {
-                    pylonTile.handleRangePacket();
+                    switch (event.buttonType) {
+                        case RANGE -> pylonTile.handleRangePacket();
+                        case WORK -> pylonTile.handleWorkPacket();
+                    }
                 }
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    public enum ButtonType {
+        RANGE, WORK
     }
 }
