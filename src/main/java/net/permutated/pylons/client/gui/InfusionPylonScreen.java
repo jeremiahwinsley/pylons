@@ -15,6 +15,6 @@ public class InfusionPylonScreen extends AbstractPylonScreen<InfusionPylonContai
     @Override
     protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
         super.renderLabels(matrixStack, mouseX, mouseY);
-        drawText(matrixStack, translate("effects"), 36);
+        drawText(matrixStack, translate("effects"), 42);
     }
 }

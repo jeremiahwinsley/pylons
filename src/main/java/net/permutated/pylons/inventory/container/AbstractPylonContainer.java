@@ -41,7 +41,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         if (tileEntity != null) {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
                 for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
-                    addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 48));
+                    addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 54));
                 }
             });
         }
@@ -129,12 +129,12 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     public void registerPlayerSlots(IItemHandler wrappedInventory) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
-                addSlot(new SlotItemHandler(wrappedInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                addSlot(new SlotItemHandler(wrappedInventory, j + i * 9 + 9, 8 + j * 18, 90 + i * 18));
             }
         }
 
         for (int i = 0; i < 9; i++) {
-            addSlot(new SlotItemHandler(wrappedInventory, i, 8 + i * 18, 142));
+            addSlot(new SlotItemHandler(wrappedInventory, i, 8 + i * 18, 148));
         }
     }
 }

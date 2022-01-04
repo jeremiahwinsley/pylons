@@ -23,16 +23,17 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         super(container, inv, name);
         this.gui = ResourceUtil.gui("pylon");
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 172;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
     protected void init() {
         super.init();
         // x, y, width, height
-        workButton = new Button(this.leftPos + 140, this.height / 2 - 77, 30, 20,
+        workButton = new Button(this.leftPos + 142, this.height / 2 - 80, 26, 20,
             this.menu.getWorkComponent(), this.menu::sendWorkPacket, this::workButtonTooltip);
-        rangeButton = new Button(this.leftPos + 110, this.height / 2 - 77, 30, 20,
+        rangeButton = new Button(this.leftPos + 116, this.height / 2 - 80, 26, 20,
             this.menu.getRangeComponent(), this.menu::sendRangePacket, this::rangeButtonTooltip);
 
         addRenderableWidget(workButton);
@@ -88,7 +89,7 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         } else {
             component = translate("owner", owner);
         }
-        drawText(matrixStack, component, 24);
+        drawText(matrixStack, component, 30);
     }
 
     protected void drawText(PoseStack stack, Component component, int yPos) {

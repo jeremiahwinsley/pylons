@@ -163,9 +163,16 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void load(CompoundTag tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
+        readWork(tag);
         readOwner(tag);
         super.load(tag);
+    }
+
+    private void readWork(@Nullable CompoundTag tag) {
+        // check for NBT before loading, so that existing blocks don't get disabled
+        if (tag != null && tag.contains(Constants.NBT.ENABLED)) {
+            shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
+        }
     }
 
     // Read TE data from a provided CompoundNBT
@@ -189,8 +196,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void handleUpdateTag(@Nullable CompoundTag tag) {
         if (tag != null) {
             range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-            shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         }
+        readWork(tag);
         readOwner(tag);
     }
 
