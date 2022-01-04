@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
+import net.permutated.pylons.Pylons;
 import net.permutated.pylons.tile.AbstractPylonTile;
 
 import java.util.Optional;
@@ -42,6 +43,7 @@ public class PacketButtonClicked {
                     switch (event.buttonType) {
                         case RANGE -> pylonTile.handleRangePacket();
                         case WORK -> pylonTile.handleWorkPacket();
+                        default -> Pylons.LOGGER.error("PacketButtonClicked called with invalid button type!");
                     }
                 }
             }

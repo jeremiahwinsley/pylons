@@ -129,9 +129,8 @@ public class PotionFilterCard extends Item {
                 tooltip.add(component.withStyle(ChatFormatting.RED));
             }
 
-            var registryName = effect.getRegistryName();
-            if (registryName != null && !isWhitelisted(registryName)) {
-                tooltip.add(translate("effect_blacklisted").withStyle(ChatFormatting.RED));
+            if (!isAllowed(stack)) {
+                tooltip.add(translate("effect_denied").withStyle(ChatFormatting.RED));
             }
 
             tooltip.add(new TextComponent(""));
@@ -234,18 +233,24 @@ public class PotionFilterCard extends Item {
         return 0;
     }
 
-    public static boolean isAllowedEffect(ItemStack stack) {
+    public static boolean isAllowed(ItemStack stack) {
         CompoundTag tag = stack.getTagElement(Pylons.MODID);
         if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
             String effectName = tag.getString(Constants.NBT.EFFECT);
-            return isWhitelisted(new ResourceLocation(effectName));
+            var location = new ResourceLocation(effectName);
+            return isAllowedEffect(location) && !isDeniedEffect(location);
         }
         return false;
     }
 
-    protected static boolean isWhitelisted(ResourceLocation location) {
-        var whitelist = ConfigManager.COMMON.infusionEffectWhitelist.get();
-        return whitelist.contains(location.getNamespace()) || whitelist.contains(location.toString());
+    protected static boolean isAllowedEffect(ResourceLocation location) {
+        var allowed = ConfigManager.COMMON.infusionAllowedEffects.get();
+        return allowed.isEmpty() || allowed.contains(location.getNamespace()) || allowed.contains(location.toString());
+    }
+
+    protected static boolean isDeniedEffect(ResourceLocation location) {
+        var denied = ConfigManager.COMMON.infusionDeniedEffects.get();
+        return denied.contains(location.getNamespace()) || denied.contains(location.toString());
     }
 
     protected MutableComponent translate(String key) {

@@ -147,12 +147,12 @@ public abstract class AbstractPylonTile extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
-        writeOwner(tag);
+        writeFields(tag);
     }
 
     // Write TE data to a provided CompoundNBT
-    private void writeOwner(CompoundTag tag) {
+    private void writeFields(CompoundTag tag) {
+        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
         if (owner != null) {
             tag.putUUID(Constants.NBT.OWNER, owner);
         }
@@ -163,20 +163,16 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void load(CompoundTag tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        readWork(tag);
-        readOwner(tag);
+        readFields(tag);
         super.load(tag);
     }
 
-    private void readWork(@Nullable CompoundTag tag) {
+    // Read TE data from a provided CompoundNBT
+    private void readFields(@Nullable CompoundTag tag) {
         // check for NBT before loading, so that existing blocks don't get disabled
         if (tag != null && tag.contains(Constants.NBT.ENABLED)) {
             shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         }
-    }
-
-    // Read TE data from a provided CompoundNBT
-    private void readOwner(@Nullable CompoundTag tag) {
         if (tag != null && tag.hasUUID(Constants.NBT.OWNER)) {
             owner = tag.getUUID(Constants.NBT.OWNER);
         }
@@ -187,8 +183,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
-        writeOwner(tag);
+        writeFields(tag);
         return tag;
     }
 
@@ -197,8 +192,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
         if (tag != null) {
             range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
         }
-        readWork(tag);
-        readOwner(tag);
+        readFields(tag);
     }
 
     // Called whenever a block update happens on the client
@@ -234,6 +228,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void handleWorkPacket() {
         if (this.level != null) {
             shouldWork = !shouldWork;
+            this.setChanged();
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
     }
@@ -251,6 +246,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void handleRangePacket() {
         if (getRange().length > 1 && this.level != null) {
             this.range.next();
+            this.setChanged();
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
     }

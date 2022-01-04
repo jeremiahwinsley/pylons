@@ -35,7 +35,8 @@ public class ConfigManager {
         public final ForgeConfigSpec.IntValue infusionRequiredDuration;
         public final ForgeConfigSpec.IntValue infusionAppliedDuration;
         public final ForgeConfigSpec.BooleanValue infusionChunkloads;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionEffectWhitelist;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
 
         CommonConfig(ForgeConfigSpec.Builder builder) {
             // CATEGORY_EXPULSION
@@ -43,7 +44,7 @@ public class ConfigManager {
 
             expulsionAllowedDimensions = builder
                 .comment("Which dimensions the Expulsion Pylon is allowed to operate in.")
-                .defineList("expulsionAllowedDimensions", List.of("minecraft:overworld"),
+                .defineListAllowEmpty(List.of("expulsionAllowedDimensions"), () -> List.of("minecraft:overworld"),
                     s -> s instanceof String string && string.matches("^\\w+:\\w+$"));
 
             expulsionWorldSpawnRadius = builder
@@ -78,9 +79,15 @@ public class ConfigManager {
                     "This is limited to one pylon per player, while the player is online.")
                 .define("infusionChunkloads", true);
 
-            infusionEffectWhitelist = builder.comment("Effects that may be used in the Infusion Pylon.",
-                    "List may include either effect IDs (like `minecraft:strength`) or an entire namespace (like `minecraft`)")
-                .defineList("infusionEffectWhitelist", List.of("minecraft", "ars_nouveau", "tombstone"),
+            infusionAllowedEffects = builder.comment("Effects that may be used in the Infusion Pylon.",
+                    "List may include either effect IDs (like `minecraft:strength`) or an entire namespace (like `minecraft`).",
+                    "If the list is empty, then all effects will be allowed except for those specifically denied.")
+                .defineListAllowEmpty(List.of("infusionAllowedEffects"), () -> List.of("minecraft", "ars_nouveau", "tombstone"),
+                    s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
+
+            infusionDeniedEffects = builder.comment("Effects that may not be used in the Infusion Pylon.",
+                    "This list will override the allowed effect list.")
+                .defineListAllowEmpty(List.of("infusionDeniedEffects"), () -> List.of("minecraft:absorption"),
                     s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             builder.pop();
