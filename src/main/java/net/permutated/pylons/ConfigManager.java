@@ -4,6 +4,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mod.EventBusSubscriber
@@ -82,12 +83,12 @@ public class ConfigManager {
             infusionAllowedEffects = builder.comment("Effects that may be used in the Infusion Pylon.",
                     "List may include either effect IDs (like `minecraft:strength`) or an entire namespace (like `minecraft`).",
                     "If the list is empty, then all effects will be allowed except for those specifically denied.")
-                .defineListAllowEmpty(List.of("infusionAllowedEffects"), () -> List.of("minecraft", "ars_nouveau", "tombstone"),
+                .defineListAllowEmpty(List.of("infusionAllowedEffects"), ArrayList::new,
                     s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             infusionDeniedEffects = builder.comment("Effects that may not be used in the Infusion Pylon.",
                     "This list will override the allowed effect list.")
-                .defineListAllowEmpty(List.of("infusionDeniedEffects"), () -> List.of("minecraft:absorption"),
+                .defineListAllowEmpty(List.of("infusionDeniedEffects"), ArrayList::new,
                     s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             builder.pop();
