@@ -126,6 +126,8 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18.1-39.0.5'
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:3592081")
+    runtimeOnly fg.deobf("curse.maven:top-245211:3586969")
+    runtimeOnly fg.deobf("curse.maven:configured-457570:3559398")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

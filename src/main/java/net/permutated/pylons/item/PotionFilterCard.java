@@ -34,13 +34,19 @@ public class PotionFilterCard extends Item {
     }
 
     // minimum duration of effect that can be copied to the filter
-    public static final int MINIMUM = ConfigManager.COMMON.infusionMinimumDuration.get() * 20;
+    public static int getMinimumDuration() {
+        return ConfigManager.COMMON.infusionMinimumDuration.get() * 20;
+    }
 
     // required duration to activate the filter in a pylon
-    public static final int REQUIRED = ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
+    public static int getRequiredDuration() {
+        return ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
+    }
 
     // duration applied to player each work cycle
-    public static final int APPLIED = ConfigManager.COMMON.infusionAppliedDuration.get() * 20;
+    public static int getAppliedDuration() {
+        return ConfigManager.COMMON.infusionAppliedDuration.get() * 20;
+    }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -53,7 +59,7 @@ public class PotionFilterCard extends Item {
                 int amplifier = PotionFilterCard.getAmplifier(stack);
                 int duration = PotionFilterCard.getDuration(stack);
 
-                if (duration >= PotionFilterCard.REQUIRED) {
+                if (duration >= PotionFilterCard.getRequiredDuration()) {
                     return InteractionResultHolder.success(stack);
                 }
 
@@ -61,12 +67,12 @@ public class PotionFilterCard extends Item {
                 if (effect == null) {
                     active = player.getActiveEffects().stream()
                         // Require a configured minimum effect length
-                        .filter(effectInstance -> effectInstance.getDuration() >= MINIMUM)
+                        .filter(effectInstance -> effectInstance.getDuration() >= getMinimumDuration())
                         .findFirst();
                 } else {
                     active = player.getActiveEffects().stream()
                         // Require a configured minimum effect length
-                        .filter(effectInstance -> effectInstance.getDuration() >= MINIMUM)
+                        .filter(effectInstance -> effectInstance.getDuration() >= getMinimumDuration())
                         // Effect must match saved effect
                         .filter(effectInstance -> Objects.equals(effectInstance.getEffect(), effect))
                         // Amplifier must match saved amplifier
@@ -135,19 +141,19 @@ public class PotionFilterCard extends Item {
 
             tooltip.add(new TextComponent(""));
 
-            if (duration >= REQUIRED) {
+            if (duration >= getRequiredDuration()) {
                 tooltip.add(translate("insert1"));
                 tooltip.add(translate("insert2"));
                 tooltip.add(translate("activated").withStyle(ChatFormatting.GREEN));
             } else {
                 tooltip.add(translate("increase1"));
                 tooltip.add(translate("increase2"));
-                tooltip.add(translate("progress", display, REQUIRED / 20).withStyle(ChatFormatting.RED));
+                tooltip.add(translate("progress", display, getRequiredDuration() / 20).withStyle(ChatFormatting.RED));
             }
         } else {
             tooltip.add(translate("no_effect1"));
             tooltip.add(translate("no_effect2"));
-            tooltip.add(translate("minimum_duration", MINIMUM / 20));
+            tooltip.add(translate("minimum_duration", getMinimumDuration() / 20));
         }
     }
 
@@ -173,7 +179,7 @@ public class PotionFilterCard extends Item {
         CompoundTag tag = new CompoundTag();
         tag.putString(Constants.NBT.EFFECT, registryName.toString());
         tag.putInt(Constants.NBT.AMPLIFIER, amplifier);
-        tag.putInt(Constants.NBT.DURATION, Math.min(REQUIRED, duration));
+        tag.putInt(Constants.NBT.DURATION, Math.min(getRequiredDuration(), duration));
 
         ItemStack copy = stack.copy();
         copy.addTagElement(Pylons.MODID, tag);
@@ -197,11 +203,11 @@ public class PotionFilterCard extends Item {
         int current = tag.getInt(Constants.NBT.DURATION);
 
         // already activated
-        if (current >= REQUIRED) {
+        if (current >= getRequiredDuration()) {
             return stack;
         }
 
-        int total = Math.min(REQUIRED, current + duration);
+        int total = Math.min(getRequiredDuration(), current + duration);
 
         tag.putInt(Constants.NBT.DURATION, total);
         return copy;

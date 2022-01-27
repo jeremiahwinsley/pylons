@@ -52,9 +52,9 @@ public class InfusionPylonTile extends AbstractPylonTile {
                 int duration = PotionFilterCard.getDuration(stack);
                 int amplifier = PotionFilterCard.getAmplifier(stack);
 
-                if (duration >= PotionFilterCard.REQUIRED && effect != null) {
+                if (duration >= PotionFilterCard.getRequiredDuration() && effect != null) {
                     // defaults to 400 ticks / 20 seconds of effect
-                    effects.add(new MobEffectInstance(effect, PotionFilterCard.APPLIED, amplifier, true, false));
+                    effects.add(new MobEffectInstance(effect, PotionFilterCard.getAppliedDuration(), amplifier, true, false));
                 }
             }
         }
