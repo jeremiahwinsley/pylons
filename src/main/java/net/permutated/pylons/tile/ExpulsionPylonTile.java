@@ -99,7 +99,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         if (level != null) {
             if (allowedDimensions == null) {
                 List<ResourceKey<Level>> temp = new ArrayList<>();
-                List<? extends String> allowed = ConfigManager.COMMON.expulsionAllowedDimensions.get();
+                List<? extends String> allowed = ConfigManager.SERVER.expulsionAllowedDimensions.get();
                 for (String key : allowed) {
                     temp.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(key)));
                 }
@@ -113,7 +113,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     public boolean isAllowedLocation() {
         if (level instanceof ServerLevel serverLevel) {
             int spawnRadius = serverLevel.getGameRules().getInt(GameRules.RULE_SPAWN_RADIUS);
-            int configRadius = ConfigManager.COMMON.expulsionWorldSpawnRadius.get();
+            int configRadius = ConfigManager.SERVER.expulsionWorldSpawnRadius.get();
 
             var bb = new AABB(serverLevel.getSharedSpawnPos());
             var area = bb.inflate(Math.max(configRadius, spawnRadius));

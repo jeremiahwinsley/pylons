@@ -35,17 +35,17 @@ public class PotionFilterCard extends Item {
 
     // minimum duration of effect that can be copied to the filter
     public static int getMinimumDuration() {
-        return ConfigManager.COMMON.infusionMinimumDuration.get() * 20;
+        return ConfigManager.SERVER.infusionMinimumDuration.get() * 20;
     }
 
     // required duration to activate the filter in a pylon
     public static int getRequiredDuration() {
-        return ConfigManager.COMMON.infusionRequiredDuration.get() * 20;
+        return ConfigManager.SERVER.infusionRequiredDuration.get() * 20;
     }
 
     // duration applied to player each work cycle
     public static int getAppliedDuration() {
-        return ConfigManager.COMMON.infusionAppliedDuration.get() * 20;
+        return ConfigManager.SERVER.infusionAppliedDuration.get() * 20;
     }
 
     @Override
@@ -250,12 +250,12 @@ public class PotionFilterCard extends Item {
     }
 
     protected static boolean isAllowedEffect(ResourceLocation location) {
-        var allowed = ConfigManager.COMMON.infusionAllowedEffects.get();
+        var allowed = ConfigManager.SERVER.infusionAllowedEffects.get();
         return allowed.isEmpty() || allowed.contains(location.getNamespace()) || allowed.contains(location.toString());
     }
 
     protected static boolean isDeniedEffect(ResourceLocation location) {
-        var denied = ConfigManager.COMMON.infusionDeniedEffects.get();
+        var denied = ConfigManager.SERVER.infusionDeniedEffects.get();
         return denied.contains(location.getNamespace()) || denied.contains(location.toString());
     }
 

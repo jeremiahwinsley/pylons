@@ -17,16 +17,16 @@ public class ConfigManager {
     public static final String CATEGORY_INFUSION = "infusion_pylon";
 
 
-    public static final CommonConfig COMMON;
-    public static final ForgeConfigSpec COMMON_SPEC;
+    public static final ServerConfig SERVER;
+    public static final ForgeConfigSpec SERVER_SPEC;
 
     static {
-        final Pair<CommonConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(CommonConfig::new);
-        COMMON_SPEC = specPair.getRight();
-        COMMON = specPair.getLeft();
+        final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
+        SERVER_SPEC = specPair.getRight();
+        SERVER = specPair.getLeft();
     }
 
-    public static class CommonConfig {
+    public static class ServerConfig {
         // CATEGORY_EXPULSION
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
         public final ForgeConfigSpec.IntValue expulsionWorldSpawnRadius;
@@ -39,7 +39,7 @@ public class ConfigManager {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
 
-        CommonConfig(ForgeConfigSpec.Builder builder) {
+        ServerConfig(ForgeConfigSpec.Builder builder) {
             // CATEGORY_EXPULSION
             builder.push(CATEGORY_EXPULSION);
 

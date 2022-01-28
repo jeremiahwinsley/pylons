@@ -71,7 +71,7 @@ public class ChunkManager {
 
     @SuppressWarnings("java:S3824") // containsKey cannot be replaced with computeIfAbsent
     public static void loadChunk(UUID owner, ServerLevel level, BlockPos pos) {
-        if (Boolean.TRUE.equals(ConfigManager.COMMON.infusionChunkloads.get()) && !loaded.containsKey(owner)) {
+        if (Boolean.TRUE.equals(ConfigManager.SERVER.infusionChunkloads.get()) && !loaded.containsKey(owner)) {
             var location = Location.of(level, pos);
             unloaded.remove(owner, location);
             loaded.put(owner, location);

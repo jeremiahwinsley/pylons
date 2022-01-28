@@ -33,7 +33,7 @@ public class Pylons
         ModRegistry.register();
         NetworkDispatcher.register();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigManager.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigManager.SERVER_SPEC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
