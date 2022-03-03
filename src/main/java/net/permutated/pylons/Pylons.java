@@ -1,14 +1,20 @@
 package net.permutated.pylons;
 
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.world.ForgeChunkManager;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.permutated.pylons.block.AbstractPylonBlock;
 import net.permutated.pylons.client.ClientSetup;
 import net.permutated.pylons.item.PlayerFilterCard;
+import net.permutated.pylons.network.NetworkDispatcher;
+import net.permutated.pylons.util.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,14 +31,30 @@ public class Pylons
         LOGGER.info("Registering mod: {}", MODID);
 
         ModRegistry.register();
+        NetworkDispatcher.register();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigManager.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigManager.SERVER_SPEC);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
-        MinecraftForge.EVENT_BUS.addListener(AbstractPylonBlock::onBlockBreakEvent);
+        MinecraftForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
+    }
+
+    public void onCommonSetupEvent(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> ForgeChunkManager.setForcedChunkLoadingCallback(MODID, ChunkManager::validateTickets));
     }
 
     public void onClientSetupEvent(final FMLClientSetupEvent event) {
         ClientSetup.register();
+    }
+
+    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+        if (event.getState().getBlock() instanceof AbstractPylonBlock) {
+            TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+
+            if (!AbstractPylonBlock.canAccessPylon(tileEntity, event.getPlayer())) {
+                event.setCanceled(true);
+            }
+        }
     }
 }

@@ -1,10 +1,13 @@
 package net.permutated.pylons.util;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.permutated.pylons.Pylons;
+
 
 public class ResourceUtil {
     private ResourceUtil() {
@@ -23,13 +26,18 @@ public class ResourceUtil {
         return new ResourceLocation("forge", path);
     }
 
-    public static ITag<Item> tag(String path) {
+    public static ITag.INamedTag<Item> tag(String path) {
         return ItemTags.createOptional(new ResourceLocation(path));
+    }
+
+    public static ITag.INamedTag<Block> blockTag(String path) {
+        return BlockTags.createOptional(new ResourceLocation(path));
     }
 
     public static ResourceLocation gui(String path) {
         return prefix(String.format("textures/gui/%s.png", path));
     }
+
     public static ResourceLocation jei(String path) {
         return prefix(String.format("textures/jei/%s.png", path));
     }

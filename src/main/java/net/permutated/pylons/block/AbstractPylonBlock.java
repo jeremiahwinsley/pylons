@@ -28,7 +28,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
@@ -46,13 +45,23 @@ public abstract class AbstractPylonBlock extends Block {
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).harvestTool(ToolType.PICKAXE).strength(2F, 1200F));
+        super(Properties.of(Material.METAL).harvestTool(ToolType.PICKAXE).strength(-1F, 1200F));
     }
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated
     public VoxelShape getShape(BlockState blockState, IBlockReader reader, BlockPos pos, ISelectionContext context) {
         return SHAPE;
+    }
+
+    /**
+     * Check if player is either the pylon owner or has OP
+     * @param blockEntity the pylon tile
+     * @param player the player
+     * @return the result
+     */
+    public static boolean canAccessPylon(@Nullable TileEntity blockEntity, PlayerEntity player) {
+        return (blockEntity instanceof AbstractPylonTile && ((AbstractPylonTile) blockEntity).canAccess(player));
     }
 
     @Override
@@ -79,33 +88,24 @@ public abstract class AbstractPylonBlock extends Block {
 
     @Override
     public void destroy(IWorld world, BlockPos blockPos, BlockState blockState) {
-        Optional.ofNullable(world.getBlockEntity(blockPos))
-            .map(AbstractPylonTile.class::cast)
-            .ifPresent(AbstractPylonTile::dropItems);
+        TileEntity tileEntity = world.getBlockEntity(blockPos);
+        if (tileEntity instanceof AbstractPylonTile) {
+            AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+            pylonTile.removeChunkloads();
+            pylonTile.dropItems();
+        }
 
         super.destroy(world, blockPos, blockState);
     }
 
-    /**
-     * Block should only be broken by the owner or ops.
-     * @param event the BreakEvent
-     */
-    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
-        if (event.getPlayer().hasPermissions(2)) {
-            return;
+    @Override
+    public float getDestroyProgress(BlockState state, PlayerEntity player, IBlockReader getter, BlockPos blockPos) {
+        TileEntity blockEntity = getter.getBlockEntity(blockPos);
+        if (canAccessPylon(blockEntity, player)) {
+            int i = net.minecraftforge.common.ForgeHooks.canHarvestBlock(state, player, getter, blockPos) ? 30 : 100;
+            return player.getDigSpeed(state, blockPos) / 2.0F / i;
         }
-
-        if (event.getState().getBlock() instanceof AbstractPylonBlock) {
-            TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
-
-            if (tileEntity instanceof AbstractPylonTile) {
-                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
-                if (!event.getPlayer().getUUID().equals(pylonTile.getOwner())) {
-                    event.setCanceled(true);
-                }
-            }
-        }
-
+        return 0.0F;
     }
 
     @Override
@@ -114,10 +114,12 @@ public abstract class AbstractPylonBlock extends Block {
     {
         if (!state.is(newState.getBlock()))
         {
-            TileEntity tileentity = worldIn.getBlockEntity(pos);
-            if (tileentity instanceof AbstractPylonTile)
+            TileEntity tileEntity = worldIn.getBlockEntity(pos);
+            if (tileEntity instanceof AbstractPylonTile)
             {
-                ((AbstractPylonTile) tileentity).dropItems();
+                AbstractPylonTile pylonTile = (AbstractPylonTile) tileEntity;
+                pylonTile.removeChunkloads();
+                pylonTile.dropItems();
                 worldIn.updateNeighbourForOutputSignal(pos, this);
             }
 
@@ -148,7 +150,7 @@ public abstract class AbstractPylonBlock extends Block {
                     }
                 };
 
-                if (player.getUUID().equals(pylonTile.getOwner()) || player.hasPermissions(2)) {
+                if (canAccessPylon(tileEntity, player)) {
                     NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, pylonTile::updateContainer);
                 } else {
                     return ActionResultType.FAIL;

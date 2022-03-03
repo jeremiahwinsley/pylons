@@ -3,6 +3,7 @@ package net.permutated.pylons.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -15,14 +16,52 @@ import net.permutated.pylons.util.TranslationKey;
 
 import java.util.Objects;
 
-public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends ContainerScreen<T> {
+public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends ContainerScreen<T> {
     protected final ResourceLocation gui;
+    protected Button workButton;
+    protected Button rangeButton;
 
     protected AbstractPylonScreen(T container, PlayerInventory inv, ITextComponent name, String pylonType) {
         super(container, inv, name);
         this.gui = ResourceUtil.gui("pylon");
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 172;
+        this.inventoryLabelY = this.imageHeight - 94;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        // x, y, width, height
+        workButton = new Button(this.leftPos + 140, this.height / 2 - 80, 26, 20,
+            this.menu.getWorkComponent(), this.menu::sendWorkPacket, this::workButtonTooltip);
+        rangeButton = new Button(this.leftPos + 110, this.height / 2 - 80, 26, 20,
+            this.menu.getRangeComponent(), this.menu::sendRangePacket, this::rangeButtonTooltip);
+
+        addButton(workButton);
+        if (this.menu.shouldRenderRange()) {
+            addButton(rangeButton);
+        }
+        updateMessages();
+    }
+
+    private void workButtonTooltip(Button button, MatrixStack poseStack, int p_169460_, int p_169461_) {
+        this.renderTooltip(poseStack, translate("toggleWork"), p_169460_, p_169461_);
+    }
+
+    private void rangeButtonTooltip(Button button, MatrixStack poseStack, int p_169460_, int p_169461_) {
+        this.renderTooltip(poseStack, translate("workArea"), p_169460_, p_169461_);
+    }
+
+    public void updateMessages() {
+        this.workButton.setMessage(this.menu.getWorkComponent());
+        this.rangeButton.setMessage(this.menu.getRangeComponent());
+    }
+
+    @Override
+    public void tick() {
+        updateMessages();
+        super.tick();
     }
 
     @Override
@@ -52,7 +91,7 @@ public  abstract class AbstractPylonScreen<T extends AbstractPylonContainer> ext
         } else {
             component = translate("owner", owner);
         }
-        drawText(matrixStack, component, 24);
+        drawText(matrixStack, component, 30);
     }
 
     protected void drawText(MatrixStack stack, ITextComponent component, int yPos) {

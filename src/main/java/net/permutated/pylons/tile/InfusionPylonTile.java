@@ -5,6 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.server.ServerWorld;
+import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
 
@@ -27,6 +29,7 @@ public class InfusionPylonTile extends AbstractPylonTile {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
+                ChunkManager.loadChunk(owner, (ServerWorld) level, getBlockPos());
                 PlayerEntity player = server.getPlayerList().getPlayer(owner);
 
                 if (player != null && player.isAffectedByPotions()) {
@@ -42,14 +45,14 @@ public class InfusionPylonTile extends AbstractPylonTile {
         List<EffectInstance> effects = new ArrayList<>();
         for (int i = 0; i < itemStackHandler.getSlots(); i++) {
             ItemStack stack = itemStackHandler.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard) {
+            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(stack)) {
                 Effect effect = PotionFilterCard.getEffect(stack);
                 int duration = PotionFilterCard.getDuration(stack);
                 int amplifier = PotionFilterCard.getAmplifier(stack);
 
-                if (duration >= PotionFilterCard.REQUIRED && effect != null) {
-                    // 300 ticks - 15 seconds
-                    effects.add(new EffectInstance(effect, 300, amplifier, false, false));
+                if (duration >= PotionFilterCard.getRequiredDuration() && effect != null) {
+                    // defaults to 400 ticks / 20 seconds of effect
+                    effects.add(new EffectInstance(effect, PotionFilterCard.getAppliedDuration(), amplifier, false, false));
                 }
             }
         }

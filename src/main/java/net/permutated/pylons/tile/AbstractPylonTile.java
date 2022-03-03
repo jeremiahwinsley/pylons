@@ -1,6 +1,7 @@
 package net.permutated.pylons.tile;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -13,19 +14,21 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.util.Range;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.UUID;
 
 public abstract class AbstractPylonTile extends TileEntity implements ITickableTileEntity {
@@ -60,6 +63,12 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
     }
 
+    public void removeChunkloads() {
+        if (owner != null && level instanceof ServerWorld) {
+            ChunkManager.unloadChunk(owner, (ServerWorld) level, getBlockPos());
+        }
+    }
+
     @Override
     public void setRemoved() {
         super.setRemoved();
@@ -79,11 +88,15 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         this.setChanged();
     }
 
+    public boolean canAccess(PlayerEntity player) {
+        return Objects.equals(player.getUUID(), owner) || owner == null || player.hasPermissions(2);
+    }
+
     private long lastTicked = 0L;
 
     public boolean canTick(final int every) {
         long gameTime = level != null ? level.getGameTime() : 0L;
-        if (gameTime % every == 0 && gameTime != lastTicked) {
+        if (gameTime % every == 0 && gameTime != lastTicked && shouldWork()) {
             lastTicked = gameTime;
             return true;
         } else {
@@ -99,6 +112,11 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
                 InventoryHelper.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), itemstack);
             }
         }
+    }
+
+    public String getOwnerName() {
+        String lastKnown = owner == null ? null : UsernameCache.getLastKnownUsername(owner);
+        return StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
     }
 
     /**
@@ -120,12 +138,14 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     @Override
     public CompoundNBT save(CompoundNBT tag) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
-        writeOwner(tag);
+        tag.put(Constants.NBT.RANGE, range.serializeNBT());
+        writeFields(tag);
         return super.save(tag);
     }
 
     // Write TE data to a provided CompoundNBT
-    private void writeOwner(CompoundNBT tag) {
+    private void writeFields(CompoundNBT tag) {
+        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
         if (owner != null) {
             tag.putUUID(Constants.NBT.OWNER, owner);
         }
@@ -135,13 +155,18 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     @Override
     public void load(BlockState state, CompoundNBT tag) {
         itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
-        readOwner(tag);
+        range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
+        readFields(tag);
         super.load(state, tag);
     }
 
     // Read TE data from a provided CompoundNBT
-    private void readOwner(CompoundNBT tag) {
-        if (tag.hasUUID(Constants.NBT.OWNER)) {
+    private void readFields(@Nullable CompoundNBT tag) {
+        // check for NBT before loading, so that existing blocks don't get disabled
+        if (tag != null && tag.contains(Constants.NBT.ENABLED)) {
+            shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
+        }
+        if (tag != null && tag.hasUUID(Constants.NBT.OWNER)) {
             owner = tag.getUUID(Constants.NBT.OWNER);
         }
     }
@@ -150,13 +175,17 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
     @Override
     public CompoundNBT getUpdateTag() {
         CompoundNBT tag = super.getUpdateTag();
-        writeOwner(tag);
+        tag.put(Constants.NBT.RANGE, range.serializeNBT());
+        writeFields(tag);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        readOwner(tag);
+        if (tag != null) {
+            range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
+        }
+        readFields(tag);
     }
 
     // Called whenever a block update happens on the client
@@ -183,47 +212,35 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
         }
     }
 
-    public class PylonEnergyStorage extends EnergyStorage implements INBTSerializable<CompoundNBT> {
+    protected boolean shouldWork = true;
 
-        public PylonEnergyStorage(int capacity, int maxTransfer) {
-            super(capacity, maxTransfer);
+    public boolean shouldWork() {
+        return shouldWork;
+    }
+
+    public void handleWorkPacket() {
+        if (this.level != null) {
+            shouldWork = !shouldWork;
+            this.setChanged();
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
+    }
 
-        public void onEnergyChanged() {
-            setChanged();
-        }
+    protected final Range range = new Range(getRange());
 
-        public void setEnergy(int energy) {
-            this.energy = energy;
-            onEnergyChanged();
-        }
+    protected byte[] getRange() {
+        return new byte[]{1};
+    }
 
-        public void addEnergy(int energy) {
-            this.energy += energy;
-            if (this.energy > getMaxEnergyStored()) {
-                this.energy = getEnergyStored();
-            }
-            onEnergyChanged();
-        }
+    public int getSelectedRange() {
+        return range.get();
+    }
 
-        public void consumeEnergy(int energy) {
-            this.energy -= energy;
-            if (this.energy < 0) {
-                this.energy = 0;
-            }
-            onEnergyChanged();
-        }
-
-        @Override
-        public CompoundNBT serializeNBT() {
-            CompoundNBT tag = new CompoundNBT();
-            tag.putInt(Constants.NBT.ENERGY, getEnergyStored());
-            return tag;
-        }
-
-        @Override
-        public void deserializeNBT(CompoundNBT nbt) {
-            setEnergy(nbt.getInt(Constants.NBT.ENERGY));
+    public void handleRangePacket() {
+        if (getRange().length > 1 && this.level != null) {
+            this.range.next();
+            this.setChanged();
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
         }
     }
 }

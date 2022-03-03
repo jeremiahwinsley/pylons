@@ -4,10 +4,8 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.TranslationKey;
 
-import static net.permutated.pylons.util.TranslationKey.gui;
-import static net.permutated.pylons.util.TranslationKey.tooltip;
+import static net.permutated.pylons.util.TranslationKey.*;
 
 public class Languages {
     private Languages() {
@@ -31,9 +29,14 @@ public class Languages {
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
             add(gui("wrongDimension"), "This dimension is disabled.");
+            add(gui("insideWorldSpawn"), "Too close to world spawn.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("effects"), "Active potion effects:");
-            add(TranslationKey.tab(), "Pylons");
+            add(gui("workArea"), "Work area (in chunks)");
+            add(gui("toggleWork"), "Working status");
+            add(tab(), "Pylons");
+
+            add(chat("expelled"), "You have been expelled from %s's chunk!");
 
             add(tooltip("expulsion1"), "Expels other players from");
             add(tooltip("expulsion2"), "the chunk where the pylon");
@@ -48,6 +51,8 @@ public class Languages {
             add(tooltip("no_effect1"), "Right-click with an active effect");
             add(tooltip("no_effect2"), "to apply it to the card.");
             add(tooltip("minimum_duration"), "Minimum effect duration: %s seconds");
+
+            add(tooltip("effect_denied"), "Effect is disabled in the config.");
 
             add(tooltip("insert1"), "Insert this filter into");
             add(tooltip("insert2"), "a pylon to use it!");

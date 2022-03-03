@@ -20,6 +20,7 @@ public final class DataGenerators {
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
 
         if (event.includeServer()) {
+            generator.addProvider(new BlockTags(generator, fileHelper));
             generator.addProvider(new CraftingRecipes(generator));
             generator.addProvider(new LootTables(generator));
         }

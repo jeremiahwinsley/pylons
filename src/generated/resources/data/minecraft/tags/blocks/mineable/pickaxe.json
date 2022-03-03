@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "pylons:expulsion_pylon",
+    "pylons:infusion_pylon"
+  ]
+}
