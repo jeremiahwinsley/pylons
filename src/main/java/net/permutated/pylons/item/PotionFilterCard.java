@@ -63,6 +63,35 @@ public class PotionFilterCard extends Item {
                     return InteractionResultHolder.success(stack);
                 }
 
+                // handle transferring effects between cards
+                if (hand == InteractionHand.MAIN_HAND) { // this should only run for cards held in the main hand
+                    final ItemStack offhand = player.getItemInHand(InteractionHand.OFF_HAND);
+                    if (offhand.getItem() instanceof PotionFilterCard) { // offhand is holding a potion filter card
+                        MobEffect offhandEffect = PotionFilterCard.getEffect(offhand);
+                        int offhandAmplifier = PotionFilterCard.getAmplifier(offhand);
+                        int offhandDuration = PotionFilterCard.getDuration(offhand);
+                        if (offhandEffect != null) { // offhand card has an effect
+                            ItemStack copy;
+                            if (effect == null) {
+                                // main hand card is blank
+                                // move effect from off hand card to main hand card
+                                copy = withEffect(stack, offhandEffect, offhandAmplifier, offhandDuration);
+                                // clear potion data from offhand card
+                                player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
+                                return InteractionResultHolder.success(copy);
+                            } else if(Objects.equals(effect, offhandEffect) && Objects.equals(amplifier, offhandAmplifier)) {
+                                // main hand card has the same effect and amplifier
+                                // merge effect from off hand card with main hand card
+                                copy = addDuration(stack, offhandDuration);
+                                // clear potion data from offhand card
+                                player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
+                                return InteractionResultHolder.success(copy);
+                            }
+                        }
+                    }
+                }
+
+
                 Optional<MobEffectInstance> active;
                 if (effect == null) {
                     active = player.getActiveEffects().stream()
@@ -210,6 +239,17 @@ public class PotionFilterCard extends Item {
         int total = Math.min(getRequiredDuration(), current + duration);
 
         tag.putInt(Constants.NBT.DURATION, total);
+        return copy;
+    }
+
+    /**
+     * Remove Pylons NBT from a potion filter card.
+     * @param stack the ItemStack containing NBT
+     * @return a copy of the ItemStack without the pylons tag
+     */
+    public static ItemStack clearEffect(final ItemStack stack) {
+        ItemStack copy = stack.copy();
+        copy.removeTagKey(Pylons.MODID);
         return copy;
     }
 
