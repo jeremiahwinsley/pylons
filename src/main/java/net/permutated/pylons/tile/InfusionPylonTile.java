@@ -8,9 +8,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.item.PotionFilterCard;
+import net.permutated.pylons.util.ChunkManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +31,10 @@ public class InfusionPylonTile extends AbstractPylonTile {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
-                ChunkManager.loadChunk(owner, (ServerLevel) level, getBlockPos());
                 Player player = server.getPlayerList().getPlayer(owner);
 
                 if (player != null && player.isAffectedByPotions()) {
+                    ChunkManager.loadChunk(owner, (ServerLevel) level, getBlockPos());
                     for (MobEffectInstance effect : getEffects()) {
                         player.addEffect(effect);
                     }
