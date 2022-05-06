@@ -29,10 +29,10 @@ public class InfusionPylonTile extends AbstractPylonTile {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
-                ChunkManager.loadChunk(owner, (ServerWorld) level, getBlockPos());
                 PlayerEntity player = server.getPlayerList().getPlayer(owner);
 
                 if (player != null && player.isAffectedByPotions()) {
+                    ChunkManager.loadChunk(owner, (ServerWorld) level, getBlockPos());
                     for (EffectInstance effect : getEffects()) {
                         player.addEffect(effect);
                     }
