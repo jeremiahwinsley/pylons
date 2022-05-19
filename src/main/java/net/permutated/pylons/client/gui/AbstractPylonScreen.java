@@ -49,7 +49,7 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         this.renderTooltip(poseStack, translate("toggleWork"), p_169460_, p_169461_);
     }
 
-    private void rangeButtonTooltip(Button button, MatrixStack poseStack, int p_169460_, int p_169461_) {
+    protected void rangeButtonTooltip(Button button, MatrixStack poseStack, int p_169460_, int p_169461_) {
         this.renderTooltip(poseStack, translate("workArea"), p_169460_, p_169461_);
     }
 

@@ -19,13 +19,16 @@ import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.block.ExpulsionPylonBlock;
+import net.permutated.pylons.block.HarvesterPylonBlock;
 import net.permutated.pylons.block.InfusionPylonBlock;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
+import net.permutated.pylons.inventory.container.HarvesterPylonContainer;
 import net.permutated.pylons.inventory.container.InfusionPylonContainer;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.item.PotionFilterCard;
 import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.tile.ExpulsionPylonTile;
+import net.permutated.pylons.tile.HarvesterPylonTile;
 import net.permutated.pylons.tile.InfusionPylonTile;
 import net.permutated.pylons.util.Constants;
 
@@ -53,18 +56,22 @@ public class ModRegistry {
     // Blocks
     public static final RegistryObject<Block> EXPULSION_PYLON = BLOCKS.register(Constants.EXPULSION_PYLON, ExpulsionPylonBlock::new);
     public static final RegistryObject<Block> INFUSION_PYLON = BLOCKS.register(Constants.INFUSION_PYLON, InfusionPylonBlock::new);
+    public static final RegistryObject<Block> HARVESTER_PYLON = BLOCKS.register(Constants.HARVESTER_PYLON, HarvesterPylonBlock::new);
 
     // BlockItems
     public static final RegistryObject<BlockItem> EXPULSION_PYLON_ITEM = blockItem(EXPULSION_PYLON);
     public static final RegistryObject<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON);
+    public static final RegistryObject<BlockItem> HARVESTER_PYLON_ITEM = blockItem(HARVESTER_PYLON);
 
     // Tiles
     public static final RegistryObject<TileEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = tile(EXPULSION_PYLON, ExpulsionPylonTile::new);
     public static final RegistryObject<TileEntityType<InfusionPylonTile>> INFUSION_PYLON_TILE = tile(INFUSION_PYLON, InfusionPylonTile::new);
+    public static final RegistryObject<TileEntityType<HarvesterPylonTile>> HARVESTER_PYLON_TILE = tile(HARVESTER_PYLON, HarvesterPylonTile::new);
 
     // Containers
     public static final RegistryObject<ContainerType<ExpulsionPylonContainer>> EXPULSION_PYLON_CONTAINER = container(Constants.EXPULSION_PYLON, ExpulsionPylonContainer::new);
     public static final RegistryObject<ContainerType<InfusionPylonContainer>> INFUSION_PYLON_CONTAINER = container(Constants.INFUSION_PYLON, InfusionPylonContainer::new);
+    public static final RegistryObject<ContainerType<HarvesterPylonContainer>> HARVESTER_PYLON_CONTAINER = container(Constants.HARVESTER_PYLON, HarvesterPylonContainer::new);
 
     /**
      * Register a BlockItem for a Block

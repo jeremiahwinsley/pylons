@@ -83,6 +83,18 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_potion_filter", has(ModRegistry.POTION_FILTER.get()))
             .save(consumer, prefix("clear_potion_filter"));
 
+        // Harvester Pylon
+        shaped(ModRegistry.HARVESTER_PYLON.get())
+            .pattern("qqq")
+            .pattern("idi")
+            .pattern("bbb")
+            .define('d', Items.HAY_BLOCK)
+            .define('b', Items.POLISHED_BLACKSTONE)
+            .define('q', Items.QUARTZ_SLAB)
+            .define('i', Items.IRON_BARS)
+            .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
+            .save(consumer);
+
     }
 
 }

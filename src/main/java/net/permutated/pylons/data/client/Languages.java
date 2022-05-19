@@ -26,13 +26,20 @@ public class Languages {
             addBlock(ModRegistry.INFUSION_PYLON, "Infusion Pylon");
             addItem(ModRegistry.POTION_FILTER, "Potion Filter");
 
+            addBlock(ModRegistry.HARVESTER_PYLON, "Harvester Pylon");
+
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
             add(gui("wrongDimension"), "This dimension is disabled.");
             add(gui("insideWorldSpawn"), "Too close to world spawn.");
+            add(gui("toolMissing"), "Tool required for operation.");
+            add(gui("inventoryMissing"), "Place inventory above pylon.");
+            add(gui("inventoryFull"), "Inventory is full.");
+            add(gui("working"), "Pylon is working.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("effects"), "Active potion effects:");
             add(gui("workArea"), "Work area (in chunks)");
+            add(gui("workAreaBlocks"), "Work area (in blocks)");
             add(gui("toggleWork"), "Working status");
             add(tab(), "Pylons");
 
@@ -45,6 +52,10 @@ public class Languages {
             add(tooltip("infusion1"), "Applies potion effects from");
             add(tooltip("infusion2"), "an activated potion filter");
             add(tooltip("infusion3"), "at any distance.");
+
+            add(tooltip("harvester1"), "Harvests crops in a configurable");
+            add(tooltip("harvester2"), "radius around the pylon. Just place");
+            add(tooltip("harvester3"), "inside the water block.");
 
             add(tooltip("no_player"), "Right-click on a player to select them.");
 

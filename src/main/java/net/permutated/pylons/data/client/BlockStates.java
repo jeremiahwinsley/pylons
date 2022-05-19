@@ -21,6 +21,7 @@ public class BlockStates extends BlockStateProvider {
     protected void registerStatesAndModels() {
         pylon(ModRegistry.EXPULSION_PYLON, "diamond_block");
         pylon(ModRegistry.INFUSION_PYLON, "emerald_block");
+        pylon(ModRegistry.HARVESTER_PYLON, "hay_block_side");
     }
 
     protected void pylon(RegistryObject<Block> block, String texture) {

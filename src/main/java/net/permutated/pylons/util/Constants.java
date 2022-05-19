@@ -7,7 +7,7 @@ public class Constants {
 
     public static final String EXPULSION_PYLON = "expulsion_pylon";
     public static final String INFUSION_PYLON = "infusion_pylon";
-
+    public static final String HARVESTER_PYLON = "harvester_pylon";
 
     public static final String UNKNOWN = "unknown";
 

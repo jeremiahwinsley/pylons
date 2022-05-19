@@ -16,6 +16,7 @@ public class ConfigManager {
 
     public static final String CATEGORY_EXPULSION = "expulsion_pylon";
     public static final String CATEGORY_INFUSION = "infusion_pylon";
+    public static final String CATEGORY_HARVESTER = "harvester_pylon";
 
 
     public static final ServerConfig SERVER;
@@ -39,6 +40,11 @@ public class ConfigManager {
         public final ForgeConfigSpec.BooleanValue infusionChunkloads;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
+
+        // CATEGORY_HARVESTER
+        public final ForgeConfigSpec.IntValue harvesterWorkDelay;
+        public final ForgeConfigSpec.BooleanValue harvesterRequiresTool;
+
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
             // CATEGORY_EXPULSION
@@ -91,6 +97,18 @@ public class ConfigManager {
                     "This list will override the allowed effect list.")
                 .defineListAllowEmpty(ImmutableList.of("infusionDeniedEffects"), ArrayList::new,
                     s -> s instanceof String && ((String) s).matches("^\\w+(:\\w+)?$"));
+
+            builder.pop();
+            builder.push(CATEGORY_HARVESTER);
+
+            harvesterWorkDelay = builder
+                .comment("Delay between harvest attempts (in ticks).")
+                .defineInRange("harvesterWorkDelay", 60, 10, 120);
+
+            harvesterRequiresTool = builder
+                .comment("Whether the harvester requires a hoe to work.",
+                    "If enabled, it will use 1 durability per harvest action")
+                .define("harvesterRequiresTool", true);
 
             builder.pop();
         }
