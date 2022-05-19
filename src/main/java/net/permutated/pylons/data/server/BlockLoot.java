@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class BlockLoot extends LootTableProvider {
 
@@ -43,7 +42,7 @@ public class BlockLoot extends LootTableProvider {
         @Override
         protected Iterable<Block> getKnownBlocks()
         {
-            return ModRegistry.BLOCKS.getEntries().stream().map(RegistryObject::get).collect(Collectors.toList());
+            return ModRegistry.BLOCKS.getEntries().stream().map(RegistryObject::get).toList();
         }
     }
 

@@ -1,6 +1,10 @@
 package net.permutated.pylons.data.server;
 
-import net.minecraft.data.*;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
@@ -10,12 +14,6 @@ import net.permutated.pylons.Pylons;
 import java.util.function.Consumer;
 
 import static net.permutated.pylons.util.ResourceUtil.prefix;
-
-
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 
 public class CraftingRecipes extends RecipeProvider {
     public CraftingRecipes(DataGenerator generatorIn) {
@@ -30,7 +28,7 @@ public class CraftingRecipes extends RecipeProvider {
     @Override
     protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
-        // Expulsion Pylong
+        // Expulsion Pylon
         shaped(ModRegistry.EXPULSION_PYLON.get())
             .pattern("qqq")
             .pattern("idi")
@@ -87,6 +85,18 @@ public class CraftingRecipes extends RecipeProvider {
             .requires(ModRegistry.POTION_FILTER.get())
             .unlockedBy("has_potion_filter", has(ModRegistry.POTION_FILTER.get()))
             .save(consumer, prefix("clear_potion_filter"));
+
+        // Harvester Pylon
+        shaped(ModRegistry.HARVESTER_PYLON.get())
+            .pattern("qqq")
+            .pattern("idi")
+            .pattern("bbb")
+            .define('d', Items.HAY_BLOCK)
+            .define('b', Items.POLISHED_BLACKSTONE)
+            .define('q', Items.QUARTZ_SLAB)
+            .define('i', Items.IRON_BARS)
+            .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
+            .save(consumer);
 
     }
 
