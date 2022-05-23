@@ -46,8 +46,8 @@ public class SpawnManager {
     @SubscribeEvent
     public static void onEntityJoinWorldEvent(EntityJoinWorldEvent event) {
         if (event.getWorld() instanceof ServerLevel level && event.getEntity() instanceof LivingEntity entity) {
-            int chunkX = SectionPos.blockToSectionCoord((int) entity.getX());
-            int chunkZ = SectionPos.blockToSectionCoord((int) entity.getZ());
+            int chunkX = SectionPos.posToSectionCoord(entity.getX());
+            int chunkZ = SectionPos.posToSectionCoord(entity.getZ());
 
             Location key = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
             Set<String> filterSet = chunkMap.get(key);
