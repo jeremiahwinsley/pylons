@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class AbstractPylonTile extends TileEntity implements ITickableTileEntity {
 
@@ -96,12 +97,24 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
 
     public boolean canTick(final int every) {
         long gameTime = level != null ? level.getGameTime() : 0L;
-        if (gameTime % every == 0 && gameTime != lastTicked && shouldWork()) {
+        if (offset(gameTime) % every == 0 && gameTime != lastTicked && shouldWork()) {
             lastTicked = gameTime;
             return true;
         } else {
             return false;
         }
+    }
+
+    int offset = 0;
+    /**
+     * Add a random offset between 0 and 19 ticks.
+     * This is generated once per block entity on the first tick.
+     * @param gameTime the current game time
+     * @return the tick delay with the saved offset
+     */
+    protected long offset(final long gameTime) {
+        if (offset == 0) offset += ThreadLocalRandom.current().nextInt(0, 20);
+        return gameTime + offset;
     }
 
     protected static void dropItems(@Nullable World world, BlockPos pos, IItemHandler itemHandler) {
