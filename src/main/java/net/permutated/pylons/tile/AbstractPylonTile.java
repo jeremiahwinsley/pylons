@@ -236,6 +236,8 @@ public abstract class AbstractPylonTile extends TileEntity implements ITickableT
             shouldWork = !shouldWork;
             this.setChanged();
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
+
+            if (!shouldWork) removeChunkloads();
         }
     }
 
