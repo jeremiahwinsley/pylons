@@ -1,0 +1,6 @@
+{
+  "parent": "pylons:block/pylon",
+  "textures": {
+    "center": "minecraft:block/netherite_block"
+  }
+}

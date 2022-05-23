@@ -28,6 +28,9 @@ public class Languages {
 
             addBlock(ModRegistry.HARVESTER_PYLON, "Harvester Pylon");
 
+            addBlock(ModRegistry.INTERDICTION_PYLON, "Interdiction Pylon");
+            addItem(ModRegistry.MOB_FILTER, "Mob Filter");
+
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
             add(gui("wrongDimension"), "This dimension is disabled.");
@@ -37,6 +40,7 @@ public class Languages {
             add(gui("inventoryFull"), "Inventory is full.");
             add(gui("working"), "Pylon is working.");
             add(gui("whitelist"), "Add players to whitelist:");
+            add(gui("blockedMobs"), "Add mobs to prevent spawns:");
             add(gui("effects"), "Active potion effects:");
             add(gui("workArea"), "Work area (in chunks)");
             add(gui("workAreaBlocks"), "Work area (in blocks)");
@@ -57,7 +61,11 @@ public class Languages {
             add(tooltip("harvester2"), "radius around the pylon. Just place");
             add(tooltip("harvester3"), "inside the water block.");
 
+            add(tooltip("interdiction1"), "Configurable mob spawn prevention");
+            add(tooltip("interdiction2"), "in a radius around the pylon.");
+
             add(tooltip("no_player"), "Right-click on a player to select them.");
+            add(tooltip("no_mob"), "Right-click on a mob to select it.");
 
             add(tooltip("no_effect1"), "Right-click with an active effect");
             add(tooltip("no_effect2"), "to apply it to the card.");

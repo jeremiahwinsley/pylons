@@ -3,6 +3,7 @@
   "values": [
     "pylons:expulsion_pylon",
     "pylons:infusion_pylon",
-    "pylons:harvester_pylon"
+    "pylons:harvester_pylon",
+    "pylons:interdiction_pylon"
   ]
 }

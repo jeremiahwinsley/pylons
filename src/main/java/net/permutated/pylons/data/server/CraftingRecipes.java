@@ -98,6 +98,35 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
             .save(consumer);
 
+        // Interdiction Pylon
+        shaped(ModRegistry.INTERDICTION_PYLON.get())
+            .pattern("qqq")
+            .pattern("idi")
+            .pattern("bbb")
+            .define('d', Items.NETHERITE_BLOCK)
+            .define('b', Items.POLISHED_BLACKSTONE)
+            .define('q', Items.QUARTZ_SLAB)
+            .define('i', Items.IRON_BARS)
+            .unlockedBy("has_netherite_block", has(Items.NETHERITE_BLOCK))
+            .save(consumer);
+
+        shaped(ModRegistry.MOB_FILTER.get())
+            .pattern("tct")
+            .pattern("gdg")
+            .pattern("ggg")
+            .define('t', Items.CYAN_TERRACOTTA)
+            .define('c', Tags.Items.DYES_GREEN)
+            .define('d', Tags.Items.INGOTS_NETHERITE)
+            .define('g', Tags.Items.GLASS)
+            .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
+            .save(consumer);
+
+        ShapelessRecipeBuilder.shapeless(ModRegistry.MOB_FILTER.get())
+            .group(Pylons.MODID)
+            .requires(ModRegistry.MOB_FILTER.get())
+            .unlockedBy("has_mob_filter", has(ModRegistry.MOB_FILTER.get()))
+            .save(consumer, prefix("clear_mob_filter"));
+
     }
 
 }

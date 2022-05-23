@@ -22,15 +22,19 @@ import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.block.ExpulsionPylonBlock;
 import net.permutated.pylons.block.HarvesterPylonBlock;
 import net.permutated.pylons.block.InfusionPylonBlock;
+import net.permutated.pylons.block.InterdictionPylonBlock;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
 import net.permutated.pylons.inventory.container.HarvesterPylonContainer;
 import net.permutated.pylons.inventory.container.InfusionPylonContainer;
+import net.permutated.pylons.inventory.container.InterdictionPylonContainer;
+import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.item.PotionFilterCard;
 import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.tile.ExpulsionPylonTile;
 import net.permutated.pylons.tile.HarvesterPylonTile;
 import net.permutated.pylons.tile.InfusionPylonTile;
+import net.permutated.pylons.tile.InterdictionPylonTile;
 import net.permutated.pylons.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -53,26 +57,31 @@ public class ModRegistry {
     // Items
     public static final RegistryObject<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);
     public static final RegistryObject<Item> POTION_FILTER = ITEMS.register("potion_filter", PotionFilterCard::new);
+    public static final RegistryObject<Item> MOB_FILTER = ITEMS.register("mob_filter", MobFilterCard::new);
 
     // Blocks
     public static final RegistryObject<Block> EXPULSION_PYLON = BLOCKS.register(Constants.EXPULSION_PYLON, ExpulsionPylonBlock::new);
     public static final RegistryObject<Block> INFUSION_PYLON = BLOCKS.register(Constants.INFUSION_PYLON, InfusionPylonBlock::new);
     public static final RegistryObject<Block> HARVESTER_PYLON = BLOCKS.register(Constants.HARVESTER_PYLON, HarvesterPylonBlock::new);
+    public static final RegistryObject<Block> INTERDICTION_PYLON = BLOCKS.register(Constants.INTERDICTION_PYLON, InterdictionPylonBlock::new);
 
     // BlockItems
     public static final RegistryObject<BlockItem> EXPULSION_PYLON_ITEM = blockItem(EXPULSION_PYLON);
     public static final RegistryObject<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON);
     public static final RegistryObject<BlockItem> HARVESTER_PYLON_ITEM = blockItem(HARVESTER_PYLON);
+    public static final RegistryObject<BlockItem> INTERDICTION_PYLON_ITEM = blockItem(INTERDICTION_PYLON);
 
     // Tiles
     public static final RegistryObject<BlockEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = blockEntity(EXPULSION_PYLON, ExpulsionPylonTile::new);
     public static final RegistryObject<BlockEntityType<InfusionPylonTile>> INFUSION_PYLON_TILE = blockEntity(INFUSION_PYLON, InfusionPylonTile::new);
     public static final RegistryObject<BlockEntityType<HarvesterPylonTile>> HARVESTER_PYLON_TILE = blockEntity(HARVESTER_PYLON, HarvesterPylonTile::new);
+    public static final RegistryObject<BlockEntityType<InterdictionPylonTile>> INTERDICTION_PYLON_TILE = blockEntity(INTERDICTION_PYLON, InterdictionPylonTile::new);
 
     // Containers
     public static final RegistryObject<MenuType<ExpulsionPylonContainer>> EXPULSION_PYLON_CONTAINER = container(Constants.EXPULSION_PYLON, ExpulsionPylonContainer::new);
     public static final RegistryObject<MenuType<InfusionPylonContainer>> INFUSION_PYLON_CONTAINER = container(Constants.INFUSION_PYLON, InfusionPylonContainer::new);
     public static final RegistryObject<MenuType<HarvesterPylonContainer>> HARVESTER_PYLON_CONTAINER = container(Constants.HARVESTER_PYLON, HarvesterPylonContainer::new);
+    public static final RegistryObject<MenuType<InterdictionPylonContainer>> INTERDICTION_PYLON_CONTAINER = container(Constants.INTERDICTION_PYLON, InterdictionPylonContainer::new);
 
     /**
      * Register a BlockItem for a Block

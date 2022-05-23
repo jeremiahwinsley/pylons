@@ -1,10 +1,7 @@
 package net.permutated.pylons.util;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -46,9 +43,9 @@ public class ChunkManager {
             var location = unloaded.get(uuid);
             var server = event.getPlayer().getServer();
             if (location != null && server != null) {
-                var level = server.getLevel(location.level);
+                var level = server.getLevel(location.level());
                 if (level != null) {
-                    loadChunk(uuid, level, location.blockPos);
+                    loadChunk(uuid, level, location.blockPos());
                 }
             }
         }
@@ -61,9 +58,9 @@ public class ChunkManager {
             var location = loaded.get(uuid);
             var server = event.getPlayer().getServer();
             if (location != null && server != null) {
-                var level = server.getLevel(location.level);
+                var level = server.getLevel(location.level());
                 if (level != null) {
-                    unloadChunk(uuid, level, location.blockPos);
+                    unloadChunk(uuid, level, location.blockPos());
                 }
             }
         }
@@ -75,7 +72,7 @@ public class ChunkManager {
             var location = Location.of(level, pos);
             unloaded.remove(owner, location);
             loaded.put(owner, location);
-            ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX, location.chunkZ, true, false);
+            ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX(), location.chunkZ(), true, false);
         }
     }
 
@@ -83,19 +80,11 @@ public class ChunkManager {
         var location = Location.of(level, pos);
         loaded.remove(owner, location);
         unloaded.put(owner, location);
-        ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX, location.chunkZ, false, false);
+        ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX(), location.chunkZ(), false, false);
     }
 
     @SuppressWarnings("java:S1172") // unused parameter is required
     public static void validateTickets(ServerLevel level, ForgeChunkManager.TicketHelper ticketHelper) {
         ticketHelper.getBlockTickets().keySet().forEach(ticketHelper::removeAllTickets);
-    }
-
-    private record Location(ResourceKey<Level> level, BlockPos blockPos, int chunkX, int chunkZ) {
-        static Location of(ServerLevel level, BlockPos blockPos) {
-            var chunkX = SectionPos.blockToSectionCoord(blockPos.getX());
-            var chunkZ = SectionPos.blockToSectionCoord(blockPos.getZ());
-            return new Location(level.dimension(), blockPos, chunkX, chunkZ);
-        }
     }
 }
