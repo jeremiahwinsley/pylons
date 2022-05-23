@@ -59,14 +59,6 @@ public class InterdictionPylonTile extends AbstractPylonTile {
     }
 
     @Override
-    public void handleWorkPacket() {
-        super.handleWorkPacket();
-        if (!shouldWork && level instanceof ServerLevel serverLevel) {
-            SpawnManager.unregister(serverLevel, worldPosition);
-        }
-    }
-
-    @Override
     public void setChanged() {
         super.setChanged();
         this.dirty = true;

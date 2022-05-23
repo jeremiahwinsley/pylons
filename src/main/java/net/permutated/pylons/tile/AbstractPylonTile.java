@@ -243,6 +243,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
             shouldWork = !shouldWork;
             this.setChanged();
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
+
+            if (!shouldWork) removeChunkloads();
         }
     }
 
