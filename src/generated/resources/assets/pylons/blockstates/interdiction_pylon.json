@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "pylons:block/interdiction_pylon"
+    }
+  }
+}

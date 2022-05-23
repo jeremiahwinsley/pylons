@@ -22,6 +22,13 @@ public class Range {
         return contents[at % contents.length];
     }
 
+    public byte max() {
+        return contents[contents.length - 1];
+    }
+    public int toRadius() {
+        return (contents[position] - 1) / 2;
+    }
+
     public CompoundNBT serializeNBT() {
         CompoundNBT tag = new CompoundNBT();
         tag.putByteArray(Constants.NBT.CONTENTS, this.contents);

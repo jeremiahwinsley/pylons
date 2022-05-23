@@ -12,6 +12,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.permutated.pylons.block.AbstractPylonBlock;
 import net.permutated.pylons.client.ClientSetup;
+import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.network.NetworkDispatcher;
 import net.permutated.pylons.util.ChunkManager;
@@ -37,6 +38,7 @@ public class Pylons
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
+        MinecraftForge.EVENT_BUS.addListener(MobFilterCard::onPlayerInteractEvent);
         MinecraftForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
     }
 

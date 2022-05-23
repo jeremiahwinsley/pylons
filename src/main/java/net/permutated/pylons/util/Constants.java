@@ -8,6 +8,7 @@ public class Constants {
     public static final String EXPULSION_PYLON = "expulsion_pylon";
     public static final String INFUSION_PYLON = "infusion_pylon";
     public static final String HARVESTER_PYLON = "harvester_pylon";
+    public static final String INTERDICTION_PYLON = "interdiction_pylon";
 
     public static final String UNKNOWN = "unknown";
 
@@ -16,6 +17,7 @@ public class Constants {
             // nothing to do
         }
 
+        public static final String REGISTRY = "registry";
         public static final String ENERGY = "energy";
         public static final String OWNER = "owner";
         public static final String NAME = "name";

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "pylons:clear_mob_filter"
+    ]
+  },
+  "criteria": {
+    "has_mob_filter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "pylons:mob_filter"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "pylons:clear_mob_filter"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_mob_filter",
+      "has_the_recipe"
+    ]
+  ]
+}

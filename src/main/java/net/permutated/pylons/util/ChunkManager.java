@@ -1,10 +1,7 @@
 package net.permutated.pylons.util;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.SectionPos;
-import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -90,25 +87,5 @@ public class ChunkManager {
     @SuppressWarnings("java:S1172") // unused parameter is required
     public static void validateTickets(ServerWorld level, ForgeChunkManager.TicketHelper ticketHelper) {
         ticketHelper.getBlockTickets().keySet().forEach(ticketHelper::removeAllTickets);
-    }
-
-    private static class Location {
-        protected final RegistryKey<World> level;
-        protected final BlockPos blockPos;
-        protected final int chunkX;
-        protected final int chunkZ;
-
-        public Location(RegistryKey<World> level, BlockPos blockPos, int chunkX, int chunkZ) {
-            this.level = level;
-            this.blockPos = blockPos;
-            this.chunkX = chunkX;
-            this.chunkZ = chunkZ;
-        }
-
-        static Location of(ServerWorld level, BlockPos blockPos) {
-            int chunkX = SectionPos.blockToSectionCoord(blockPos.getX());
-            int chunkZ = SectionPos.blockToSectionCoord(blockPos.getZ());
-            return new Location(level.dimension(), blockPos, chunkX, chunkZ);
-        }
     }
 }
