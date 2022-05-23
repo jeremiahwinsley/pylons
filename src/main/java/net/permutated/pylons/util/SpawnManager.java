@@ -2,6 +2,7 @@ package net.permutated.pylons.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import net.minecraft.core.SectionPos;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.SectionPos;
@@ -49,8 +50,8 @@ public class SpawnManager {
             ServerWorld level = (ServerWorld) event.getWorld();
             LivingEntity entity = (LivingEntity) event.getEntity();
 
-            int chunkX = SectionPos.blockToSectionCoord((int) entity.getX());
-            int chunkZ = SectionPos.blockToSectionCoord((int) entity.getZ());
+            int chunkX = SectionPos.posToSectionCoord(entity.getX());
+            int chunkZ = SectionPos.posToSectionCoord(entity.getZ());
 
             Location key = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
             Set<String> filterSet = chunkMap.get(key);
