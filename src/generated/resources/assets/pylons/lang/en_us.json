@@ -29,7 +29,7 @@
   "tooltip.pylons.expulsion3": "is placed.",
   "tooltip.pylons.harvester1": "Harvests crops in a configurable",
   "tooltip.pylons.harvester2": "radius around the pylon. Just place",
-  "tooltip.pylons.harvester3": "inside the water block.",
+  "tooltip.pylons.harvester3": "inside or above the water block.",
   "tooltip.pylons.increase1": "Right-click with the same effect",
   "tooltip.pylons.increase2": "active to increase progress.",
   "tooltip.pylons.infusion1": "Applies potion effects from",

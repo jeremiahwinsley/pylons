@@ -59,7 +59,7 @@ public class Languages {
 
             add(tooltip("harvester1"), "Harvests crops in a configurable");
             add(tooltip("harvester2"), "radius around the pylon. Just place");
-            add(tooltip("harvester3"), "inside the water block.");
+            add(tooltip("harvester3"), "inside or above the water block.");
 
             add(tooltip("interdiction1"), "Configurable mob spawn prevention");
             add(tooltip("interdiction2"), "in a radius around the pylon.");

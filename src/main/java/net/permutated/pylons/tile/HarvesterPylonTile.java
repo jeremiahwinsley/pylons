@@ -16,6 +16,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.block.HarvesterPylonBlock;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +94,9 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                 }
             }
 
+            boolean waterlogged = this.getBlockState().getValue(HarvesterPylonBlock.WATERLOGGED);
+            int workY = waterlogged ? above.getY() : getBlockPos().getY();
+
             // convert range to radius and iterate over every loaded block
             int radius = (range.get() - 1) / 2;
 
@@ -102,7 +106,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
             int maxZ = above.getZ() + radius;
             for (int x = minX;x <= maxX;x++) {
                 for (int z = minZ;z <= maxZ;z++) {
-                    BlockPos workPos = new BlockPos(x, above.getY(), z);
+                    BlockPos workPos = new BlockPos(x, workY, z);
                     if (!level.isLoaded(workPos)) {
                         continue;
                     }
