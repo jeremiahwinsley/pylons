@@ -50,8 +50,8 @@ public class Languages {
             add(chat("expelled"), "You have been expelled from %s's chunk!");
 
             add(tooltip("expulsion1"), "Expels other players from");
-            add(tooltip("expulsion2"), "the chunk where the pylon");
-            add(tooltip("expulsion3"), "is placed.");
+            add(tooltip("expulsion2"), "a configurable chunk range");
+            add(tooltip("expulsion3"), "around the pylon.");
 
             add(tooltip("infusion1"), "Applies potion effects from");
             add(tooltip("infusion2"), "an activated potion filter");
