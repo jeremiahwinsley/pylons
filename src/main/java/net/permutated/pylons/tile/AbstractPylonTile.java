@@ -50,10 +50,14 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     protected final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
 
+    protected boolean canAccessInventory() {
+        return false;
+    }
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && side == null) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (side == null || canAccessInventory())) {
             return handler.cast();
         }
         return super.getCapability(cap, side);

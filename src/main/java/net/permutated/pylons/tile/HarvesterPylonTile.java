@@ -34,6 +34,12 @@ public class HarvesterPylonTile extends AbstractPylonTile {
     protected boolean isItemValid(ItemStack stack) {
         return stack.getItem() instanceof HoeItem;
     }
+
+    @Override
+    protected boolean canAccessInventory() {
+        return ConfigManager.SERVER.harvesterCanBeAutomated.get();
+    }
+
     private boolean requiresTool() {
         return Boolean.TRUE.equals(ConfigManager.SERVER.harvesterRequiresTool.get());
     }

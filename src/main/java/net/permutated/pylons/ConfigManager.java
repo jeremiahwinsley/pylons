@@ -43,6 +43,7 @@ public class ConfigManager {
         // CATEGORY_HARVESTER
         public final ForgeConfigSpec.IntValue harvesterWorkDelay;
         public final ForgeConfigSpec.BooleanValue harvesterRequiresTool;
+        public final ForgeConfigSpec.BooleanValue harvesterCanBeAutomated;
 
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
@@ -108,6 +109,11 @@ public class ConfigManager {
                 .comment("Whether the harvester requires a hoe to work.",
                     "If enabled, it will use 1 durability per harvest action")
                 .define("harvesterRequiresTool", true);
+
+            harvesterCanBeAutomated = builder
+                .comment("Whether the harvester can have tools piped in to automate it.",
+                    "By default, unbreakable tools are required for full automation.")
+                .define("harvesterCanBeAutomated", false);
 
             builder.pop();
         }
