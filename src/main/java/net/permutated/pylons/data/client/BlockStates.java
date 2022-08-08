@@ -1,11 +1,12 @@
 package net.permutated.pylons.data.client;
 
-import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
@@ -26,7 +27,8 @@ public class BlockStates extends BlockStateProvider {
     }
 
     protected void pylon(RegistryObject<Block> block, String texture) {
-        String blockName = Objects.requireNonNull(block.get().getRegistryName()).toString();
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(block.get());
+        String blockName = Objects.requireNonNull(key).toString();
         ModelFile pylonModel = models()
             .withExistingParent(blockName, new ResourceLocation(Pylons.MODID, "block/pylon"))
             .texture("center", new ResourceLocation("block/".concat(texture)));

@@ -3,7 +3,7 @@ package net.permutated.pylons;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeChunkManager;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -52,7 +52,7 @@ public class Pylons
 
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
         if (event.getState().getBlock() instanceof AbstractPylonBlock) {
-            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+            BlockEntity tileEntity = event.getLevel().getBlockEntity(event.getPos());
 
             if (!AbstractPylonBlock.canAccessPylon(tileEntity, event.getPlayer())) {
                 event.setCanceled(true);

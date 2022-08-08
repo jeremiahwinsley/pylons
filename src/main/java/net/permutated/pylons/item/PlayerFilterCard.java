@@ -1,12 +1,15 @@
 package net.permutated.pylons.item;
 
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -17,12 +20,6 @@ import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
 import java.util.List;
-
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class PlayerFilterCard extends Item {
     public PlayerFilterCard() {
@@ -67,7 +64,7 @@ public class PlayerFilterCard extends Item {
             String username = tag.getString(Constants.NBT.NAME);
             tooltip.add(translate("player", username).withStyle(ChatFormatting.BLUE));
 
-            tooltip.add(new TextComponent(""));
+            tooltip.add(Component.empty());
             tooltip.add(translate("insert1"));
             tooltip.add(translate("insert2"));
         } else {
@@ -76,10 +73,10 @@ public class PlayerFilterCard extends Item {
     }
 
     protected MutableComponent translate(String key) {
-        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 
-    protected TranslatableComponent translate(String key, Object... values) {
-        return new TranslatableComponent(TranslationKey.tooltip(key), values);
+    protected MutableComponent translate(String key, Object... values) {
+        return Component.translatable(TranslationKey.tooltip(key), values);
     }
 }

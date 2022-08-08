@@ -4,10 +4,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -64,7 +66,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     public Component getWorkComponent() {
         var shouldWork = tileEntity != null && tileEntity.shouldWork();
-        return new TextComponent(shouldWork ? "On" : "Off");
+        return Component.literal(shouldWork ? "On" : "Off");
     }
 
     @SuppressWarnings("java:S1172") // parameter required
@@ -78,7 +80,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     public Component getRangeComponent() {
         var range = tileEntity != null ? tileEntity.getSelectedRange() : 0;
-        return new TextComponent(String.format("%dx%d", range, range));
+        return Component.literal(String.format("%dx%d", range, range));
     }
 
     @SuppressWarnings("java:S1172") // parameter required

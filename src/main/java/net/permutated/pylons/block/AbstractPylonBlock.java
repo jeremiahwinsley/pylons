@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -135,7 +134,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
                 MenuProvider containerProvider = new MenuProvider() {
                     @Override
                     public Component getDisplayName() {
-                        return new TranslatableComponent(getDescriptionId());
+                        return Component.translatable(getDescriptionId());
                     }
 
                     @Override
@@ -147,7 +146,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
                 };
 
                 if (canAccessPylon(tileEntity, player)) {
-                    NetworkHooks.openGui((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
+                    NetworkHooks.openScreen((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
                 } else {
                     return InteractionResult.FAIL;
                 }
@@ -160,6 +159,6 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     }
 
     protected MutableComponent translate(String key) {
-        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 }

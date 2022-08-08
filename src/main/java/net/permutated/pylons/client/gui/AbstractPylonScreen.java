@@ -6,7 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
@@ -96,11 +96,11 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         this.font.draw(stack, component, 8, yPos, 4210752);
     }
 
-    protected TranslatableComponent translate(String key) {
-        return new TranslatableComponent(TranslationKey.gui(key));
+    protected MutableComponent translate(String key) {
+        return Component.translatable(TranslationKey.gui(key));
     }
 
-    protected TranslatableComponent translate(String key, Object... values) {
-        return new TranslatableComponent(TranslationKey.gui(key), values);
+    protected MutableComponent translate(String key, Object... values) {
+        return Component.translatable(TranslationKey.gui(key), values);
     }
 }

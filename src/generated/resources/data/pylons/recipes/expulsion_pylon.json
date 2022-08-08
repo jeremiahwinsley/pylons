@@ -1,25 +1,25 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "pylons",
+  "key": {
+    "b": {
+      "item": "minecraft:polished_blackstone"
+    },
+    "d": {
+      "item": "minecraft:diamond_block"
+    },
+    "i": {
+      "item": "minecraft:iron_bars"
+    },
+    "q": {
+      "item": "minecraft:quartz_slab"
+    }
+  },
   "pattern": [
     "qqq",
     "idi",
     "bbb"
   ],
-  "key": {
-    "d": {
-      "item": "minecraft:diamond_block"
-    },
-    "b": {
-      "item": "minecraft:polished_blackstone"
-    },
-    "q": {
-      "item": "minecraft:quartz_slab"
-    },
-    "i": {
-      "item": "minecraft:iron_bars"
-    }
-  },
   "result": {
     "item": "pylons:expulsion_pylon"
   }

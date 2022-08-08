@@ -4,8 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -168,7 +166,7 @@ public class PotionFilterCard extends Item {
                 tooltip.add(translate("effect_denied").withStyle(ChatFormatting.RED));
             }
 
-            tooltip.add(new TextComponent(""));
+            tooltip.add(Component.empty());
 
             if (duration >= getRequiredDuration()) {
                 tooltip.add(translate("insert1"));
@@ -200,7 +198,7 @@ public class PotionFilterCard extends Item {
      * @return a copy of the ItemStack with the new NBT
      */
     public static ItemStack withEffect(final ItemStack stack, MobEffect effect, int amplifier, int duration) {
-        ResourceLocation registryName = effect.getRegistryName();
+        ResourceLocation registryName = ForgeRegistries.MOB_EFFECTS.getKey(effect);
         if (registryName == null) {
             return stack;
         }
@@ -300,15 +298,15 @@ public class PotionFilterCard extends Item {
     }
 
     protected MutableComponent translate(String key) {
-        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 
-    protected TranslatableComponent translate(String key, Object... values) {
-        return new TranslatableComponent(TranslationKey.tooltip(key), values);
+    protected MutableComponent translate(String key, Object... values) {
+        return Component.translatable(TranslationKey.tooltip(key), values);
     }
 
-    protected TranslatableComponent withAmplifier(MutableComponent component, int amplifier) {
-        return new TranslatableComponent("potion.withAmplifier", component,
-            new TranslatableComponent("potion.potency." + amplifier));
+    protected MutableComponent withAmplifier(MutableComponent component, int amplifier) {
+        return Component.translatable("potion.withAmplifier", component,
+            Component.translatable("potion.potency." + amplifier));
     }
 }

@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -159,7 +159,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
 
         ServerLevel actualLevel = respawnLevel != null && optional.isPresent() ? respawnLevel : server.overworld();
-        ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile());
+        ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile(), null);
 
         if (optional.isPresent()) {
             BlockState blockstate = actualLevel.getBlockState(respawnPosition);
@@ -187,6 +187,6 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
 
         player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.getYRot(), dummyPlayer.getXRot());
-        player.sendMessage(new TranslatableComponent(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED), player.getUUID());
+        player.sendSystemMessage(Component.translatable(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED));
     }
 }

@@ -4,12 +4,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.Pylons;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -44,16 +46,17 @@ public class SpawnManager {
     }
 
     @SubscribeEvent
-    public static void onEntityJoinWorldEvent(EntityJoinWorldEvent event) {
-        if (event.getWorld() instanceof ServerLevel level && event.getEntity() instanceof LivingEntity entity) {
+    public static void onEntityJoinWorldEvent(EntityJoinLevelEvent event) {
+        if (event.getLevel() instanceof ServerLevel level && event.getEntity() instanceof LivingEntity entity) {
             int chunkX = SectionPos.posToSectionCoord(entity.getX());
             int chunkZ = SectionPos.posToSectionCoord(entity.getZ());
 
-            Location key = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
-            Set<String> filterSet = chunkMap.get(key);
+            Location location = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
+            Set<String> filterSet = chunkMap.get(location);
             if (filterSet == null) return;
 
-            String registryId = Objects.toString(event.getEntity().getType().getRegistryName(), "unregistered");
+            ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(event.getEntity().getType());
+            String registryId = Objects.toString(key, "unregistered");
             if (filterSet.contains(registryId)) {
                 event.setCanceled(true);
             }

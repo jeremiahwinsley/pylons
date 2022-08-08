@@ -4,8 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -14,6 +13,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.Constants;
@@ -33,7 +33,8 @@ public class MobFilterCard extends Item {
         if (itemStack.getItem() instanceof MobFilterCard && event.getTarget() instanceof LivingEntity) {
             if (event.getSide() == LogicalSide.SERVER) {
                 CompoundTag tag = itemStack.getOrCreateTagElement(Pylons.MODID);
-                tag.putString(Constants.NBT.REGISTRY, Objects.toString(event.getTarget().getType().getRegistryName(), "unregistered"));
+                ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(event.getTarget().getType());
+                tag.putString(Constants.NBT.REGISTRY, Objects.toString(key, "unregistered"));
                 tag.putString(Constants.NBT.NAME, event.getTarget().getType().getDescriptionId());
 
                 event.setCancellationResult(InteractionResult.SUCCESS);
@@ -57,9 +58,9 @@ public class MobFilterCard extends Item {
         CompoundTag tag = stack.getTagElement(Pylons.MODID);
         if (tag != null) {
             String name = tag.getString(Constants.NBT.NAME);
-            tooltip.add(new TranslatableComponent(name).withStyle(ChatFormatting.BLUE));
+            tooltip.add(Component.translatable(name).withStyle(ChatFormatting.BLUE));
 
-            tooltip.add(new TextComponent(""));
+            tooltip.add(Component.empty());
             tooltip.add(translate("insert1"));
             tooltip.add(translate("insert2"));
         } else {
@@ -68,10 +69,10 @@ public class MobFilterCard extends Item {
     }
 
     protected MutableComponent translate(String key) {
-        return new TranslatableComponent(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable(TranslationKey.tooltip(key)).withStyle(ChatFormatting.GRAY);
     }
 
-    protected TranslatableComponent translate(String key, Object... values) {
-        return new TranslatableComponent(TranslationKey.tooltip(key), values);
+    protected MutableComponent translate(String key, Object... values) {
+        return Component.translatable(TranslationKey.tooltip(key), values);
     }
 }

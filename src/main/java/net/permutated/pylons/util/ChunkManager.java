@@ -38,10 +38,10 @@ public class ChunkManager {
 
     @SubscribeEvent
     public static void onLoginEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        var uuid = event.getPlayer().getUUID();
+        var uuid = event.getEntity().getUUID();
         if (uuid != null && unloaded.containsKey(uuid)) {
             var location = unloaded.get(uuid);
-            var server = event.getPlayer().getServer();
+            var server = event.getEntity().getServer();
             if (location != null && server != null) {
                 var level = server.getLevel(location.level());
                 if (level != null) {
@@ -53,10 +53,10 @@ public class ChunkManager {
 
     @SubscribeEvent
     public static void onLogoutEvent(PlayerEvent.PlayerLoggedOutEvent event) {
-        var uuid = event.getPlayer().getUUID();
+        var uuid = event.getEntity().getUUID();
         if (uuid != null && loaded.containsKey(uuid)) {
             var location = loaded.get(uuid);
-            var server = event.getPlayer().getServer();
+            var server = event.getEntity().getServer();
             if (location != null && server != null) {
                 var level = server.getLevel(location.level());
                 if (level != null) {

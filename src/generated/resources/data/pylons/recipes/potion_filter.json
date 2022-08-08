@@ -1,15 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "pylons",
-  "pattern": [
-    "tct",
-    "gdg",
-    "ggg"
-  ],
   "key": {
-    "t": {
-      "item": "minecraft:cyan_terracotta"
-    },
     "c": {
       "tag": "forge:dyes/green"
     },
@@ -18,8 +10,16 @@
     },
     "g": {
       "tag": "forge:glass"
+    },
+    "t": {
+      "item": "minecraft:cyan_terracotta"
     }
   },
+  "pattern": [
+    "tct",
+    "gdg",
+    "ggg"
+  ],
   "result": {
     "item": "pylons:potion_filter"
   }
