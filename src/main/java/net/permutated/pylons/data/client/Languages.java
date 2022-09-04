@@ -35,7 +35,7 @@ public class Languages {
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
             add(gui("wrongDimension"), "This dimension is disabled.");
             add(gui("insideWorldSpawn"), "Too close to world spawn.");
-            add(gui("toolMissing"), "Tool required for operation.");
+            add(gui("toolMissing"), "Hoe required for operation.");
             add(gui("inventoryMissing"), "Place inventory above pylon.");
             add(gui("inventoryFull"), "Inventory is full.");
             add(gui("working"), "Pylon is working.");
