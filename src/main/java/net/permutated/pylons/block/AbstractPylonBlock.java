@@ -30,6 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
@@ -79,7 +80,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (!level.isClientSide && entity instanceof Player) {
+        if (!level.isClientSide && entity instanceof Player && !(entity instanceof FakePlayer)) {
             BlockEntity tileEntity = level.getBlockEntity(blockPos);
             if (tileEntity instanceof AbstractPylonTile pylonTile) {
                 pylonTile.setOwner(entity.getUUID());
