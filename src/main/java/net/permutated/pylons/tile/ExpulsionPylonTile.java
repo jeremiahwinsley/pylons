@@ -65,6 +65,12 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         );
 
         var selected = range.get() - 1; // center chunk is already included
+
+        var maxRadius = ConfigManager.SERVER.expulsionPylonMaxRadius.get();
+        if (selected > maxRadius) {
+            selected = maxRadius;
+        }
+
         if (selected > 0) {
             return aabb.inflate(selected * 8D); // range is diameter, inflate is radius
         }

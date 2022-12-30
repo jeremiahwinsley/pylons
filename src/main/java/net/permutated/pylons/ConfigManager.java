@@ -31,6 +31,8 @@ public class ConfigManager {
         // CATEGORY_EXPULSION
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
         public final ForgeConfigSpec.IntValue expulsionWorldSpawnRadius;
+        public final ForgeConfigSpec.BooleanValue expulsionPylonCanExplode;
+        public final ForgeConfigSpec.IntValue expulsionPylonMaxRadius;
 
         // CATEGORY_INFUSION
         public final ForgeConfigSpec.IntValue infusionMinimumDuration;
@@ -60,6 +62,15 @@ public class ConfigManager {
                     "By default this uses the world spawn radius (/gamerule spawnRadius).",
                     "This config will only take effect if it is larger than the world spawn radius.")
                 .defineInRange("expulsionWorldSpawnRadius", 1, 1, 512);
+
+            expulsionPylonCanExplode = builder
+                .comment("Whether the Expulsion Pylon can be destroyed with explosions.")
+                .define("expulsionPylonCanExplode", false);
+
+            expulsionPylonMaxRadius = builder
+                .comment("Limit the max radius for expulsion pylons.",
+                    "Does not include center chunk, so a radius of 2 equals a 5x5 chunk diameter.")
+                .defineInRange("expulsionPylonMaxRadius", 2, 0, 2);
 
             builder.pop();
 

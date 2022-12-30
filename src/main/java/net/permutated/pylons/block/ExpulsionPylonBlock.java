@@ -5,10 +5,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.IContainerFactory;
+import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.inventory.container.ExpulsionPylonContainer;
@@ -43,5 +45,14 @@ public class ExpulsionPylonBlock extends AbstractPylonBlock {
         tooltip.add(translate("expulsion1"));
         tooltip.add(translate("expulsion2"));
         tooltip.add(translate("expulsion3"));
+    }
+
+    @Override
+    public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+        if (Boolean.TRUE.equals(ConfigManager.SERVER.expulsionPylonCanExplode.get())) {
+            return 6.0F;
+        } else {
+            return super.getExplosionResistance(state, level, pos, explosion);
+        }
     }
 }

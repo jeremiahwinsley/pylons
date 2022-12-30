@@ -46,7 +46,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).strength(-1F, 1200F));
+        super(Properties.of(Material.METAL).strength(INDESTRUCTIBLE, 1200F));
     }
 
     @Override
