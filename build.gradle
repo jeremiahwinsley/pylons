@@ -148,9 +148,9 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3670018")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3940240")
 //    runtimeOnly fg.deobf("curse.maven:top-245211:3586969")
-    runtimeOnly fg.deobf("curse.maven:configured-457570:3559398")
+    runtimeOnly fg.deobf("curse.maven:configured-457570:4010624")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
