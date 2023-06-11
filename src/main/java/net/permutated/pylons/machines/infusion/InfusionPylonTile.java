@@ -1,4 +1,4 @@
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.infusion;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.item.PotionFilterCard;
 import net.permutated.pylons.util.ChunkManager;
 

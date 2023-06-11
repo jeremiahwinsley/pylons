@@ -1,4 +1,4 @@
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.interdiction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.SpawnManager;

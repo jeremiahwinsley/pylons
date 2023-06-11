@@ -8,7 +8,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.block.AbstractPylonBlock;
+import net.permutated.pylons.machines.base.AbstractPylonBlock;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;

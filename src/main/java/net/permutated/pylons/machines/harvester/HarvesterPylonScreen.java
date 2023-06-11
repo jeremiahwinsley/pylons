@@ -1,11 +1,11 @@
-package net.permutated.pylons.client.gui;
+package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.permutated.pylons.inventory.container.HarvesterPylonContainer;
+import net.permutated.pylons.machines.base.AbstractPylonScreen;
 
 @SuppressWarnings("java:S110") // inheritance required
 public class HarvesterPylonScreen extends AbstractPylonScreen<HarvesterPylonContainer> {

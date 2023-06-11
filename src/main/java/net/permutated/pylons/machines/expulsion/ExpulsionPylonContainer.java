@@ -1,10 +1,11 @@
-package net.permutated.pylons.inventory.container;
+package net.permutated.pylons.machines.expulsion;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.machines.base.AbstractPylonContainer;
 
 public class ExpulsionPylonContainer extends AbstractPylonContainer {
 

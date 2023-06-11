@@ -1,4 +1,4 @@
-package net.permutated.pylons.client.gui;
+package net.permutated.pylons.machines.base;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.permutated.pylons.inventory.container.AbstractPylonContainer;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
 import net.permutated.pylons.util.TranslationKey;

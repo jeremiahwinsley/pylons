@@ -1,4 +1,4 @@
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +15,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.block.HarvesterPylonBlock;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import java.util.List;
 

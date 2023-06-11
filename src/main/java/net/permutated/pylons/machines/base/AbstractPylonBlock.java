@@ -1,4 +1,4 @@
-package net.permutated.pylons.block;
+package net.permutated.pylons.machines.base;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.ChatFormatting;
@@ -33,8 +33,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.inventory.container.AbstractPylonContainer;
-import net.permutated.pylons.tile.AbstractPylonTile;
 import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;

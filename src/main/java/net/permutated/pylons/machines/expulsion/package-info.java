@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package net.permutated.pylons.client.gui;
+package net.permutated.pylons.machines.expulsion;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

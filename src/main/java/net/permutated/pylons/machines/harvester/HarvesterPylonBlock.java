@@ -1,4 +1,4 @@
-package net.permutated.pylons.block;
+package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -18,10 +18,9 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.network.IContainerFactory;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.inventory.container.AbstractPylonContainer;
-import net.permutated.pylons.inventory.container.HarvesterPylonContainer;
-import net.permutated.pylons.tile.AbstractPylonTile;
-import net.permutated.pylons.tile.HarvesterPylonTile;
+import net.permutated.pylons.machines.base.AbstractPylonBlock;
+import net.permutated.pylons.machines.base.AbstractPylonContainer;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import javax.annotation.Nullable;
 import java.util.List;

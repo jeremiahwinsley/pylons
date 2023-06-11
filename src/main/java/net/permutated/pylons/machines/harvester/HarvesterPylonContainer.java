@@ -1,11 +1,11 @@
-package net.permutated.pylons.inventory.container;
+package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.tile.HarvesterPylonTile;
+import net.permutated.pylons.machines.base.AbstractPylonContainer;
 
 public class HarvesterPylonContainer extends AbstractPylonContainer {
     private final HarvesterPylonTile.Status workStatus;

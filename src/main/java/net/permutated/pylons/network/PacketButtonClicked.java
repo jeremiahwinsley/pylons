@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.tile.AbstractPylonTile;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import java.util.Optional;
 import java.util.function.Supplier;

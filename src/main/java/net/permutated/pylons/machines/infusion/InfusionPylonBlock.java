@@ -1,4 +1,4 @@
-package net.permutated.pylons.block;
+package net.permutated.pylons.machines.infusion;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -10,11 +10,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.network.IContainerFactory;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.inventory.container.AbstractPylonContainer;
+import net.permutated.pylons.machines.base.AbstractPylonBlock;
+import net.permutated.pylons.machines.base.AbstractPylonContainer;
 
-import net.permutated.pylons.inventory.container.InfusionPylonContainer;
-import net.permutated.pylons.tile.AbstractPylonTile;
-import net.permutated.pylons.tile.InfusionPylonTile;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import javax.annotation.Nullable;
 import java.util.List;

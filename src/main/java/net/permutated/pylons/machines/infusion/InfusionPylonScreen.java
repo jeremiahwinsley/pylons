@@ -1,9 +1,9 @@
-package net.permutated.pylons.client.gui;
+package net.permutated.pylons.machines.infusion;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.permutated.pylons.inventory.container.InfusionPylonContainer;
+import net.permutated.pylons.machines.base.AbstractPylonScreen;
 
 @SuppressWarnings("java:S110") // inheritance required
 public class InfusionPylonScreen extends AbstractPylonScreen<InfusionPylonContainer> {

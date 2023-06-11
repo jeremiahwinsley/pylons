@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package net.permutated.pylons.block;
+package net.permutated.pylons.machines.base;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

@@ -1,11 +1,10 @@
-package net.permutated.pylons.client;
+package net.permutated.pylons;
 
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.client.gui.ExpulsionPylonScreen;
-import net.permutated.pylons.client.gui.HarvesterPylonScreen;
-import net.permutated.pylons.client.gui.InfusionPylonScreen;
-import net.permutated.pylons.client.gui.InterdictionPylonScreen;
+import net.permutated.pylons.machines.expulsion.ExpulsionPylonScreen;
+import net.permutated.pylons.machines.harvester.HarvesterPylonScreen;
+import net.permutated.pylons.machines.infusion.InfusionPylonScreen;
+import net.permutated.pylons.machines.interdiction.InterdictionPylonScreen;
 
 public class ClientSetup {
     private ClientSetup() {

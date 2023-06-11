@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package net.permutated.pylons.inventory.container;
+package net.permutated.pylons.machines.interdiction;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

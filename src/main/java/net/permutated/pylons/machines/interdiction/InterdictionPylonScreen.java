@@ -1,9 +1,9 @@
-package net.permutated.pylons.client.gui;
+package net.permutated.pylons.machines.interdiction;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.permutated.pylons.inventory.container.InterdictionPylonContainer;
+import net.permutated.pylons.machines.base.AbstractPylonScreen;
 
 @SuppressWarnings("java:S110") // inheritance required
 public class InterdictionPylonScreen extends AbstractPylonScreen<InterdictionPylonContainer> {

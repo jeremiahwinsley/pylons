@@ -1,4 +1,4 @@
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.expulsion;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
@@ -25,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.TranslationKey;

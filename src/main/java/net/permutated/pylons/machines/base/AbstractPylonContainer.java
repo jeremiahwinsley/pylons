@@ -1,4 +1,4 @@
-package net.permutated.pylons.inventory.container;
+package net.permutated.pylons.machines.base;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
@@ -20,7 +20,6 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.network.NetworkDispatcher;
 import net.permutated.pylons.network.PacketButtonClicked;
-import net.permutated.pylons.tile.AbstractPylonTile;
 
 import javax.annotation.Nullable;
 

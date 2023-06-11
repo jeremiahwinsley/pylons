@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

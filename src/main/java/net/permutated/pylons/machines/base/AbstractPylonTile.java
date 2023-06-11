@@ -1,4 +1,4 @@
-package net.permutated.pylons.tile;
+package net.permutated.pylons.machines.base;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
