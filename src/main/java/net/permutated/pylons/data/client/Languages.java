@@ -1,11 +1,14 @@
 package net.permutated.pylons.data.client;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 
-import static net.permutated.pylons.util.TranslationKey.*;
+import static net.permutated.pylons.util.TranslationKey.chat;
+import static net.permutated.pylons.util.TranslationKey.gui;
+import static net.permutated.pylons.util.TranslationKey.tab;
+import static net.permutated.pylons.util.TranslationKey.tooltip;
 
 public class Languages {
     private Languages() {
@@ -14,8 +17,8 @@ public class Languages {
 
     public static class English extends LanguageProvider {
 
-        public English(DataGenerator gen) {
-            super(gen, Pylons.MODID, "en_us");
+        public English(PackOutput packOutput) {
+            super(packOutput, Pylons.MODID, "en_us");
         }
 
         @Override

@@ -16,7 +16,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.ConfigManager;
-import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.TranslationKey;
@@ -28,7 +27,7 @@ import java.util.Optional;
 
 public class PotionFilterCard extends Item {
     public PotionFilterCard() {
-        super(new Item.Properties().stacksTo(1).tab(ModRegistry.CREATIVE_TAB).setNoRepair());
+        super(new Item.Properties().stacksTo(1).setNoRepair());
     }
 
     // minimum duration of effect that can be copied to the filter

@@ -3,13 +3,14 @@ package net.permutated.pylons;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.constant.EmptyPart;
 import com.mojang.datafixers.util.Unit;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -36,9 +37,7 @@ import net.permutated.pylons.tile.HarvesterPylonTile;
 import net.permutated.pylons.tile.InfusionPylonTile;
 import net.permutated.pylons.tile.InterdictionPylonTile;
 import net.permutated.pylons.util.Constants;
-
-import javax.annotation.Nonnull;
-import java.util.function.Supplier;
+import net.permutated.pylons.util.TranslationKey;
 
 public class ModRegistry {
     private ModRegistry() {
@@ -49,10 +48,18 @@ public class ModRegistry {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Pylons.MODID);
     public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Pylons.MODID);
     public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Pylons.MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Pylons.MODID);
 
 
-    public static final CreativeModeTab CREATIVE_TAB = new ModItemGroup(Pylons.MODID,
-        () -> new ItemStack(ModRegistry.PLAYER_FILTER.get()));
+    public static final RegistryObject<CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register("creative_tab", () -> CreativeModeTab.builder()
+        .title(Component.translatable(TranslationKey.tab()))
+        .icon(() -> ModRegistry.PLAYER_FILTER.get().getDefaultInstance())
+        .displayItems((parameters, output) -> ITEMS.getEntries().stream()
+            .map(RegistryObject::get)
+            .map(Item::getDefaultInstance)
+            .forEach(output::accept))
+        .build()
+    );
 
     // Items
     public static final RegistryObject<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);
@@ -91,7 +98,7 @@ public class ModRegistry {
      */
     private static RegistryObject<BlockItem> blockItem(RegistryObject<Block> registryObject) {
         return ITEMS.register(registryObject.getId().getPath(),
-            () -> new BlockItem(registryObject.get(), new Item.Properties().tab(CREATIVE_TAB)));
+            () -> new BlockItem(registryObject.get(), new Item.Properties()));
     }
 
     /**
@@ -101,7 +108,7 @@ public class ModRegistry {
      * @return the new registry object
      */
     private static RegistryObject<Item> material(String path) {
-        return ITEMS.register(path, () -> new Item(new Item.Properties().tab(CREATIVE_TAB)));
+        return ITEMS.register(path, () -> new Item(new Item.Properties()));
     }
 
     /**
@@ -134,20 +141,6 @@ public class ModRegistry {
         BLOCKS.register(bus);
         TILES.register(bus);
         CONTAINERS.register(bus);
-    }
-
-    public static final class ModItemGroup extends CreativeModeTab {
-        private final Supplier<ItemStack> iconSupplier;
-
-        public ModItemGroup(final String name, final Supplier<ItemStack> iconSupplier) {
-            super(name);
-            this.iconSupplier = iconSupplier;
-        }
-
-        @Nonnull
-        @Override
-        public ItemStack makeIcon() {
-            return iconSupplier.get();
-        }
+        CREATIVE_TABS.register(bus);
     }
 }

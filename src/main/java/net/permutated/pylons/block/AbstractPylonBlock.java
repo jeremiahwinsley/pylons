@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -46,7 +46,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     );
 
     protected AbstractPylonBlock() {
-        super(Properties.of(Material.METAL).strength(INDESTRUCTIBLE, 1200F));
+        super(Properties.of().mapColor(MapColor.METAL).strength(INDESTRUCTIBLE, 1200F));
     }
 
     @Override

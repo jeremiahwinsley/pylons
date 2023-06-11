@@ -1,6 +1,6 @@
 package net.permutated.pylons.data.client;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
@@ -14,8 +14,8 @@ import net.permutated.pylons.Pylons;
 import java.util.Objects;
 
 public class BlockStates extends BlockStateProvider {
-    public BlockStates(DataGenerator generator, ExistingFileHelper fileHelper) {
-        super(generator, Pylons.MODID, fileHelper);
+    public BlockStates(PackOutput packOutput, ExistingFileHelper fileHelper) {
+        super(packOutput, Pylons.MODID, fileHelper);
     }
 
     @Override

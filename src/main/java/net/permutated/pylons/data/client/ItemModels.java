@@ -1,20 +1,20 @@
 package net.permutated.pylons.data.client;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.RegistryObject;
-import net.permutated.pylons.Pylons;
 import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.Pylons;
 
 import java.util.Collection;
 
 public class ItemModels extends ItemModelProvider {
-    public ItemModels(DataGenerator generator, ExistingFileHelper fileHelper) {
-        super(generator, Pylons.MODID, fileHelper);
+    public ItemModels(PackOutput packOutput, ExistingFileHelper fileHelper) {
+        super(packOutput, Pylons.MODID, fileHelper);
     }
 
     private ResourceLocation res(String name) {

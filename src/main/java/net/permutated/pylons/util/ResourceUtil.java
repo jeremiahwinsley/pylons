@@ -1,7 +1,8 @@
 package net.permutated.pylons.util;
 
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -25,11 +26,11 @@ public class ResourceUtil {
     }
 
     public static TagKey<Item> tag(String path) {
-        return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(path));
+        return ItemTags.create(new ResourceLocation(path));
     }
 
     public static TagKey<Block> blockTag(String path) {
-        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(path));
+        return BlockTags.create(new ResourceLocation(path));
     }
 
     public static ResourceLocation gui(String path) {

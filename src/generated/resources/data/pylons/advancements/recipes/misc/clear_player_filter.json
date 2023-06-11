@@ -30,5 +30,6 @@
     "recipes": [
       "pylons:clear_player_filter"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

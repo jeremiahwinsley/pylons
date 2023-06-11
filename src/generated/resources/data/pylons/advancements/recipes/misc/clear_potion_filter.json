@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_emerald_block": {
+    "has_potion_filter": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:emerald_block"
+              "pylons:potion_filter"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:infusion_pylon"
+        "recipe": "pylons:clear_potion_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_emerald_block",
+      "has_potion_filter",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:infusion_pylon"
+      "pylons:clear_potion_filter"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

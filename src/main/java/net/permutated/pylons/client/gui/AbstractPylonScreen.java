@@ -1,9 +1,9 @@
 package net.permutated.pylons.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -19,7 +19,7 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
     protected Button workButton;
     protected Button rangeButton;
 
-    protected AbstractPylonScreen(T container, Inventory inv, Component name, String pylonType) {
+    protected AbstractPylonScreen(T container, Inventory inv, Component name) {
         super(container, inv, name);
         this.gui = ResourceUtil.gui("pylon");
         this.imageWidth = 176;
@@ -31,10 +31,17 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
     protected void init() {
         super.init();
         // x, y, width, height
-        workButton = new Button(this.leftPos + 142, this.height / 2 - 80, 26, 20,
-            this.menu.getWorkComponent(), this.menu::sendWorkPacket, this::workButtonTooltip);
-        rangeButton = new Button(this.leftPos + 116, this.height / 2 - 80, 26, 20,
-            this.menu.getRangeComponent(), this.menu::sendRangePacket, this::rangeButtonTooltip);
+        workButton = Button.builder(this.menu.getWorkComponent(), this.menu::sendWorkPacket)
+            .pos(this.leftPos + 142, this.height / 2 - 80)
+            .size(26, 20)
+            .tooltip(workButtonTooltip())
+            .build();
+
+        rangeButton = Button.builder(this.menu.getRangeComponent(), this.menu::sendRangePacket)
+            .pos(this.leftPos + 116, this.height / 2 - 80)
+            .size(26, 20)
+            .tooltip(rangeButtonTooltip())
+            .build();
 
         addRenderableWidget(workButton);
         if (this.menu.shouldRenderRange()) {
@@ -43,12 +50,12 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         updateMessages();
     }
 
-    protected void workButtonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
-        this.renderTooltip(poseStack, translate("toggleWork"), p_169460_, p_169461_);
+    protected Tooltip workButtonTooltip() {
+        return Tooltip.create(translate("toggleWork"));
     }
 
-    protected void rangeButtonTooltip(Button button, PoseStack poseStack, int p_169460_, int p_169461_) {
-        this.renderTooltip(poseStack, translate("workArea"), p_169460_, p_169461_);
+    protected Tooltip rangeButtonTooltip() {
+        return Tooltip.create(translate("workArea"));
     }
 
     public void updateMessages() {
@@ -63,24 +70,23 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderTooltip(matrixStack, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, gui);
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
-        this.blit(matrixStack, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+        graphics.blit(gui, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
-        super.renderLabels(matrixStack, mouseX, mouseY);
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        super.renderLabels(graphics, mouseX, mouseY);
         String owner = this.menu.getOwnerName();
 
         Component component;
@@ -89,11 +95,11 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         } else {
             component = translate("owner", owner);
         }
-        drawText(matrixStack, component, 30);
+        drawText(graphics, component, 30);
     }
 
-    protected void drawText(PoseStack stack, Component component, int yPos) {
-        this.font.draw(stack, component, 8, yPos, 4210752);
+    protected void drawText(GuiGraphics graphics, Component component, int yPos) {
+        graphics.drawString(this.font, component, 8, yPos, 4210752, false);
     }
 
     protected MutableComponent translate(String key) {

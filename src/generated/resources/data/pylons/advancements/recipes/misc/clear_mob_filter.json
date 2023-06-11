@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_infusion_pylon": {
+    "has_mob_filter": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pylons:infusion_pylon"
+              "pylons:mob_filter"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:potion_filter"
+        "recipe": "pylons:clear_mob_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_infusion_pylon",
+      "has_mob_filter",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:potion_filter"
+      "pylons:clear_mob_filter"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

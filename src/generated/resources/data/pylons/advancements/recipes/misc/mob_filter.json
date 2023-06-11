@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_mob_filter": {
+    "has_interdiction_pylon": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pylons:mob_filter"
+              "pylons:interdiction_pylon"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:clear_mob_filter"
+        "recipe": "pylons:mob_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_mob_filter",
+      "has_interdiction_pylon",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:clear_mob_filter"
+      "pylons:mob_filter"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_diamond_block": {
+    "has_infusion_pylon": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:diamond_block"
+              "pylons:infusion_pylon"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:expulsion_pylon"
+        "recipe": "pylons:potion_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_diamond_block",
+      "has_infusion_pylon",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:expulsion_pylon"
+      "pylons:potion_filter"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

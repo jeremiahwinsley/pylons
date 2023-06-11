@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_netherite_block": {
+    "has_emerald_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:netherite_block"
+              "minecraft:emerald_block"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:interdiction_pylon"
+        "recipe": "pylons:infusion_pylon"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_netherite_block",
+      "has_emerald_block",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:interdiction_pylon"
+      "pylons:infusion_pylon"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

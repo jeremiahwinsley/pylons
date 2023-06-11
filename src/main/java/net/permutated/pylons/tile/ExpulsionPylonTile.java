@@ -3,7 +3,7 @@ package net.permutated.pylons.tile;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -107,7 +107,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
                 List<ResourceKey<Level>> temp = new ArrayList<>();
                 List<? extends String> allowed = ConfigManager.SERVER.expulsionAllowedDimensions.get();
                 for (String key : allowed) {
-                    temp.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(key)));
+                    temp.add(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(key)));
                 }
                 allowedDimensions = ImmutableList.copyOf(temp);
             }
@@ -165,7 +165,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         }
 
         ServerLevel actualLevel = respawnLevel != null && optional.isPresent() ? respawnLevel : server.overworld();
-        ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile(), null);
+        ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile());
 
         if (optional.isPresent()) {
             BlockState blockstate = actualLevel.getBlockState(respawnPosition);

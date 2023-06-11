@@ -13,7 +13,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.LogicalSide;
-import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.TranslationKey;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class PlayerFilterCard extends Item {
     public PlayerFilterCard() {
-        super(new Properties().stacksTo(1).tab(ModRegistry.CREATIVE_TAB).setNoRepair());
+        super(new Properties().stacksTo(1).setNoRepair());
     }
 
     public static void onPlayerInteractEvent(final PlayerInteractEvent.EntityInteract event) {

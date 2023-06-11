@@ -1,7 +1,8 @@
 package net.permutated.pylons.data.server;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -16,17 +17,17 @@ import java.util.function.Consumer;
 import static net.permutated.pylons.util.ResourceUtil.prefix;
 
 public class CraftingRecipes extends RecipeProvider {
-    public CraftingRecipes(DataGenerator generatorIn) {
-        super(generatorIn);
+    public CraftingRecipes(PackOutput packOutput) {
+        super(packOutput);
     }
 
     private ShapedRecipeBuilder shaped(ItemLike provider) {
-        return ShapedRecipeBuilder.shaped(provider)
+        return ShapedRecipeBuilder.shaped(RecipeCategory.MISC, provider)
             .group(Pylons.MODID);
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
 
         // Expulsion Pylon
         shaped(ModRegistry.EXPULSION_PYLON.get())
@@ -51,7 +52,7 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_expulsion_pylon", has(ModRegistry.EXPULSION_PYLON_ITEM.get()))
             .save(consumer);
 
-        ShapelessRecipeBuilder.shapeless(ModRegistry.PLAYER_FILTER.get())
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.PLAYER_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.PLAYER_FILTER.get())
             .unlockedBy("has_player_filter", has(ModRegistry.PLAYER_FILTER.get()))
@@ -80,7 +81,7 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_infusion_pylon", has(ModRegistry.INFUSION_PYLON_ITEM.get()))
             .save(consumer);
 
-        ShapelessRecipeBuilder.shapeless(ModRegistry.POTION_FILTER.get())
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.POTION_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.POTION_FILTER.get())
             .unlockedBy("has_potion_filter", has(ModRegistry.POTION_FILTER.get()))
@@ -121,7 +122,7 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
             .save(consumer);
 
-        ShapelessRecipeBuilder.shapeless(ModRegistry.MOB_FILTER.get())
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.MOB_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.MOB_FILTER.get())
             .unlockedBy("has_mob_filter", has(ModRegistry.MOB_FILTER.get()))

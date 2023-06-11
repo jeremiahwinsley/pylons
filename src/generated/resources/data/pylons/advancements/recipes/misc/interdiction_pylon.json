@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_expulsion_pylon": {
+    "has_netherite_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pylons:expulsion_pylon"
+              "minecraft:netherite_block"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:player_filter"
+        "recipe": "pylons:interdiction_pylon"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_expulsion_pylon",
+      "has_netherite_block",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:player_filter"
+      "pylons:interdiction_pylon"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

@@ -10,15 +10,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.block.HarvesterPylonBlock;
 
-import java.util.Collections;
 import java.util.List;
 
 public class HarvesterPylonTile extends AbstractPylonTile {
@@ -78,7 +76,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                 workStatus = Status.MISSING_INVENTORY;
                 return;
             }
-            IItemHandler itemHandler = target.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.DOWN)
+            IItemHandler itemHandler = target.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN)
                 .resolve()
                 .orElse(null);
             if (itemHandler == null) {
@@ -121,12 +119,10 @@ public class HarvesterPylonTile extends AbstractPylonTile {
 
                     if (blockState.getBlock() instanceof CropBlock crop) {
                         // make sure crop is fully grown
-                        IntegerProperty ageProperty = crop.getAgeProperty();
-                        final int currentAge = blockState.getValue(ageProperty);
-                        final int minAge = Collections.min(ageProperty.getPossibleValues());
-                        final int maxAge = Collections.max(ageProperty.getPossibleValues());
+                        final int currentAge = crop.getAge(blockState);
+                        final int maxAge = crop.getMaxAge();
 
-                        if (minAge == maxAge || currentAge < maxAge) {
+                        if (0 == maxAge || currentAge < maxAge) {
                             continue;
                         }
 
@@ -149,7 +145,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                         List<ItemStack> drops = Block.getDrops(blockState, serverLevel, workPos, null);
 
                         // reset crop age
-                        BlockState modified = blockState.setValue(ageProperty, minAge);
+                        BlockState modified = crop.getStateForAge(0);
                         boolean updated = level.setBlockAndUpdate(workPos, modified);
                         if (!updated) {
                             workStatus = Status.UPDATE_ERROR;

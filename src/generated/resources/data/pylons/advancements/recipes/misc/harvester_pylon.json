@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_interdiction_pylon": {
+    "has_hay_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pylons:interdiction_pylon"
+              "minecraft:hay_block"
             ]
           }
         ]
@@ -15,20 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:mob_filter"
+        "recipe": "pylons:harvester_pylon"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_interdiction_pylon",
+      "has_hay_block",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:mob_filter"
+      "pylons:harvester_pylon"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

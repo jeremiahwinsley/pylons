@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "group": "pylons",
   "key": {
     "c": {
@@ -22,5 +23,6 @@
   ],
   "result": {
     "item": "pylons:mob_filter"
-  }
+  },
+  "show_notification": true
 }

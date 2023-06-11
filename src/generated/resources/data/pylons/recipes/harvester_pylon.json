@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "group": "pylons",
   "key": {
     "b": {
@@ -22,5 +23,6 @@
   ],
   "result": {
     "item": "pylons:harvester_pylon"
-  }
+  },
+  "show_notification": true
 }
