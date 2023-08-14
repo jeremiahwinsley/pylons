@@ -12,6 +12,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.permutated.pylons.block.AbstractPylonBlock;
 import net.permutated.pylons.client.ClientSetup;
+import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.network.NetworkDispatcher;
@@ -33,6 +34,7 @@ public class Pylons
 
         ModRegistry.register();
         NetworkDispatcher.register();
+        TeamCompat.init();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigManager.SERVER_SPEC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);

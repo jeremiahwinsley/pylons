@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
@@ -78,7 +78,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                 workStatus = Status.MISSING_INVENTORY;
                 return;
             }
-            IItemHandler itemHandler = target.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.DOWN)
+            IItemHandler itemHandler = target.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN)
                 .resolve()
                 .orElse(null);
             if (itemHandler == null) {

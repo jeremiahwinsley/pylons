@@ -16,10 +16,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.permutated.pylons.ConfigManager;
+import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.Range;
@@ -57,7 +59,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (side == null || canAccessInventory())) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER && (side == null || canAccessInventory())) {
             return handler.cast();
         }
         return super.getCapability(cap, side);
@@ -80,7 +82,6 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     protected UUID owner = null;
-    protected String ownerName = null;
 
     @Nullable
     public UUID getOwner() {
@@ -92,8 +93,13 @@ public abstract class AbstractPylonTile extends BlockEntity {
         this.setChanged();
     }
 
+    public boolean hasTeamAccess(Player player) {
+        return Boolean.TRUE.equals(ConfigManager.SERVER.teamSupportEnabled.get())
+            && TeamCompat.getInstance().arePlayersInSameTeam(owner, player.getUUID());
+    }
+
     public boolean canAccess(Player player) {
-        return Objects.equals(player.getUUID(), owner) || owner == null || player.hasPermissions(2);
+        return Objects.equals(player.getUUID(), owner) || owner == null || player.hasPermissions(2) || hasTeamAccess(player);
     }
 
     private long lastTicked = 0L;
