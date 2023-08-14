@@ -8,6 +8,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.permutated.pylons.Pylons;
 import net.permutated.pylons.data.client.BlockStates;
 import net.permutated.pylons.data.client.ItemModels;
 import net.permutated.pylons.data.client.Languages;
@@ -18,7 +19,7 @@ import net.permutated.pylons.data.server.CraftingRecipes;
 import java.util.Collections;
 import java.util.List;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = Pylons.MODID)
 public final class DataGenerators {
     private DataGenerators() {}
 

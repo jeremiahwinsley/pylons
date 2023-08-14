@@ -13,6 +13,7 @@ public class ConfigManager {
         // nothing to do
     }
 
+    public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_EXPULSION = "expulsion_pylon";
     public static final String CATEGORY_INFUSION = "infusion_pylon";
     public static final String CATEGORY_HARVESTER = "harvester_pylon";
@@ -28,6 +29,9 @@ public class ConfigManager {
     }
 
     public static class ServerConfig {
+        // CATEGORY_GENERAL
+        public final ForgeConfigSpec.BooleanValue teamSupportEnabled;
+
         // CATEGORY_EXPULSION
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
         public final ForgeConfigSpec.IntValue expulsionWorldSpawnRadius;
@@ -49,6 +53,15 @@ public class ConfigManager {
 
 
         ServerConfig(ForgeConfigSpec.Builder builder) {
+            // CATEGORY_GENERAL
+            builder.push(CATEGORY_GENERAL);
+
+            teamSupportEnabled = builder
+                .comment("Whether team support is enabled if a compatible mod (FTB Teams, Argonauts) is installed")
+                .define("teamSupportEnabled", true);
+
+            builder.pop();
+
             // CATEGORY_EXPULSION
             builder.push(CATEGORY_EXPULSION);
 

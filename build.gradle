@@ -113,9 +113,27 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven {
-        url "https://www.cursemaven.com"
-        content {
+    exclusiveContent {
+        forRepositories(fg.repository)
+        forRepository {
+            maven {
+                name "Modrinth"
+                url "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+    exclusiveContent {
+        forRepositories(fg.repository)
+        forRepository {
+            maven {
+                name "CurseMaven"
+                url "https://www.cursemaven.com"
+            }
+        }
+        filter {
             includeGroup "curse.maven"
         }
     }
@@ -128,6 +146,10 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:4574528")
+    compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4623116")
+
+    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
+    compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
 
 }
 
