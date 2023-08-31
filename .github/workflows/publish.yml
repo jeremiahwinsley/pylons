@@ -29,11 +29,11 @@ jobs:
           fileName: "*.jar"
           out-file-path: "assets"
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: itsmeow/curseforge-upload@v3
+      - uses: itsmeow/curseforge-upload@v3.1.1
         with:
           file_path: "${{ fromJson(steps.get_release_assets.outputs.downloaded_files)[0] }}"
           game_endpoint: "minecraft"
-          game_versions: "Minecraft 1.20:1.20,Java 17,Forge"
+          game_versions: "Minecraft 1.20:1.20.1,Java 17,Forge"
           project_id: "518211"
           token: ${{ secrets.CF_API_TOKEN }}
           changelog: "${{ fromJson(steps.get_release_by_tag.outputs.data).body }}"
