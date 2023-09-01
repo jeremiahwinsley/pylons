@@ -10,6 +10,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.permutated.pylons.compat.harvest.HarvestCompat;
 import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
@@ -44,7 +45,10 @@ public class Pylons
     }
 
     public void onCommonSetupEvent(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> ForgeChunkManager.setForcedChunkLoadingCallback(MODID, ChunkManager::validateTickets));
+        event.enqueueWork(() -> {
+            ForgeChunkManager.setForcedChunkLoadingCallback(MODID, ChunkManager::validateTickets);
+            HarvestCompat.init();
+        });
     }
 
     public void onClientSetupEvent(final FMLClientSetupEvent event) {

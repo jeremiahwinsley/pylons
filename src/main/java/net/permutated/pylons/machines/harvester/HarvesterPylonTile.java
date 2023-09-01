@@ -15,6 +15,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.compat.harvest.HarvestCompat;
+import net.permutated.pylons.compat.harvest.Harvestable;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import java.util.List;
@@ -170,6 +172,34 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                                 return;
                             }
                         }
+                    } else if (HarvestCompat.hasCompat(blockState.getBlock())) {
+                          Harvestable harvestable = HarvestCompat.getCompat(blockState.getBlock());
+                          if (harvestable.isHarvestable(blockState)) {
+                              if (requiresTool()) {
+                                  if (hoeSlot == -1) {
+                                      workStatus = Status.MISSING_TOOL;
+                                      return;
+                                  } else {
+                                      ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
+                                      if (replace.hurt(1, level.getRandom(), null)) {
+                                          replace.shrink(1);
+                                      }
+                                      itemStackHandler.setStackInSlot(hoeSlot, replace);
+                                  }
+                              }
+
+                              ItemStack stack = harvestable.harvest(level, workPos, blockState);
+                              if (stack.isEmpty()) {
+                                  continue;
+                              }
+
+                              // try to insert as many drops as possible, discard the rest
+                              boolean result = insertItemOrDiscard(itemHandler, stack);
+                              if (!result) {
+                                  workStatus = Status.INVENTORY_FULL;
+                                  return;
+                              }
+                          }
                     }
                 }
             }

@@ -48,6 +48,10 @@ minecraft {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
 
+            // enable mixins for Jade
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -145,12 +149,14 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4574528")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:4712868")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:4711195")
     compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4623116")
 
     compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
     compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
 
+    compileOnly fg.deobf("curse.maven:ars-nouveau-401955:4683698")
 }
 
 jar {
