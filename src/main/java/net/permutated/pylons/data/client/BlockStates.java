@@ -31,6 +31,7 @@ public class BlockStates extends BlockStateProvider {
         String blockName = Objects.requireNonNull(key).toString();
         ModelFile pylonModel = models()
             .withExistingParent(blockName, new ResourceLocation(Pylons.MODID, "block/pylon"))
+            .texture("particle", new ResourceLocation("block/".concat(texture)))
             .texture("center", new ResourceLocation("block/".concat(texture)));
         simpleBlock(block.get(), pylonModel);
         simpleBlockItem(block.get(), pylonModel);

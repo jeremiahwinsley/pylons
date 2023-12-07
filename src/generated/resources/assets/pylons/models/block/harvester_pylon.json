@@ -1,6 +1,7 @@
 {
   "parent": "pylons:block/pylon",
   "textures": {
-    "center": "minecraft:block/hay_block_side"
+    "center": "minecraft:block/hay_block_side",
+    "particle": "minecraft:block/hay_block_side"
   }
 }

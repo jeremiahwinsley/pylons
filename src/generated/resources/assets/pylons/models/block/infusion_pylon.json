@@ -1,6 +1,7 @@
 {
   "parent": "pylons:block/pylon",
   "textures": {
-    "center": "minecraft:block/emerald_block"
+    "center": "minecraft:block/emerald_block",
+    "particle": "minecraft:block/emerald_block"
   }
 }
