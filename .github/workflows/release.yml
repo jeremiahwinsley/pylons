@@ -1,9 +1,9 @@
 name: Release Build
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types:
+      - published
 
 jobs:
   build:
@@ -17,14 +17,35 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
-      - name: Upload Release Asset
+      - name: Upload assets to GitHub, Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: A82glthi
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          curseforge-id: 518211
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          name: ""
+          loaders: |
+            forge
+            neoforge
+      - name: Upload checksum
         id: upload-release-assets
         uses: alexellis/upload-assets@0.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          asset_paths: '["build/libs/*.jar", "build/checksums/*.sha512"]'
+          asset_paths: '["build/checksums/*.sha512"]'
