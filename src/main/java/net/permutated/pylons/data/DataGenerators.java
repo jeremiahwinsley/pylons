@@ -4,10 +4,10 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.data.client.BlockStates;
 import net.permutated.pylons.data.client.ItemModels;
@@ -19,9 +19,10 @@ import net.permutated.pylons.data.server.CraftingRecipes;
 import java.util.Collections;
 import java.util.List;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = Pylons.MODID)
+@EventBusSubscriber(modid = Pylons.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class DataGenerators {
-    private DataGenerators() {}
+    private DataGenerators() {
+    }
 
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
@@ -31,9 +32,11 @@ public final class DataGenerators {
 
         if (event.includeServer()) {
             generator.addProvider(true, new BlockTags(packOutput, event.getLookupProvider(), fileHelper));
-            generator.addProvider(true, new CraftingRecipes(packOutput));
+            generator.addProvider(true, new CraftingRecipes(packOutput, event.getLookupProvider()));
             generator.addProvider(true, new LootTableProvider(packOutput, Collections.emptySet(),
-                List.of(new LootTableProvider.SubProviderEntry(BlockLoot::new, LootContextParamSets.BLOCK))));
+                List.of(new LootTableProvider.SubProviderEntry(BlockLoot::new, LootContextParamSets.BLOCK)),
+                event.getLookupProvider()
+            ));
         }
         if (event.includeClient()) {
             generator.addProvider(true, new BlockStates(packOutput, fileHelper));

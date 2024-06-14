@@ -3,9 +3,10 @@ package net.permutated.pylons.machines.harvester;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.machines.base.AbstractPylonContainer;
+
+import java.util.function.Supplier;
 
 public class HarvesterPylonContainer extends AbstractPylonContainer {
     private final HarvesterPylonTile.Status workStatus;
@@ -15,7 +16,7 @@ public class HarvesterPylonContainer extends AbstractPylonContainer {
     }
 
     @Override
-    protected RegistryObject<Block> getBlock() {
+    protected Supplier<Block> getBlock() {
         return ModRegistry.HARVESTER_PYLON;
     }
 

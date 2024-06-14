@@ -4,13 +4,13 @@
   "group": "pylons",
   "key": {
     "c": {
-      "tag": "forge:dyes/green"
+      "tag": "c:dyes/green"
     },
     "d": {
-      "tag": "forge:gems/emerald"
+      "tag": "c:gems/diamond"
     },
     "g": {
-      "tag": "forge:glass"
+      "tag": "c:glass_blocks"
     },
     "t": {
       "item": "minecraft:cyan_terracotta"
@@ -22,7 +22,7 @@
     "ggg"
   ],
   "result": {
-    "item": "pylons:potion_filter"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "pylons:player_filter"
+  }
 }

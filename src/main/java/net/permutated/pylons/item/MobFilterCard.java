@@ -1,7 +1,7 @@
 package net.permutated.pylons.item;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -10,19 +10,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.Constants;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.components.EntityComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class MobFilterCard extends Item {
+
     public MobFilterCard() {
         super(new Properties().stacksTo(1).setNoRepair());
     }
@@ -31,10 +28,10 @@ public class MobFilterCard extends Item {
         ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof MobFilterCard && event.getTarget() instanceof LivingEntity) {
             if (event.getSide() == LogicalSide.SERVER) {
-                CompoundTag tag = itemStack.getOrCreateTagElement(Pylons.MODID);
-                ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(event.getTarget().getType());
-                tag.putString(Constants.NBT.REGISTRY, Objects.toString(key, "unregistered"));
-                tag.putString(Constants.NBT.NAME, event.getTarget().getType().getDescriptionId());
+                ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(event.getTarget().getType());
+                String name = event.getTarget().getType().getDescriptionId();
+
+                itemStack.set(ModRegistry.ENTITY_COMPONENT, new EntityComponent(key, name));
 
                 event.setCancellationResult(InteractionResult.SUCCESS);
             } else {
@@ -46,17 +43,16 @@ public class MobFilterCard extends Item {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        return (tag != null && tag.contains(Constants.NBT.REGISTRY));
+        return stack.getComponents().has(ModRegistry.ENTITY_COMPONENT.get());
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, level, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
 
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null) {
-            String name = tag.getString(Constants.NBT.NAME);
+        EntityComponent component = stack.get(ModRegistry.ENTITY_COMPONENT);
+        if (component != null) {
+            String name = component.descriptionId();
             tooltip.add(Component.translatable(name).withStyle(ChatFormatting.BLUE));
 
             tooltip.add(Component.empty());

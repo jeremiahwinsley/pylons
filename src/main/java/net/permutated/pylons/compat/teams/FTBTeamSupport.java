@@ -3,9 +3,8 @@ package net.permutated.pylons.compat.teams;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.client.ClientTeamManager;
 import dev.ftb.mods.ftbteams.api.client.KnownClientPlayer;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-
 import java.util.UUID;
+import net.neoforged.fml.util.thread.EffectiveSide;
 
 public class FTBTeamSupport implements TeamSupport {
     @Override

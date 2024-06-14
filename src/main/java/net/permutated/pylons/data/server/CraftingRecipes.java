@@ -1,24 +1,25 @@
 package net.permutated.pylons.data.server;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import static net.permutated.pylons.util.ResourceUtil.prefix;
 
 public class CraftingRecipes extends RecipeProvider {
-    public CraftingRecipes(PackOutput packOutput) {
-        super(packOutput);
+    public CraftingRecipes(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> provider) {
+        super(packOutput, provider);
     }
 
     private ShapedRecipeBuilder shaped(ItemLike provider) {
@@ -27,7 +28,7 @@ public class CraftingRecipes extends RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(RecipeOutput consumer) {
 
         // Expulsion Pylon
         shaped(ModRegistry.EXPULSION_PYLON.get())
@@ -48,7 +49,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('t', Items.CYAN_TERRACOTTA)
             .define('c', Tags.Items.DYES_GREEN)
             .define('d', Tags.Items.GEMS_DIAMOND)
-            .define('g', Tags.Items.GLASS)
+            .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_expulsion_pylon", has(ModRegistry.EXPULSION_PYLON_ITEM.get()))
             .save(consumer);
 
@@ -77,7 +78,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('t', Items.CYAN_TERRACOTTA)
             .define('c', Tags.Items.DYES_GREEN)
             .define('d', Tags.Items.GEMS_EMERALD)
-            .define('g', Tags.Items.GLASS)
+            .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_infusion_pylon", has(ModRegistry.INFUSION_PYLON_ITEM.get()))
             .save(consumer);
 
@@ -118,7 +119,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('t', Items.CYAN_TERRACOTTA)
             .define('c', Tags.Items.DYES_GREEN)
             .define('d', Tags.Items.INGOTS_NETHERITE)
-            .define('g', Tags.Items.GLASS)
+            .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
             .save(consumer);
 

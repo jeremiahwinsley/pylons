@@ -2,12 +2,14 @@ package net.permutated.pylons.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.world.ForgeChunkManager;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
+import net.neoforged.neoforge.common.world.chunk.TicketController;
+import net.neoforged.neoforge.common.world.chunk.TicketHelper;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.Pylons;
 
@@ -15,13 +17,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = Pylons.MODID)
+@EventBusSubscriber(modid = Pylons.MODID)
 public class ChunkManager {
     private static final Map<UUID, Location> loaded = new ConcurrentHashMap<>();
     private static final Map<UUID, Location> unloaded = new ConcurrentHashMap<>();
+    private static final TicketController controller = new TicketController(ResourceUtil.prefix("block"), ChunkManager::validateTickets);
 
     private ChunkManager() {
         // nothing to do
+    }
+
+    public static void onRegisterTicketControllersEvent(RegisterTicketControllersEvent event) {
+        event.register(controller);
     }
 
     @SubscribeEvent
@@ -72,7 +79,7 @@ public class ChunkManager {
             var location = Location.of(level, pos);
             unloaded.remove(owner, location);
             loaded.put(owner, location);
-            ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX(), location.chunkZ(), true, false);
+            controller.forceChunk(level, pos, location.chunkX(), location.chunkZ(), true, false);
         }
     }
 
@@ -80,11 +87,11 @@ public class ChunkManager {
         var location = Location.of(level, pos);
         loaded.remove(owner, location);
         unloaded.put(owner, location);
-        ForgeChunkManager.forceChunk(level, Pylons.MODID, pos, location.chunkX(), location.chunkZ(), false, false);
+        controller.forceChunk(level, pos, location.chunkX(), location.chunkZ(), false, false);
     }
 
     @SuppressWarnings("java:S1172") // unused parameter is required
-    public static void validateTickets(ServerLevel level, ForgeChunkManager.TicketHelper ticketHelper) {
+    public static void validateTickets(ServerLevel level, TicketHelper ticketHelper) {
         ticketHelper.getBlockTickets().keySet().forEach(ticketHelper::removeAllTickets);
     }
 }

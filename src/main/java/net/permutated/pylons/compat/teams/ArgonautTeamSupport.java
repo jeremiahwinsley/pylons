@@ -2,9 +2,8 @@ package net.permutated.pylons.compat.teams;
 
 import earth.terrarium.argonauts.api.guild.Guild;
 import earth.terrarium.argonauts.api.guild.GuildApi;
-import net.minecraftforge.server.ServerLifecycleHooks;
-
 import java.util.UUID;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ArgonautTeamSupport implements TeamSupport {
     @Override

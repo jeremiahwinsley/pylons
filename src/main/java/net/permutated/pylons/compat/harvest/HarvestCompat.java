@@ -1,8 +1,6 @@
 package net.permutated.pylons.compat.harvest;
 
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fml.ModList;
-import net.permutated.pylons.compat.harvest.adapters.ArsNouveauSourceBerryBush;
 import net.permutated.pylons.compat.harvest.adapters.MinecraftNetherWart;
 import net.permutated.pylons.compat.harvest.adapters.MinecraftSweetBerryBush;
 
@@ -32,8 +30,8 @@ public class HarvestCompat {
     public static void init() {
         register(new MinecraftNetherWart());
         register(new MinecraftSweetBerryBush());
-        if (ModList.get().isLoaded("ars_nouveau")) {
-            register(new ArsNouveauSourceBerryBush());
-        }
+//        if (ModList.get().isLoaded("ars_nouveau")) {
+//            register(new ArsNouveauSourceBerryBush());
+//        }
     }
 }

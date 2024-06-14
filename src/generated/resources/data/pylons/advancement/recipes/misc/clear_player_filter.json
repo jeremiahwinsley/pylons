@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hay_block": {
+    "has_player_filter": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:hay_block"
-            ]
+            "items": "pylons:player_filter"
           }
         ]
       },
@@ -15,21 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:harvester_pylon"
+        "recipe": "pylons:clear_player_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_hay_block",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_player_filter"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:harvester_pylon"
+      "pylons:clear_player_filter"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

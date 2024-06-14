@@ -1,7 +1,6 @@
 package net.permutated.pylons.item;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionResult;
@@ -10,17 +9,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.Constants;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.components.PlayerComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class PlayerFilterCard extends Item {
+
     public PlayerFilterCard() {
         super(new Properties().stacksTo(1).setNoRepair());
     }
@@ -29,9 +27,11 @@ public class PlayerFilterCard extends Item {
         ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof PlayerFilterCard && event.getTarget() instanceof Player) {
             if (event.getSide() == LogicalSide.SERVER) {
-                CompoundTag tag = itemStack.getOrCreateTagElement(Pylons.MODID);
-                tag.putUUID(Constants.NBT.UUID, event.getTarget().getUUID());
-                tag.putString(Constants.NBT.NAME, getProfileName(event.getTarget()));
+
+                itemStack.set(ModRegistry.PLAYER_COMPONENT, new PlayerComponent(
+                    event.getTarget().getUUID(),
+                    getProfileName(event.getTarget())
+                ));
 
                 event.setCancellationResult(InteractionResult.SUCCESS);
             } else {
@@ -50,17 +50,16 @@ public class PlayerFilterCard extends Item {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        return (tag != null && tag.hasUUID(Constants.NBT.UUID));
+        return stack.getComponents().has(ModRegistry.PLAYER_COMPONENT.get());
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
 
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null) {
-            String username = tag.getString(Constants.NBT.NAME);
+        PlayerComponent component = stack.get(ModRegistry.PLAYER_COMPONENT);
+        if (component != null) {
+            String username = component.name();
             tooltip.add(translate("player", username).withStyle(ChatFormatting.BLUE));
 
             tooltip.add(Component.empty());

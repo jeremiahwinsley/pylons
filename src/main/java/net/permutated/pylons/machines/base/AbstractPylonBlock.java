@@ -3,11 +3,9 @@ package net.permutated.pylons.machines.base;
 import io.netty.buffer.Unpooled;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,9 +27,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.network.IContainerFactory;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.TranslationKey;
 
@@ -61,8 +60,9 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     /**
      * Check if player is either the pylon owner or has OP
+     *
      * @param blockEntity the pylon tile
-     * @param player the player
+     * @param player      the player
      * @return the result
      */
     public static boolean canAccessPylon(@Nullable BlockEntity blockEntity, Player player) {
@@ -100,7 +100,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     public float getDestroyProgress(BlockState state, Player player, BlockGetter getter, BlockPos blockPos) {
         BlockEntity blockEntity = getter.getBlockEntity(blockPos);
         if (canAccessPylon(blockEntity, player)) {
-            int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
+            int i = EventHooks.doPlayerHarvestCheck(player, state, getter, blockPos) ? 30 : 100;
             return player.getDigSpeed(state, blockPos) / 2.0F / i;
         }
         return 0.0F;
@@ -108,12 +108,9 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
-    {
-        if (!state.is(newState.getBlock()))
-        {
-            if (level.getBlockEntity(pos) instanceof AbstractPylonTile pylonTile)
-            {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            if (level.getBlockEntity(pos) instanceof AbstractPylonTile pylonTile) {
                 pylonTile.removeChunkloads();
                 pylonTile.dropItems();
                 level.updateNeighbourForOutputSignal(pos, this);
@@ -124,9 +121,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @SuppressWarnings("java:S1874") // deprecated method from super class
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockRayTraceResult)
-    {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult blockRayTraceResult) {
         if (!world.isClientSide) {
             BlockEntity tileEntity = world.getBlockEntity(pos);
             if (tileEntity instanceof AbstractPylonTile pylonTile) {
@@ -138,14 +133,15 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
                     @Override
                     public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
-                        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+                        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(),
+                            player.registryAccess(), ConnectionType.NEOFORGE);
                         pylonTile.updateContainer(buffer);
                         return containerFactory().create(i, playerInventory, buffer);
                     }
                 };
 
                 if (canAccessPylon(tileEntity, player)) {
-                    NetworkHooks.openScreen((ServerPlayer) player, containerProvider, pylonTile::updateContainer);
+                    player.openMenu(containerProvider, pylonTile::updateContainer);
                 } else {
                     return InteractionResult.FAIL;
                 }

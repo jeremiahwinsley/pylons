@@ -14,7 +14,7 @@ public class ResourceUtil {
     }
 
     public static ResourceLocation prefix(String path) {
-        return new ResourceLocation(Pylons.MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(Pylons.MODID, path);
     }
 
     public static String id(String path) {
@@ -22,15 +22,19 @@ public class ResourceUtil {
     }
 
     public static ResourceLocation forge(String path) {
-        return new ResourceLocation("forge", path);
+        return ResourceLocation.fromNamespaceAndPath("forge", path);
+    }
+
+    public static ResourceLocation c(String path) {
+        return ResourceLocation.fromNamespaceAndPath("c", path);
     }
 
     public static TagKey<Item> tag(String path) {
-        return ItemTags.create(new ResourceLocation(path));
+        return ItemTags.create(ResourceLocation.parse(path));
     }
 
     public static TagKey<Block> blockTag(String path) {
-        return BlockTags.create(new ResourceLocation(path));
+        return BlockTags.create(ResourceLocation.parse(path));
     }
 
     public static ResourceLocation gui(String path) {

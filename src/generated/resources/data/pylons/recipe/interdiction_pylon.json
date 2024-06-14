@@ -22,7 +22,7 @@
     "bbb"
   ],
   "result": {
-    "item": "pylons:interdiction_pylon"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "pylons:interdiction_pylon"
+  }
 }

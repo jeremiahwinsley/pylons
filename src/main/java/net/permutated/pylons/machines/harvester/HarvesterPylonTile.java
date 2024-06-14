@@ -10,8 +10,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
@@ -67,6 +68,8 @@ public class HarvesterPylonTile extends AbstractPylonTile {
         packetBuffer.writeEnum(workStatus);
     }
 
+    protected BlockCapabilityCache<IItemHandler, Direction> outputCache;
+
     @Override
     public void tick() {
         if (level instanceof ServerLevel serverLevel && canTick(getWorkDelay())) {
@@ -78,9 +81,12 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                 workStatus = Status.MISSING_INVENTORY;
                 return;
             }
-            IItemHandler itemHandler = target.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.DOWN)
-                .resolve()
-                .orElse(null);
+
+            if (outputCache == null) {
+                outputCache = BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, serverLevel, above, Direction.DOWN);
+            }
+
+            IItemHandler itemHandler = outputCache.getCapability();
             if (itemHandler == null) {
                 workStatus = Status.MISSING_INVENTORY;
                 return;
@@ -134,9 +140,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                                 return;
                             } else {
                                 ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                if (replace.hurt(1, level.getRandom(), null)) {
-                                    replace.shrink(1);
-                                }
+                                replace.hurtAndBreak(1, serverLevel, null, item -> {});
                                 itemStackHandler.setStackInSlot(hoeSlot, replace);
                             }
                         }
@@ -181,9 +185,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                                       return;
                                   } else {
                                       ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                      if (replace.hurt(1, level.getRandom(), null)) {
-                                          replace.shrink(1);
-                                      }
+                                      replace.hurtAndBreak(1, serverLevel, null, item -> {});
                                       itemStackHandler.setStackInSlot(hoeSlot, replace);
                                   }
                               }

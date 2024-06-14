@@ -1,9 +1,10 @@
 package net.permutated.pylons.item;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -14,18 +15,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.permutated.pylons.ConfigManager;
-import net.permutated.pylons.Pylons;
-import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.ModRegistry;
+import net.permutated.pylons.components.PotionComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 public class PotionFilterCard extends Item {
+
     public PotionFilterCard() {
         super(new Item.Properties().stacksTo(1).setNoRepair());
     }
@@ -51,46 +51,30 @@ public class PotionFilterCard extends Item {
 
         if (stack.getItem() instanceof PotionFilterCard) {
             if (!level.isClientSide) {
+                PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
 
-                MobEffect effect = PotionFilterCard.getEffect(stack);
-                int amplifier = PotionFilterCard.getAmplifier(stack);
-                int duration = PotionFilterCard.getDuration(stack);
-
-                if (duration >= PotionFilterCard.getRequiredDuration()) {
+                if (data != null && data.duration() >= PotionFilterCard.getRequiredDuration()) {
                     return InteractionResultHolder.success(stack);
                 }
 
                 // handle transferring effects between cards
-                if (hand == InteractionHand.MAIN_HAND) { // this should only run for cards held in the main hand
+                if (hand == InteractionHand.MAIN_HAND && data != null) { // this should only run for cards held in the main hand
                     final ItemStack offhand = player.getItemInHand(InteractionHand.OFF_HAND);
                     if (offhand.getItem() instanceof PotionFilterCard) { // offhand is holding a potion filter card
-                        MobEffect offhandEffect = PotionFilterCard.getEffect(offhand);
-                        int offhandAmplifier = PotionFilterCard.getAmplifier(offhand);
-                        int offhandDuration = PotionFilterCard.getDuration(offhand);
-                        if (offhandEffect != null) { // offhand card has an effect
-                            ItemStack copy;
-                            if (effect == null) {
-                                // main hand card is blank
-                                // move effect from off hand card to main hand card
-                                copy = withEffect(stack, offhandEffect, offhandAmplifier, offhandDuration);
-                                // clear potion data from offhand card
-                                player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
-                                return InteractionResultHolder.success(copy);
-                            } else if(Objects.equals(effect, offhandEffect) && Objects.equals(amplifier, offhandAmplifier)) {
-                                // main hand card has the same effect and amplifier
-                                // merge effect from off hand card with main hand card
-                                copy = addDuration(stack, offhandDuration);
-                                // clear potion data from offhand card
-                                player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
-                                return InteractionResultHolder.success(copy);
-                            }
+                        PotionComponent offhandData = stack.get(ModRegistry.POTION_COMPONENT);
+                        if (offhandData != null && data.matches(offhandData)) {
+                            // main hand card has the same effect and amplifier
+                            // merge effect from off hand card with main hand card
+                            ItemStack copy = addDuration(stack, offhandData.duration());
+                            // clear potion data from offhand card
+                            player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
+                            return InteractionResultHolder.success(copy);
                         }
                     }
                 }
 
-
                 Optional<MobEffectInstance> active;
-                if (effect == null) {
+                if (data == null) {
                     active = player.getActiveEffects().stream()
                         // Require a configured minimum effect length
                         .filter(effectInstance -> effectInstance.getDuration() >= getMinimumDuration())
@@ -100,20 +84,20 @@ public class PotionFilterCard extends Item {
                         // Require a configured minimum effect length
                         .filter(effectInstance -> effectInstance.getDuration() >= getMinimumDuration())
                         // Effect must match saved effect
-                        .filter(effectInstance -> Objects.equals(effectInstance.getEffect(), effect))
+                        .filter(effectInstance -> effectInstance.getEffect().is(data.effect()))
                         // Amplifier must match saved amplifier
-                        .filter(effectInstance -> Objects.equals(effectInstance.getAmplifier(), amplifier))
+                        .filter(effectInstance -> Objects.equals(effectInstance.getAmplifier(), data.amplifier()))
                         .findFirst();
                 }
 
 
                 if (active.isPresent()) {
-                    MobEffect activeEffect = active.get().getEffect();
+                    Holder<MobEffect> activeEffect = active.get().getEffect();
                     int activeAmplifier = active.get().getAmplifier();
                     int activeDuration = active.get().getDuration();
 
                     ItemStack copy;
-                    if (effect == null) {
+                    if (data == null) {
                         // new effect
                         copy = withEffect(stack, activeEffect, activeAmplifier, activeDuration);
                     } else {
@@ -133,23 +117,25 @@ public class PotionFilterCard extends Item {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        return (tag != null && tag.contains(Constants.NBT.EFFECT));
+        return stack.getComponents().has(ModRegistry.POTION_COMPONENT.get());
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
 
-        MobEffect effect = getEffect(stack);
-        int duration = getDuration(stack);
-        int amplifier = getAmplifier(stack);
+        PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
 
-        // if duration in ticks is less than 20, display 0.
-        // Otherwise, divide by 20 to get duration in seconds.
-        int display = (duration < 20) ? 0 : duration / 20;
+        if (data != null) {
+            MobEffect effect = data.effect().value();
+            int duration = data.duration();
+            int amplifier = data.amplifier();
 
-        if (effect != null) {
+            // if duration in ticks is less than 20, display 0.
+            // Otherwise, divide by 20 to get duration in seconds.
+            int display = (duration < 20) ? 0 : duration / 20;
+
+
             MutableComponent component = effect.getDisplayName().copy();
             if (amplifier > 0) {
                 component = withAmplifier(component, amplifier);
@@ -196,19 +182,9 @@ public class PotionFilterCard extends Item {
      * @param duration  the initial effect duration (in ticks)
      * @return a copy of the ItemStack with the new NBT
      */
-    public static ItemStack withEffect(final ItemStack stack, MobEffect effect, int amplifier, int duration) {
-        ResourceLocation registryName = ForgeRegistries.MOB_EFFECTS.getKey(effect);
-        if (registryName == null) {
-            return stack;
-        }
-
-        CompoundTag tag = new CompoundTag();
-        tag.putString(Constants.NBT.EFFECT, registryName.toString());
-        tag.putInt(Constants.NBT.AMPLIFIER, amplifier);
-        tag.putInt(Constants.NBT.DURATION, Math.min(getRequiredDuration(), duration));
-
+    public static ItemStack withEffect(final ItemStack stack, Holder<MobEffect> effect, int amplifier, int duration) {
         ItemStack copy = stack.copy();
-        copy.addTagElement(Pylons.MODID, tag);
+        copy.set(ModRegistry.POTION_COMPONENT, new PotionComponent(effect, amplifier, duration));
         return copy;
     }
 
@@ -225,65 +201,37 @@ public class PotionFilterCard extends Item {
      */
     public static ItemStack addDuration(final ItemStack stack, int duration) {
         ItemStack copy = stack.copy();
-        CompoundTag tag = copy.getOrCreateTagElement(Pylons.MODID);
-        int current = tag.getInt(Constants.NBT.DURATION);
+        PotionComponent data = copy.get(ModRegistry.POTION_COMPONENT);
 
-        // already activated
-        if (current >= getRequiredDuration()) {
-            return stack;
+        if (data != null && data.duration() < getRequiredDuration()) {
+            int current = data.duration();
+            int total = Math.min(getRequiredDuration(), current + duration);
+
+            copy.set(ModRegistry.POTION_COMPONENT, new PotionComponent(data.effect(), data.amplifier(), total));
         }
 
-        int total = Math.min(getRequiredDuration(), current + duration);
-
-        tag.putInt(Constants.NBT.DURATION, total);
         return copy;
     }
 
     /**
      * Remove Pylons NBT from a potion filter card.
+     *
      * @param stack the ItemStack containing NBT
      * @return a copy of the ItemStack without the pylons tag
      */
     public static ItemStack clearEffect(final ItemStack stack) {
         ItemStack copy = stack.copy();
-        copy.removeTagKey(Pylons.MODID);
+        copy.remove(ModRegistry.POTION_COMPONENT);
         return copy;
     }
 
-    @Nullable
-    public static MobEffect getEffect(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
-            String effectName = tag.getString(Constants.NBT.EFFECT);
-            return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effectName));
-        }
-        return null;
-    }
-
-    public static int getDuration(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null && tag.contains(Constants.NBT.DURATION)) {
-            return tag.getInt(Constants.NBT.DURATION);
-        }
-        return 0;
-    }
-
-    public static int getAmplifier(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null && tag.contains(Constants.NBT.AMPLIFIER)) {
-            return tag.getInt(Constants.NBT.AMPLIFIER);
-        }
-        return 0;
-    }
-
     public static boolean isAllowed(ItemStack stack) {
-        CompoundTag tag = stack.getTagElement(Pylons.MODID);
-        if (tag != null && tag.contains(Constants.NBT.EFFECT)) {
-            String effectName = tag.getString(Constants.NBT.EFFECT);
-            var location = new ResourceLocation(effectName);
-            return isAllowedEffect(location) && !isDeniedEffect(location);
-        }
-        return false;
+        return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
+            .map(PotionComponent::effect)
+            .flatMap(Holder::unwrapKey)
+            .map(ResourceKey::location)
+            .map(location -> isAllowedEffect(location) && !isDeniedEffect(location))
+            .orElse(false);
     }
 
     protected static boolean isAllowedEffect(ResourceLocation location) {

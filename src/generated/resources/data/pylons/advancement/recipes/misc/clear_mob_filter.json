@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_diamond_block": {
+    "has_mob_filter": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:diamond_block"
-            ]
+            "items": "pylons:mob_filter"
           }
         ]
       },
@@ -15,21 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:expulsion_pylon"
+        "recipe": "pylons:clear_mob_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_diamond_block",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_mob_filter"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:expulsion_pylon"
+      "pylons:clear_mob_filter"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

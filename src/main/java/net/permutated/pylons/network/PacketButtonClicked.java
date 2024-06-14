@@ -2,42 +2,38 @@ package net.permutated.pylons.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
+import net.permutated.pylons.util.ResourceUtil;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+public record PacketButtonClicked(ButtonType buttonType, BlockPos blockPos) implements CustomPacketPayload {
 
-public class PacketButtonClicked {
-    private final ButtonType buttonType;
-    private final BlockPos blockPos;
+    public static final Type<PacketButtonClicked> TYPE = new Type<>(ResourceUtil.prefix("button_clicked"));
 
-    public PacketButtonClicked(ButtonType buttonType, BlockPos blockPos) {
-        this.buttonType = buttonType;
-        this.blockPos = blockPos;
+    public static final StreamCodec<FriendlyByteBuf, PacketButtonClicked> STREAM_CODEC = StreamCodec.of(PacketButtonClicked::encode, PacketButtonClicked::decode);
+
+    private static void encode(FriendlyByteBuf buf, PacketButtonClicked packetButtonClicked) {
+        buf.writeEnum(packetButtonClicked.buttonType);
+        buf.writeBlockPos(packetButtonClicked.blockPos);
     }
 
-    public PacketButtonClicked(FriendlyByteBuf buffer) {
-        buttonType = buffer.readEnum(ButtonType.class);
-        blockPos = buffer.readBlockPos();
+    private static PacketButtonClicked decode(FriendlyByteBuf buf) {
+        return new PacketButtonClicked(buf.readEnum(ButtonType.class), buf.readBlockPos());
     }
 
-    public void toBytes(FriendlyByteBuf buffer) {
-        buffer.writeEnum(this.buttonType);
-        buffer.writeBlockPos(this.blockPos);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
     @SuppressWarnings("java:S1172")
-    public static void handle(PacketButtonClicked event, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            Optional<Player> player = Optional.ofNullable(ctx.get().getSender());
-            Optional<Level> world = player.map(Player::getCommandSenderWorld);
-
-            if (player.isPresent() && world.get() instanceof ServerLevel serverLevel && serverLevel.isLoaded(event.blockPos)) {
+    public static void handle(final PacketButtonClicked event, final IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            if (ctx.player().getCommandSenderWorld() instanceof ServerLevel serverLevel && serverLevel.isLoaded(event.blockPos)) {
                 var be = serverLevel.getBlockEntity(event.blockPos);
                 if (be instanceof AbstractPylonTile pylonTile) {
                     switch (event.buttonType) {
@@ -48,7 +44,6 @@ public class PacketButtonClicked {
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 
     public enum ButtonType {

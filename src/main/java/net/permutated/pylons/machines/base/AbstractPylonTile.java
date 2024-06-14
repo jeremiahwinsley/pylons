@@ -1,9 +1,8 @@
 package net.permutated.pylons.machines.base;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -14,18 +13,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.UsernameCache;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.UsernameCache;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.Range;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,6 +37,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     public static final int SLOTS = 9;
+    public static final UUID NONE = new UUID(0,0);
 
     protected final ItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS) {
         @Override
@@ -50,19 +48,17 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     protected abstract boolean isItemValid(ItemStack stack);
 
-    protected final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
-
     protected boolean canAccessInventory() {
         return false;
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER && (side == null || canAccessInventory())) {
-            return handler.cast();
-        }
-        return super.getCapability(cap, side);
+    /**
+     * Helper method for registering capabilities. Called by ForgeEventHandler.
+     * @param event the registration event
+     * @param blockEntityType the block entity being registered
+     */
+    public static void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, blockEntityType, (pylon, side) -> pylon.canAccessInventory() ? pylon.itemStackHandler : null);
     }
 
     public void dropItems() {
@@ -75,15 +71,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
         }
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        handler.invalidate();
-    }
+    protected UUID owner = NONE;
 
-    protected UUID owner = null;
-
-    @Nullable
     public UUID getOwner() {
         return this.owner;
     }
@@ -146,8 +135,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     public String getOwnerName() {
-        String lastKnown = owner == null ? null : UsernameCache.getLastKnownUsername(owner);
-        return StringUtils.defaultString(lastKnown, Constants.UNKNOWN);
+        String lastKnown = owner == NONE ? null : UsernameCache.getLastKnownUsername(owner);
+        return Objects.toString(lastKnown, Constants.UNKNOWN);
     }
 
     /**
@@ -161,74 +150,36 @@ public abstract class AbstractPylonTile extends BlockEntity {
         String username = getOwnerName();
 
         packetBuffer.writeBlockPos(worldPosition);
+        packetBuffer.writeInt(shouldWork ? 1 : 0);
+        packetBuffer.writeInt(getSelectedRange());
         packetBuffer.writeInt(username.length());
         packetBuffer.writeUtf(username);
     }
 
     // Save TE data to disk
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT());
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT(registries));
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        writeFields(tag);
-    }
-
-    // Write TE data to a provided CompoundNBT
-    private void writeFields(CompoundTag tag) {
         tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
-        if (owner != null) {
-            tag.putUUID(Constants.NBT.OWNER, owner);
-        }
+        tag.putUUID(Constants.NBT.OWNER, owner);
     }
 
     // Load TE data from disk
     @Override
-    public void load(CompoundTag tag) {
-        itemStackHandler.deserializeNBT(tag.getCompound(Constants.NBT.INV));
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        itemStackHandler.deserializeNBT(registries, tag.getCompound(Constants.NBT.INV));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        readFields(tag);
-        super.load(tag);
-    }
-
-    // Read TE data from a provided CompoundNBT
-    private void readFields(@Nullable CompoundTag tag) {
-        // check for NBT before loading, so that existing blocks don't get disabled
-        if (tag != null && tag.contains(Constants.NBT.ENABLED)) {
-            shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
-        }
-        if (tag != null && tag.hasUUID(Constants.NBT.OWNER)) {
-            owner = tag.getUUID(Constants.NBT.OWNER);
-        }
-    }
-
-    // Called whenever a client loads a new chunk
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        writeFields(tag);
-        return tag;
-    }
-
-    @Override
-    public void handleUpdateTag(@Nullable CompoundTag tag) {
-        if (tag != null) {
-            range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        }
-        readFields(tag);
+        shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
+        owner = tag.getUUID(Constants.NBT.OWNER);
+        super.loadAdditional(tag, registries);
     }
 
     // Called whenever a block update happens on the client
     @Nullable
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this, BlockEntity::getUpdateTag);
-    }
-
-    // Handles the update packet received from the server
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        this.handleUpdateTag(pkt.getTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     public class PylonItemStackHandler extends ItemStackHandler {

@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_expulsion_pylon": {
+    "has_infusion_pylon": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "pylons:expulsion_pylon"
-            ]
+            "items": "pylons:infusion_pylon"
           }
         ]
       },
@@ -15,21 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:player_filter"
+        "recipe": "pylons:potion_filter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_expulsion_pylon",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_infusion_pylon"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:player_filter"
+      "pylons:potion_filter"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

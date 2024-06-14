@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -12,27 +11,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.Pylons;
-import net.permutated.pylons.machines.base.AbstractPylonTile;
+import net.permutated.pylons.components.PlayerComponent;
 import net.permutated.pylons.item.PlayerFilterCard;
-import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.util.TranslationKey;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class ExpulsionPylonTile extends AbstractPylonTile {
@@ -108,7 +101,7 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
                 List<ResourceKey<Level>> temp = new ArrayList<>();
                 List<? extends String> allowed = ConfigManager.SERVER.expulsionAllowedDimensions.get();
                 for (String key : allowed) {
-                    temp.add(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(key)));
+                    temp.add(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(key)));
                 }
                 allowedDimensions = ImmutableList.copyOf(temp);
             }
@@ -142,9 +135,9 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
         for (int i = 0; i < itemStackHandler.getSlots(); i++) {
             ItemStack stack = itemStackHandler.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() instanceof PlayerFilterCard) {
-                CompoundTag tag = stack.getTagElement(Pylons.MODID);
-                if (tag != null && tag.hasUUID(Constants.NBT.UUID)) {
-                    allowed.add(tag.getUUID(Constants.NBT.UUID));
+                PlayerComponent data = stack.get(ModRegistry.PLAYER_COMPONENT);
+                if (data != null) {
+                    allowed.add(data.uuid());
                 }
             }
         }
@@ -152,48 +145,14 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     private void doRespawn(MinecraftServer server, ServerPlayer player) {
-        BlockPos respawnPosition = player.getRespawnPosition();
-        float respawnAngle = player.getRespawnAngle();
-        boolean flag = player.isRespawnForced();
+        DimensionTransition transition = player.findRespawnPositionAndUseSpawnBlock(true, DimensionTransition.DO_NOTHING);
 
-        ServerLevel respawnLevel = server.getLevel(player.getRespawnDimension());
-
-        Optional<Vec3> optional;
-        if (respawnLevel != null && respawnPosition != null) {
-            optional = Player.findRespawnPositionAndUseSpawnBlock(respawnLevel, respawnPosition, respawnAngle, flag, true);
-        } else {
-            optional = Optional.empty();
+        // player has a spawn position, is the spawn position in the pylon's work area?
+        if (getBoundingBox(transition.newLevel()).contains(transition.pos())) {
+            return;
         }
 
-        ServerLevel actualLevel = respawnLevel != null && optional.isPresent() ? respawnLevel : server.overworld();
-        ServerPlayer dummyPlayer = new ServerPlayer(server, actualLevel, player.getGameProfile());
-
-        if (optional.isPresent()) {
-            BlockState blockstate = actualLevel.getBlockState(respawnPosition);
-            boolean isAnchor = blockstate.is(Blocks.RESPAWN_ANCHOR);
-            Vec3 spawnPos = optional.get();
-            float actualAngle;
-            if (!blockstate.is(BlockTags.BEDS) && !isAnchor) {
-                actualAngle = respawnAngle;
-            } else {
-                Vec3 vector3d = Vec3.atBottomCenterOf(respawnPosition).subtract(spawnPos).normalize();
-                actualAngle = (float) Mth.wrapDegrees(Mth.atan2(vector3d.z, vector3d.x) * (180F / (float) Math.PI) - 90.0D);
-            }
-
-            dummyPlayer.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, actualAngle, 0.0F);
-
-            // player has a spawn position, is the spawn position in the pylon's work area?
-            var spawnPosition = Vec3.atBottomCenterOf(dummyPlayer.blockPosition());
-            if (getBoundingBox(actualLevel).contains(spawnPosition)) {
-                return;
-            }
-        }
-
-        while (!actualLevel.noCollision(dummyPlayer) && dummyPlayer.getY() < 256.0D) {
-            dummyPlayer.setPos(dummyPlayer.getX(), dummyPlayer.getY() + 1.0D, dummyPlayer.getZ());
-        }
-
-        player.teleportTo(actualLevel, dummyPlayer.getX(), dummyPlayer.getY(), dummyPlayer.getZ(), dummyPlayer.getYRot(), dummyPlayer.getXRot());
+        player.teleportTo(transition.newLevel(), transition.pos().x(), transition.pos().y(), transition.pos().z(), transition.yRot(), transition.xRot());
         player.sendSystemMessage(Component.translatable(TranslationKey.chat("expelled"), getOwnerName()).withStyle(ChatFormatting.RED));
     }
 }

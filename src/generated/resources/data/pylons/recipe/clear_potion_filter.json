@@ -4,10 +4,11 @@
   "group": "pylons",
   "ingredients": [
     {
-      "item": "pylons:mob_filter"
+      "item": "pylons:potion_filter"
     }
   ],
   "result": {
-    "item": "pylons:mob_filter"
+    "count": 1,
+    "id": "pylons:potion_filter"
   }
 }

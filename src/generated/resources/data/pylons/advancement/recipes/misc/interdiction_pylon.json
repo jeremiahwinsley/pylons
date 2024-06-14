@@ -1,13 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_interdiction_pylon": {
+    "has_netherite_block": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "pylons:interdiction_pylon"
-            ]
+            "items": "minecraft:netherite_block"
           }
         ]
       },
@@ -15,21 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pylons:mob_filter"
+        "recipe": "pylons:interdiction_pylon"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_interdiction_pylon",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_netherite_block"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pylons:mob_filter"
+      "pylons:interdiction_pylon"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

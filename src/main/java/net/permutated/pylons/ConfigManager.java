@@ -1,13 +1,11 @@
 package net.permutated.pylons;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber
 public class ConfigManager {
     private ConfigManager() {
         // nothing to do
@@ -20,39 +18,39 @@ public class ConfigManager {
 
 
     public static final ServerConfig SERVER;
-    public static final ForgeConfigSpec SERVER_SPEC;
+    public static final ModConfigSpec SERVER_SPEC;
 
     static {
-        final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
+        final Pair<ServerConfig, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(ServerConfig::new);
         SERVER_SPEC = specPair.getRight();
         SERVER = specPair.getLeft();
     }
 
     public static class ServerConfig {
         // CATEGORY_GENERAL
-        public final ForgeConfigSpec.BooleanValue teamSupportEnabled;
+        public final ModConfigSpec.BooleanValue teamSupportEnabled;
 
         // CATEGORY_EXPULSION
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
-        public final ForgeConfigSpec.IntValue expulsionWorldSpawnRadius;
-        public final ForgeConfigSpec.BooleanValue expulsionPylonCanExplode;
-        public final ForgeConfigSpec.IntValue expulsionPylonMaxRadius;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> expulsionAllowedDimensions;
+        public final ModConfigSpec.IntValue expulsionWorldSpawnRadius;
+        public final ModConfigSpec.BooleanValue expulsionPylonCanExplode;
+        public final ModConfigSpec.IntValue expulsionPylonMaxRadius;
 
         // CATEGORY_INFUSION
-        public final ForgeConfigSpec.IntValue infusionMinimumDuration;
-        public final ForgeConfigSpec.IntValue infusionRequiredDuration;
-        public final ForgeConfigSpec.IntValue infusionAppliedDuration;
-        public final ForgeConfigSpec.BooleanValue infusionChunkloads;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
+        public final ModConfigSpec.IntValue infusionMinimumDuration;
+        public final ModConfigSpec.IntValue infusionRequiredDuration;
+        public final ModConfigSpec.IntValue infusionAppliedDuration;
+        public final ModConfigSpec.BooleanValue infusionChunkloads;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
 
         // CATEGORY_HARVESTER
-        public final ForgeConfigSpec.IntValue harvesterWorkDelay;
-        public final ForgeConfigSpec.BooleanValue harvesterRequiresTool;
-        public final ForgeConfigSpec.BooleanValue harvesterCanBeAutomated;
+        public final ModConfigSpec.IntValue harvesterWorkDelay;
+        public final ModConfigSpec.BooleanValue harvesterRequiresTool;
+        public final ModConfigSpec.BooleanValue harvesterCanBeAutomated;
 
 
-        ServerConfig(ForgeConfigSpec.Builder builder) {
+        ServerConfig(ModConfigSpec.Builder builder) {
             // CATEGORY_GENERAL
             builder.push(CATEGORY_GENERAL);
 

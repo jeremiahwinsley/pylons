@@ -1,15 +1,14 @@
 package net.permutated.pylons.machines.interdiction;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.Pylons;
-import net.permutated.pylons.machines.base.AbstractPylonTile;
+import net.permutated.pylons.components.EntityComponent;
 import net.permutated.pylons.item.MobFilterCard;
-import net.permutated.pylons.util.Constants;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.util.SpawnManager;
 
 import java.util.HashSet;
@@ -35,13 +34,13 @@ public class InterdictionPylonTile extends AbstractPylonTile {
     @Override
     public void tick() {
         if (level instanceof ServerLevel serverLevel && canTick(20) && dirty) {
-            HashSet<String> filters = new HashSet<>();
+            HashSet<ResourceLocation> filters = new HashSet<>();
             for (int i = 0; i < itemStackHandler.getSlots(); i++) {
                 ItemStack stack = itemStackHandler.getStackInSlot(i);
                 if (!stack.isEmpty() && stack.getItem() instanceof MobFilterCard) {
-                    CompoundTag tag = stack.getTagElement(Pylons.MODID);
-                    if (tag != null && tag.contains(Constants.NBT.REGISTRY)) {
-                        filters.add(tag.getString(Constants.NBT.REGISTRY));
+                    EntityComponent data = stack.get(ModRegistry.ENTITY_COMPONENT);
+                    if (data != null) {
+                        filters.add(data.registryKey());
                     }
                 }
             }
@@ -56,6 +55,7 @@ public class InterdictionPylonTile extends AbstractPylonTile {
         super.removeChunkloads();
         if (level instanceof ServerLevel serverLevel) {
             SpawnManager.unregister(serverLevel, worldPosition);
+            this.dirty = true;
         }
     }
 

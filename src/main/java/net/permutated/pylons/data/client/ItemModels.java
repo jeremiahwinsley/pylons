@@ -4,11 +4,12 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.util.ResourceUtil;
 
 import java.util.Collection;
 
@@ -18,14 +19,14 @@ public class ItemModels extends ItemModelProvider {
     }
 
     private ResourceLocation res(String name) {
-        return new ResourceLocation(Pylons.MODID, "item/".concat(name));
+        return ResourceUtil.prefix("item/".concat(name));
     }
 
     @Override
     protected void registerModels() {
-        Collection<RegistryObject<Item>> entries = ModRegistry.ITEMS.getEntries();
+        Collection<DeferredHolder<Item, ? extends Item>> entries = ModRegistry.ITEMS.getEntries();
 
-        ResourceLocation generated = new ResourceLocation("item/generated");
+        ResourceLocation generated = ResourceLocation.withDefaultNamespace("item/generated");
 
         entries.stream()
             .filter(item -> !(item.get() instanceof BlockItem))

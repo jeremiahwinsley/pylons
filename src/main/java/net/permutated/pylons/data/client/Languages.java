@@ -1,7 +1,7 @@
 package net.permutated.pylons.data.client;
 
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
 

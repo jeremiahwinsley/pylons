@@ -1,21 +1,23 @@
 package net.permutated.pylons;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.world.ForgeChunkManager;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.permutated.pylons.compat.harvest.HarvestCompat;
 import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.machines.base.AbstractPylonBlock;
-import net.permutated.pylons.network.NetworkDispatcher;
+import net.permutated.pylons.machines.base.AbstractPylonTile;
+import net.permutated.pylons.network.PacketButtonClicked;
 import net.permutated.pylons.util.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,30 +31,34 @@ public class Pylons
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public Pylons() {
+    public Pylons(IEventBus modEventBus) {
         LOGGER.info("Registering mod: {}", MODID);
 
-        ModRegistry.register();
-        NetworkDispatcher.register();
+        ModRegistry.register(modEventBus);
         TeamCompat.init();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigManager.SERVER_SPEC);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetupEvent);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetupEvent);
-        MinecraftForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
-        MinecraftForge.EVENT_BUS.addListener(MobFilterCard::onPlayerInteractEvent);
-        MinecraftForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.SERVER, ConfigManager.SERVER_SPEC);
+        modEventBus.addListener(this::onCommonSetupEvent);
+        modEventBus.addListener(this::onRegisterPayloadHandlersEvent);
+        modEventBus.addListener(this::onRegisterCapabilitiesEvent);
+        modEventBus.addListener(ChunkManager::onRegisterTicketControllersEvent);
+
+        NeoForge.EVENT_BUS.addListener(PlayerFilterCard::onPlayerInteractEvent);
+        NeoForge.EVENT_BUS.addListener(MobFilterCard::onPlayerInteractEvent);
+        NeoForge.EVENT_BUS.addListener(Pylons::onBlockBreakEvent);
     }
 
     public void onCommonSetupEvent(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            ForgeChunkManager.setForcedChunkLoadingCallback(MODID, ChunkManager::validateTickets);
-            HarvestCompat.init();
-        });
+        event.enqueueWork(HarvestCompat::init);
     }
 
-    public void onClientSetupEvent(final FMLClientSetupEvent event) {
-        ClientSetup.register();
+    public void onRegisterPayloadHandlersEvent(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(Pylons.MODID);
+        registrar.playToServer(PacketButtonClicked.TYPE, PacketButtonClicked.STREAM_CODEC, PacketButtonClicked::handle);
+    }
+
+    public void onRegisterCapabilitiesEvent(final RegisterCapabilitiesEvent event) {
+        AbstractPylonTile.registerCapabilities(event, ModRegistry.HARVESTER_PYLON_TILE.get());
     }
 
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {

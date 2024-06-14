@@ -4,29 +4,34 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.registries.RegistryObject;
-import net.permutated.pylons.network.NetworkDispatcher;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.permutated.pylons.Pylons;
 import net.permutated.pylons.network.PacketButtonClicked;
 
 import javax.annotation.Nullable;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public abstract class AbstractPylonContainer extends AbstractContainerMenu {
-
-    @Nullable // should only be accessed from server
-    private final AbstractPylonTile tileEntity;
+    private final ContainerLevelAccess containerLevelAccess;
+    protected final DataHolder dataHolder;
     protected final String ownerName;
     protected final BlockPos blockPos;
 
@@ -34,26 +39,34 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         super(containerType, windowId);
 
         blockPos = packetBuffer.readBlockPos();
-        Level world = playerInventory.player.getCommandSenderWorld();
-
-        tileEntity = (AbstractPylonTile) world.getBlockEntity(blockPos);
-        IItemHandler wrappedInventory = new InvWrapper(playerInventory);
-
-        if (tileEntity != null) {
-            tileEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
-                for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
-                    addSlot(new SlotItemHandler(handler, slot, 8 + slot * 18, 54));
-                }
-            });
+        Level level = playerInventory.player.getCommandSenderWorld();
+        if (level instanceof ServerLevel serverLevel) { // server
+            this.containerLevelAccess = ContainerLevelAccess.create(level, blockPos);
+            BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
+            if (blockEntity instanceof AbstractPylonTile tile) {
+                dataHolder = new DataHolderServer(tile);
+                registerHandlerSlots(tile.itemStackHandler);
+            } else {
+                Pylons.LOGGER.error("Did not find matching block entity for pos: {}", blockPos);
+                dataHolder = new DataHolderClient();
+            }
+        } else { // client
+            containerLevelAccess = ContainerLevelAccess.NULL;
+            dataHolder = new DataHolderClient();
+            registerHandlerSlots(new ItemStackHandler(AbstractPylonTile.SLOTS));
         }
+        registerPlayerSlots(new InvWrapper(playerInventory));
+        registerDataSlots();
+
+        dataHolder.setEnabled(packetBuffer.readInt());
+        dataHolder.setRange(packetBuffer.readInt());
 
         int nameLength = packetBuffer.readInt();
         ownerName = packetBuffer.readUtf(nameLength);
 
-        registerPlayerSlots(wrappedInventory);
     }
 
-    protected abstract RegistryObject<Block> getBlock();
+    protected abstract Supplier<Block> getBlock();
 
     protected int getInventorySize() {
         return AbstractPylonTile.SLOTS;
@@ -64,13 +77,13 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     }
 
     public Component getWorkComponent() {
-        var shouldWork = tileEntity != null && tileEntity.shouldWork();
+        boolean shouldWork = dataHolder.getEnabled() == 1;
         return Component.literal(shouldWork ? "On" : "Off");
     }
 
     @SuppressWarnings("java:S1172") // parameter required
     public void sendWorkPacket(Button button) {
-        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.WORK, blockPos));
+        PacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.WORK, blockPos));
     }
 
     public boolean shouldRenderRange() {
@@ -78,25 +91,18 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     }
 
     public Component getRangeComponent() {
-        var range = tileEntity != null ? tileEntity.getSelectedRange() : 0;
+        int range = dataHolder.getRange();
         return Component.literal(String.format("%dx%d", range, range));
     }
 
     @SuppressWarnings("java:S1172") // parameter required
     public void sendRangePacket(Button button) {
-        NetworkDispatcher.INSTANCE.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.RANGE, blockPos));
+        PacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.RANGE, blockPos));
     }
 
     @Override
     public boolean stillValid(Player playerEntity) {
-        if (tileEntity != null) {
-            Level world = tileEntity.getLevel();
-            if (world != null) {
-                ContainerLevelAccess callable = ContainerLevelAccess.create(world, tileEntity.getBlockPos());
-                return stillValid(callable, playerEntity, getBlock().get());
-            }
-        }
-        return false;
+        return stillValid(containerLevelAccess, playerEntity, getBlock().get());
     }
 
     @Override
@@ -127,6 +133,12 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         return itemstack;
     }
 
+    public void registerHandlerSlots(IItemHandler inventory) {
+        for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
+            addSlot(new SlotItemHandler(inventory, slot, 8 + slot * 18, 54));
+        }
+    }
+
     public void registerPlayerSlots(IItemHandler wrappedInventory) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
@@ -137,5 +149,39 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         for (int i = 0; i < 9; i++) {
             addSlot(new SlotItemHandler(wrappedInventory, i, 8 + i * 18, 148));
         }
+    }
+
+    public void registerDataSlots() {
+        addDataSlot(dataHolder::getRange, dataHolder::setRange);
+        addDataSlot(dataHolder::getEnabled, dataHolder::setEnabled);
+    }
+
+    private void addDataSlot(IntSupplier getter, IntConsumer setter) {
+        addDataSlot(new LambdaDataSlot(getter, setter));
+    }
+
+    /**
+     * Based on <a href="https://github.com/Shadows-of-Fire/Placebo/blob/b104501c18e2f6432c843944a8106d07cab825cf/src/main/java/shadows/placebo/container/EasyContainerData.java">Placebo</a>
+     */
+    static class LambdaDataSlot extends DataSlot {
+
+        private final IntSupplier getter;
+        private final IntConsumer setter;
+
+        public LambdaDataSlot(IntSupplier getter, IntConsumer setter) {
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        @Override
+        public int get() {
+            return this.getter.getAsInt();
+        }
+
+        @Override
+        public void set(int pValue) {
+            this.setter.accept(pValue);
+        }
+
     }
 }
