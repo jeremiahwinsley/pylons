@@ -88,7 +88,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     public boolean canAccess(Player player) {
-        return Objects.equals(player.getUUID(), owner) || owner == null || player.hasPermissions(2) || hasTeamAccess(player);
+        return Objects.equals(player.getUUID(), owner) || owner == NONE || player.hasPermissions(2) || hasTeamAccess(player);
     }
 
     private long lastTicked = 0L;
@@ -173,6 +173,22 @@ public abstract class AbstractPylonTile extends BlockEntity {
         shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         owner = tag.getUUID(Constants.NBT.OWNER);
         super.loadAdditional(tag, registries);
+    }
+
+    // Called whenever a client loads a new chunk
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.putUUID(Constants.NBT.OWNER, owner);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        if (!tag.isEmpty()) {
+            owner = tag.getUUID(Constants.NBT.OWNER);
+            super.handleUpdateTag(tag, lookupProvider);
+        }
     }
 
     // Called whenever a block update happens on the client
