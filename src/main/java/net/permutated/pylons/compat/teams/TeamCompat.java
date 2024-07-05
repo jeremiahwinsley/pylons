@@ -1,5 +1,7 @@
 package net.permutated.pylons.compat.teams;
 
+import net.neoforged.fml.ModList;
+
 public class TeamCompat {
     private TeamCompat() {
         // nothing to do
@@ -10,10 +12,10 @@ public class TeamCompat {
     }
 
     public static void init() {
-//        if (ModList.get().isLoaded("ftbteams")) {
-//            instance = new FTBTeamSupport();
+        if (ModList.get().isLoaded("ftbteams")) {
+            instance = new FTBTeamSupport();
 //        } else if (ModList.get().isLoaded("argonauts")) {
 //            instance = new ArgonautTeamSupport();
-//        }
+        }
     }
 }

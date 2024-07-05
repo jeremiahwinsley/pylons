@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'org.gradle.crypto.checksum' version '1.4.0'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.gradle.userdev' version '7.0.151'
 }
 
 // Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
@@ -102,9 +102,10 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
+    runtimeOnly "curse.maven:emi-580555:5481786"
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:4712868")
-//    runtimeOnly fg.deobf("curse.maven:jade-324717:4711195")
-//    compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4623116")
+    runtimeOnly "curse.maven:jade-324717:5444008"
+    compileOnly "curse.maven:ftb-teams-forge-404468:5448371"
 //
 //    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
 //    compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
@@ -117,7 +118,6 @@ sourceSets {
         java {
             exclude '**/ArsNouveauSourceBerryBush.java'
             exclude '**/ArgonautTeamSupport.java'
-            exclude '**/FTBTeamSupport.java'
         }
     }
 }
