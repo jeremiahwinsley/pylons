@@ -167,6 +167,9 @@ public class PotionFilterCard extends Item {
             tooltip.add(translate("no_effect2"));
             tooltip.add(translate("minimum_duration", getMinimumDuration() / 20));
         }
+
+        tooltip.add(Component.empty());
+        tooltip.add(translate("infusion"));
     }
 
 

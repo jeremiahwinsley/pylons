@@ -6,6 +6,13 @@ plugins {
     id 'net.neoforged.gradle.userdev' version '7.0.151'
 }
 
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-${minecraft_version}"
+}
+
 // Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
@@ -105,7 +112,10 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:4712868")
     runtimeOnly "curse.maven:jade-324717:5493270"
     compileOnly "curse.maven:ftb-teams-forge-404468:5448371"
-//
+
+    runtimeOnly "curse.maven:mystical-agriculture-246640:5654250"
+    runtimeOnly "curse.maven:mystical-agradditions-256247:5648567"
+    runtimeOnly "curse.maven:cucumber-272335:5654155"
 //    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
 //    compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
 //
@@ -122,7 +132,6 @@ sourceSets {
 }
 
 jar {
-    archiveBaseName.set("${mod_id}-${minecraft_version}-${mod_version}")
     manifest {
         attributes([
             "Specification-Title"     : mod_id,

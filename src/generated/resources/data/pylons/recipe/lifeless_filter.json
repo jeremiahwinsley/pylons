@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "pylons",
+  "key": {
+    "c": {
+      "tag": "c:dyes/green"
+    },
+    "d": {
+      "tag": "c:nether_stars"
+    },
+    "g": {
+      "tag": "c:glass_blocks"
+    },
+    "t": {
+      "item": "minecraft:cyan_terracotta"
+    }
+  },
+  "pattern": [
+    "tct",
+    "gdg",
+    "ggg"
+  ],
+  "result": {
+    "count": 1,
+    "id": "pylons:lifeless_filter"
+  }
+}

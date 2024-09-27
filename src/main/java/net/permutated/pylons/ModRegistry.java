@@ -25,6 +25,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.permutated.pylons.components.EntityComponent;
 import net.permutated.pylons.components.PlayerComponent;
 import net.permutated.pylons.components.PotionComponent;
+import net.permutated.pylons.item.LifelessFilterCard;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.item.PotionFilterCard;
@@ -72,6 +73,7 @@ public class ModRegistry {
     public static final Supplier<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);
     public static final Supplier<Item> POTION_FILTER = ITEMS.register("potion_filter", PotionFilterCard::new);
     public static final Supplier<Item> MOB_FILTER = ITEMS.register("mob_filter", MobFilterCard::new);
+    public static final Supplier<Item> LIFELESS_FILTER = ITEMS.register("lifeless_filter", LifelessFilterCard::new);
 
     // Components
     public static final Supplier<DataComponentType<PlayerComponent>> PLAYER_COMPONENT = COMPONENTS.registerComponentType(

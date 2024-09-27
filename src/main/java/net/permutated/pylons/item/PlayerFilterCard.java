@@ -68,6 +68,9 @@ public class PlayerFilterCard extends Item {
         } else {
             tooltip.add(translate("no_player"));
         }
+
+        tooltip.add(Component.empty());
+        tooltip.add(translate("expulsion"));
     }
 
     protected MutableComponent translate(String key) {

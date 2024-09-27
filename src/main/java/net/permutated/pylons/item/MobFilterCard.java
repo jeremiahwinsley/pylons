@@ -61,6 +61,9 @@ public class MobFilterCard extends Item {
         } else {
             tooltip.add(translate("no_mob"));
         }
+
+        tooltip.add(Component.empty());
+        tooltip.add(translate("interdiction"));
     }
 
     protected MutableComponent translate(String key) {

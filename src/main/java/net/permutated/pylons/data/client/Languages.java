@@ -33,6 +33,7 @@ public class Languages {
 
             addBlock(ModRegistry.INTERDICTION_PYLON, "Interdiction Pylon");
             addItem(ModRegistry.MOB_FILTER, "Mob Filter");
+            addItem(ModRegistry.LIFELESS_FILTER, "Lifeless Filter");
 
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");
@@ -86,6 +87,14 @@ public class Languages {
             add(tooltip("progress"), "Progress: %d/%d seconds");
 
             add(tooltip("player"), "Player: %s");
+
+            add(tooltip("lifeless1"), "Disables natural spawns in range.");
+            add(tooltip("lifeless2"), "Increases range to 25x25 chunks.");
+            add(tooltip("lifeless3"), "Disables other mob filters.");
+
+            add(tooltip("expulsion"), "Used in the Expulsion Pylon.");
+            add(tooltip("infusion"), "Used in the Infusion Pylon.");
+            add(tooltip("interdiction"), "Used in the Interdiction Pylon.");
         }
     }
 }

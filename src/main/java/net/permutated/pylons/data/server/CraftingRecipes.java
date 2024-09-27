@@ -129,6 +129,17 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_mob_filter", has(ModRegistry.MOB_FILTER.get()))
             .save(consumer, prefix("clear_mob_filter"));
 
+        shaped(ModRegistry.LIFELESS_FILTER.get())
+            .pattern("tct")
+            .pattern("gdg")
+            .pattern("ggg")
+            .define('t', Items.CYAN_TERRACOTTA)
+            .define('c', Tags.Items.DYES_GREEN)
+            .define('d', Tags.Items.NETHER_STARS)
+            .define('g', Tags.Items.GLASS_BLOCKS)
+            .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
+            .save(consumer);
+
     }
 
 }

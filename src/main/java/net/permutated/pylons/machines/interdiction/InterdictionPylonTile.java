@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.EntityComponent;
+import net.permutated.pylons.item.LifelessFilterCard;
 import net.permutated.pylons.item.MobFilterCard;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.util.SpawnManager;
@@ -26,7 +27,7 @@ public class InterdictionPylonTile extends AbstractPylonTile {
 
     @Override
     protected boolean isItemValid(ItemStack stack) {
-        return stack.getItem() instanceof MobFilterCard;
+        return stack.getItem() instanceof MobFilterCard || stack.getItem() instanceof LifelessFilterCard;
     }
 
     private boolean dirty = true;
@@ -42,6 +43,10 @@ public class InterdictionPylonTile extends AbstractPylonTile {
                     if (data != null) {
                         filters.add(data.registryKey());
                     }
+                } else if (!stack.isEmpty() && stack.getItem() instanceof LifelessFilterCard) {
+                    SpawnManager.registerLifeless(serverLevel, worldPosition);
+                    dirty = false;
+                    return;
                 }
             }
 

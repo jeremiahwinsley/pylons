@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_interdiction_pylon": {
+      "conditions": {
+        "items": [
+          {
+            "items": "pylons:interdiction_pylon"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "pylons:lifeless_filter"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_interdiction_pylon"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "pylons:lifeless_filter"
+    ]
+  }
+}
