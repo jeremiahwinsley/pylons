@@ -1,5 +1,5 @@
 # pylons
-Pylons mod for Forge 1.21.1.
+Pylons mod for NeoForge 1.21.1.
 
 ### Expulsion Pylon
 Intended for use on servers, this block allows you to expel other players from the chunk it's placed in.
