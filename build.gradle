@@ -18,7 +18,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
-//minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 //minecraft.accessTransformers.entry public net.minecraft.client.Minecraft textureManager # textureManager
 
 // Default run configurations.
@@ -108,7 +108,7 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    runtimeOnly "curse.maven:emi-580555:5481786"
+    runtimeOnly "curse.maven:emi-580555:5704405"
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:4712868")
     runtimeOnly "curse.maven:jade-324717:5493270"
     compileOnly "curse.maven:ftb-teams-forge-404468:5448371"
@@ -119,13 +119,15 @@ dependencies {
 //    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
 //    compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
 //
-//    compileOnly fg.deobf("curse.maven:ars-nouveau-401955:4683698")
+    implementation "curse.maven:ars-nouveau-401955:5721123"
+    runtimeOnly "curse.maven:geckolib-388172:5605715"
+    runtimeOnly "curse.maven:adorned-1036809:5740650"
+
 }
 
 sourceSets {
     main {
         java {
-            exclude '**/ArsNouveauSourceBerryBush.java'
             exclude '**/ArgonautTeamSupport.java'
         }
     }

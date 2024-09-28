@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "minecraft"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "minecraft:sweet_berry_bush",
+  "output": {
+    "count": 2,
+    "id": "minecraft:sweet_berries"
+  }
+}

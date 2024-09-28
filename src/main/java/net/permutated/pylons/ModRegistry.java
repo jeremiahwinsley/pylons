@@ -14,6 +14,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -36,6 +38,8 @@ import net.permutated.pylons.machines.expulsion.ExpulsionPylonTile;
 import net.permutated.pylons.machines.harvester.HarvesterPylonBlock;
 import net.permutated.pylons.machines.harvester.HarvesterPylonContainer;
 import net.permutated.pylons.machines.harvester.HarvesterPylonTile;
+import net.permutated.pylons.recipe.HarvestingRecipe;
+import net.permutated.pylons.recipe.HarvestingRegistry;
 import net.permutated.pylons.machines.infusion.InfusionPylonBlock;
 import net.permutated.pylons.machines.infusion.InfusionPylonContainer;
 import net.permutated.pylons.machines.infusion.InfusionPylonTile;
@@ -46,6 +50,8 @@ import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.TranslationKey;
 
 import java.util.function.Supplier;
+
+import static net.permutated.pylons.util.ResourceUtil.prefix;
 
 public class ModRegistry {
     private ModRegistry() {
@@ -58,6 +64,9 @@ public class ModRegistry {
     public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Pylons.MODID);
     public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(Registries.MENU, Pylons.MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Pylons.MODID);
+    public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, Pylons.MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, Pylons.MODID);
+    public static final HarvestingRegistry HARVESTING_REGISTRY = new HarvestingRegistry();
 
     public static final Supplier<CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register("creative_tab", () -> CreativeModeTab.builder()
         .title(Component.translatable(TranslationKey.tab()))
@@ -112,6 +121,10 @@ public class ModRegistry {
     public static final Supplier<MenuType<HarvesterPylonContainer>> HARVESTER_PYLON_CONTAINER = container(Constants.HARVESTER_PYLON, HarvesterPylonContainer::new);
     public static final Supplier<MenuType<InterdictionPylonContainer>> INTERDICTION_PYLON_CONTAINER = container(Constants.INTERDICTION_PYLON, InterdictionPylonContainer::new);
 
+    // Recipe Types
+    public static final Supplier<RecipeType<HarvestingRecipe>> HARVESTING_RECIPE_TYPE = RECIPE_TYPES.register(Constants.HARVESTING, () -> RecipeType.simple(prefix(Constants.HARVESTING)));
+    public static final Supplier<HarvestingRecipe.Serializer> HARVESTING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(Constants.HARVESTING, HarvestingRecipe.Serializer::new);
+
     /**
      * Register a BlockItem for a Block
      *
@@ -164,5 +177,7 @@ public class ModRegistry {
         TILES.register(bus);
         CONTAINERS.register(bus);
         CREATIVE_TABS.register(bus);
+        RECIPE_TYPES.register(bus);
+        RECIPE_SERIALIZERS.register(bus);
     }
 }

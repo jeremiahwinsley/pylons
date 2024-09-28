@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "vinery"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "vinery:savanna_grape_bush_white",
+  "output": {
+    "count": 2,
+    "id": "vinery:savanna_grapes_white"
+  }
+}

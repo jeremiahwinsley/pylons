@@ -16,11 +16,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
-import net.permutated.pylons.compat.harvest.HarvestCompat;
-import net.permutated.pylons.compat.harvest.Harvestable;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
+import net.permutated.pylons.recipe.HarvestingRecipe;
 
 import java.util.List;
+import java.util.Optional;
 
 public class HarvesterPylonTile extends AbstractPylonTile {
     public HarvesterPylonTile(BlockPos pos, BlockState state) {
@@ -123,6 +123,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                         continue;
                     }
 
+                    Optional<HarvestingRecipe> optionalRecipe;
                     BlockState blockState = level.getBlockState(workPos);
 
                     if (blockState.getBlock() instanceof CropBlock crop) {
@@ -140,7 +141,8 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                                 return;
                             } else {
                                 ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                replace.hurtAndBreak(1, serverLevel, null, item -> {});
+                                replace.hurtAndBreak(1, serverLevel, null, item -> {
+                                });
                                 itemStackHandler.setStackInSlot(hoeSlot, replace);
                             }
                         }
@@ -176,32 +178,33 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                                 return;
                             }
                         }
-                    } else if (HarvestCompat.hasCompat(blockState.getBlock())) {
-                          Harvestable harvestable = HarvestCompat.getCompat(blockState.getBlock());
-                          if (harvestable.isHarvestable(blockState)) {
-                              if (requiresTool()) {
-                                  if (hoeSlot == -1) {
-                                      workStatus = Status.MISSING_TOOL;
-                                      return;
-                                  } else {
-                                      ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                      replace.hurtAndBreak(1, serverLevel, null, item -> {});
-                                      itemStackHandler.setStackInSlot(hoeSlot, replace);
-                                  }
-                              }
+                    } else if ((optionalRecipe = ModRegistry.HARVESTING_REGISTRY.findRecipe(blockState.getBlock())).isPresent()) {
+                        HarvestingRecipe recipe = optionalRecipe.get();
+                        int age = blockState.getValue(recipe.getAgeProperty());
 
-                              ItemStack stack = harvestable.harvest(level, workPos, blockState);
-                              if (stack.isEmpty()) {
-                                  continue;
-                              }
+                        if (age > recipe.getMinAge() && age == recipe.getMaxAge()) {
+                            if (requiresTool()) {
+                                if (hoeSlot == -1) {
+                                    workStatus = Status.MISSING_TOOL;
+                                    return;
+                                } else {
+                                    ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
+                                    replace.hurtAndBreak(1, serverLevel, null, item -> {});
+                                    itemStackHandler.setStackInSlot(hoeSlot, replace);
+                                }
+                            }
 
-                              // try to insert as many drops as possible, discard the rest
-                              boolean result = insertItemOrDiscard(itemHandler, stack);
-                              if (!result) {
-                                  workStatus = Status.INVENTORY_FULL;
-                                  return;
-                              }
-                          }
+                            ItemStack stack = recipe.getOutput().copy();
+                            int harvestAge = recipe.getMaxAge() > 1 ? 1 : 0;
+                            level.setBlock(workPos, blockState.setValue(recipe.getAgeProperty(), harvestAge), Block.UPDATE_CLIENTS);
+
+                            // try to insert as many drops as possible, discard the rest
+                            boolean result = insertItemOrDiscard(itemHandler, stack);
+                            if (!result) {
+                                workStatus = Status.INVENTORY_FULL;
+                                return;
+                            }
+                        }
                     }
                 }
             }

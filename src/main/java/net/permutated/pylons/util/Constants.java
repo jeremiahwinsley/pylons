@@ -10,6 +10,7 @@ public class Constants {
     public static final String HARVESTER_PYLON = "harvester_pylon";
     public static final String INTERDICTION_PYLON = "interdiction_pylon";
 
+    public static final String HARVESTING = "harvesting";
     public static final String UNKNOWN = "unknown";
 
     public static class NBT {
@@ -33,5 +34,16 @@ public class Constants {
         public static final String ENABLED = "enabled";
         public static final String CONTENTS = "contents";
         public static final String POSITION = "position";
+    }
+
+    public static class JSON
+    {
+        private JSON() {
+            // nothing to do
+        }
+
+        public static final String INPUT = "input";
+        public static final String BLOCK = "block";
+        public static final String OUTPUT = "output";
     }
 }

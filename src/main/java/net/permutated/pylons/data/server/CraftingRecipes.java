@@ -1,5 +1,6 @@
 package net.permutated.pylons.data.server;
 
+import com.hollingsworth.arsnouveau.setup.registry.BlockRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -9,9 +10,11 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.builder.HarvestingRecipeBuilder;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -140,6 +143,20 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
             .save(consumer);
 
+        harvestingRecipes(consumer);
     }
 
+    protected void harvestingRecipes(RecipeOutput consumer) {
+        HarvestingRecipeBuilder.forBlock(Blocks.SWEET_BERRY_BUSH)
+            .setOutput(Items.SWEET_BERRIES, 2)
+            .build(consumer);
+
+        HarvestingRecipeBuilder.forBlock(Blocks.NETHER_WART)
+            .setOutput(Items.NETHER_WART, 3)
+            .build(consumer);
+
+        HarvestingRecipeBuilder.forBlock(BlockRegistry.SOURCEBERRY_BUSH.get())
+            .setOutput(BlockRegistry.SOURCEBERRY_BUSH.asItem(), 2)
+            .build(consumer);
+    }
 }
