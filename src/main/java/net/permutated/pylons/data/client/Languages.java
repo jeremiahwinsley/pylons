@@ -4,9 +4,11 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.util.Constants;
 
 import static net.permutated.pylons.util.TranslationKey.chat;
 import static net.permutated.pylons.util.TranslationKey.gui;
+import static net.permutated.pylons.util.TranslationKey.jei;
 import static net.permutated.pylons.util.TranslationKey.tab;
 import static net.permutated.pylons.util.TranslationKey.tooltip;
 
@@ -41,6 +43,7 @@ public class Languages {
             add(gui("insideWorldSpawn"), "Too close to world spawn.");
             add(gui("toolMissing"), "Hoe required for operation.");
             add(gui("inventoryMissing"), "Place inventory above pylon.");
+            add(gui("energyMissing"), "Not enough power.");
             add(gui("inventoryFull"), "Inventory is full.");
             add(gui("working"), "Pylon is working.");
             add(gui("whitelist"), "Add players to whitelist:");
@@ -49,6 +52,8 @@ public class Languages {
             add(gui("workArea"), "Work area (in chunks)");
             add(gui("workAreaBlocks"), "Work area (in blocks)");
             add(gui("toggleWork"), "Working status");
+            add(gui("fluxBar"), "Redstone Flux:");
+            add(gui("fluxData"), "%d/%d RF stored");
             add(tab(), "Pylons");
 
             add(chat("expelled"), "You have been expelled from %s's chunk!");
@@ -95,6 +100,49 @@ public class Languages {
             add(tooltip("expulsion"), "Used in the Expulsion Pylon.");
             add(tooltip("infusion"), "Used in the Infusion Pylon.");
             add(tooltip("interdiction"), "Used in the Interdiction Pylon.");
+
+            add(jei(Constants.HARVESTER_PYLON), """
+Harvests crops in a radius (from 3x3 to 9x9 blocks) around the pylon and outputs to an inventory above.
+Place the pylon inside the water block of the farm, or level with the crops.
+
+By default (configurable) this will require a hoe in the pylon, and use 1 durability per harvest,
+unless the hoe is unbreakable. Unbreaking and other durability enchants are supported.
+
+Optionally can be configured to require power instead of durability.
+
+Can be toggled automatically with redstone.
+                """);
+
+            add(jei(Constants.INFUSION_PYLON), """
+Allows you to apply effects to yourself from any distance with activated Potion Filters.
+By default (configurable) this will load the chunk it's placed in, while the owner is online.
+
+Activate potion filters by applying a potion effect to yourself,
+and then right clicking with the filter in hand to extract it.
+
+By default (configurable) the minimum duration that can be extracted is 60 seconds,
+and the filter requires 1 hour of duration to activate.
+
+Duplicate potion filters can be combined by placing one in each hand and right-clicking.
+
+Can be toggled automatically with redstone.
+                """);
+
+            add(jei(Constants.EXPULSION_PYLON), """
+This block allows you to expel other players from the selected chunk range (1x1 to 5x5 chunks).
+You can whitelist players with a Player Filter.
+
+Can be toggled automatically with redstone.
+                """);
+
+            add(jei(Constants.INTERDICTION_PYLON), """
+Prevents natural and forced spawns of specified mobs within the selected chunk range (1x1 to 5x5 chunks).
+Add Mob Filters to specify which mobs to block.
+
+Using the lifeless filter will instead block all mobs, but only natural spawns, with a much larger range.
+
+Can be toggled automatically with redstone.
+                """);
         }
     }
 }

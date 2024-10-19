@@ -109,9 +109,11 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     runtimeOnly "curse.maven:emi-580555:5704405"
-//    runtimeOnly fg.deobf("curse.maven:jei-238222:4712868")
+    implementation "curse.maven:jei-238222:5802637"
     runtimeOnly "curse.maven:jade-324717:5493270"
     compileOnly "curse.maven:ftb-teams-forge-404468:5448371"
+    runtimeOnly "curse.maven:powah-rearchitected-633483:5735677"
+    runtimeOnly "curse.maven:cloth-config-348521:5729127"
 
     runtimeOnly "curse.maven:mystical-agriculture-246640:5654250"
     runtimeOnly "curse.maven:mystical-agradditions-256247:5648567"

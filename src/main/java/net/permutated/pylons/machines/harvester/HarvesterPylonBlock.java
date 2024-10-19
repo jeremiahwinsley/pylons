@@ -36,6 +36,7 @@ public class HarvesterPylonBlock extends AbstractPylonBlock implements SimpleWat
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
     }
 

@@ -15,4 +15,14 @@ public class DataHolderServer implements DataHolder {
     public int getRange() {
         return blockEntity.getSelectedRange();
     }
+
+    @Override
+    public int getEnergy() {
+        return blockEntity.energyStorage.getEnergyStored();
+    }
+
+    @Override
+    public int getMaxEnergy() {
+        return blockEntity.energyStorage.getMaxEnergyStored();
+    }
 }

@@ -10,6 +10,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,10 +35,14 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     protected AbstractPylonTile(BlockEntityType<?> tileEntityType, BlockPos pos, BlockState state) {
         super(tileEntityType, pos, state);
+        int buffer = ConfigManager.SERVER.harvesterPowerBuffer.getAsInt();
+        energyStorage = new PylonEnergyStorage(this::setChanged, buffer, buffer);
     }
 
     public static final int SLOTS = 9;
     public static final UUID NONE = new UUID(0,0);
+
+    protected final PylonEnergyStorage energyStorage;
 
     protected final ItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS) {
         @Override
@@ -59,6 +64,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
      */
     public static void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, blockEntityType, (pylon, side) -> pylon.canAccessInventory() ? pylon.itemStackHandler : null);
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, blockEntityType, (pylon, side) -> ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean() ? pylon.energyStorage : null);
     }
 
     public void dropItems() {
@@ -150,7 +156,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
         String username = getOwnerName();
 
         packetBuffer.writeBlockPos(worldPosition);
-        packetBuffer.writeInt(shouldWork ? 1 : 0);
+        packetBuffer.writeInt(shouldWork() ? 1 : 0);
         packetBuffer.writeInt(getSelectedRange());
         packetBuffer.writeInt(username.length());
         packetBuffer.writeUtf(username);
@@ -160,8 +166,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT(registries));
+        tag.put(Constants.NBT.ENERGY, energyStorage.serializeNBT(registries));
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        tag.putBoolean(Constants.NBT.ENABLED, shouldWork);
         tag.putUUID(Constants.NBT.OWNER, owner);
     }
 
@@ -169,8 +175,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         itemStackHandler.deserializeNBT(registries, tag.getCompound(Constants.NBT.INV));
+        energyStorage.deserializeNBT(registries, tag.get(Constants.NBT.ENERGY));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        shouldWork = tag.getBoolean(Constants.NBT.ENABLED);
         owner = tag.getUUID(Constants.NBT.OWNER);
         super.loadAdditional(tag, registries);
     }
@@ -209,18 +215,14 @@ public abstract class AbstractPylonTile extends BlockEntity {
         }
     }
 
-    protected boolean shouldWork = true;
-
     public boolean shouldWork() {
-        return shouldWork;
+        return getBlockState().getValue(AbstractPylonBlock.ENABLED);
     }
 
     public void handleWorkPacket() {
         if (this.level != null) {
-            shouldWork = !shouldWork;
-            this.setChanged();
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
-
+            boolean shouldWork = !shouldWork();
+            level.setBlock(getBlockPos(), getBlockState().setValue(AbstractPylonBlock.ENABLED, shouldWork), Block.UPDATE_ALL);
             if (!shouldWork) removeChunkloads();
         }
     }

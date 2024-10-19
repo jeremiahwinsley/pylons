@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 public class HarvesterPylonContainer extends AbstractPylonContainer {
     private final HarvesterPylonTile.Status workStatus;
     public HarvesterPylonContainer(int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer) {
-        super(ModRegistry.HARVESTER_PYLON_CONTAINER.get(), windowId, playerInventory, packetBuffer);
+        super(ModRegistry.HARVESTER_PYLON_CONTAINER.get(), windowId, playerInventory, packetBuffer, HarvesterPylonTile.requiresPower());
         workStatus = packetBuffer.readEnum(HarvesterPylonTile.Status.class);
     }
 

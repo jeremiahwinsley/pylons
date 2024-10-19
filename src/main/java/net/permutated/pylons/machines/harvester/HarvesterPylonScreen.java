@@ -10,7 +10,7 @@ import net.permutated.pylons.machines.base.AbstractPylonScreen;
 @SuppressWarnings("java:S110") // inheritance required
 public class HarvesterPylonScreen extends AbstractPylonScreen<HarvesterPylonContainer> {
     public HarvesterPylonScreen(HarvesterPylonContainer container, Inventory inv, Component name) {
-        super(container, inv, name);
+        super(container, inv, name, HarvesterPylonTile.requiresPower());
     }
 
     @Override
@@ -27,6 +27,9 @@ public class HarvesterPylonScreen extends AbstractPylonScreen<HarvesterPylonCont
                 break;
             case MISSING_TOOL:
                 drawText(graphics, translate("toolMissing").withStyle(ChatFormatting.RED), 42);
+                break;
+            case MISSING_ENERGY:
+                drawText(graphics, translate("energyMissing").withStyle(ChatFormatting.RED), 42);
                 break;
             case INVENTORY_FULL:
                 drawText(graphics, translate("inventoryFull").withStyle(ChatFormatting.RED), 42);

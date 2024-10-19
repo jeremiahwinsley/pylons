@@ -9,18 +9,28 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
+import net.permutated.pylons.util.TextureHolder;
 import net.permutated.pylons.util.TranslationKey;
+
+import java.util.List;
 
 public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> extends AbstractContainerScreen<T> {
     protected final ResourceLocation gui;
+    protected final boolean usesEnergy;
     protected Button workButton;
     protected Button rangeButton;
 
-    protected AbstractPylonScreen(T container, Inventory inv, Component name) {
+    protected AbstractPylonScreen(T container, Inventory inventory, Component title) {
+        this(container, inventory, title, false);
+    }
+
+    protected AbstractPylonScreen(T container, Inventory inv, Component name, boolean usesEnergy) {
         super(container, inv, name);
-        this.gui = ResourceUtil.gui("pylon");
+        this.usesEnergy = ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean();
+        this.gui = usesEnergy ? ResourceUtil.gui("pylon_energy") : ResourceUtil.gui("pylon");
         this.imageWidth = 176;
         this.imageHeight = 172;
         this.inventoryLabelY = this.imageHeight - 94;
@@ -81,6 +91,19 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         graphics.blit(gui, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+
+        if (usesEnergy) {
+            float energyFraction = this.menu.dataHolder.getEnergyFraction();
+            var energyHolder = new TextureHolder(8, 54, 0, 172, 160, 16);
+            graphics.blit(gui,
+                relX + energyHolder.progressOffsetX(),
+                relY + energyHolder.progressOffsetY(),
+                energyHolder.textureOffsetX(),
+                energyHolder.textureOffsetY(),
+                energyHolder.getWidthFraction(energyFraction),
+                energyHolder.textureHeight()
+                );
+        }
     }
 
     @Override
@@ -95,6 +118,17 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
             component = translate("owner", owner);
         }
         drawText(graphics, component, 30);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+        if (usesEnergy && this.isHovering(8, 54, 160, 16, x, y)) {
+            guiGraphics.renderComponentTooltip(this.font, List.of(
+                translate("fluxBar"),
+                translate("fluxData", this.menu.dataHolder.getEnergy(), this.menu.dataHolder.getMaxEnergy())
+            ), x, y);
+        }
     }
 
     protected void drawText(GuiGraphics graphics, Component component, int yPos) {

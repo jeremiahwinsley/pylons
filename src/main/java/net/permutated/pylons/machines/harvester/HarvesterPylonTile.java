@@ -42,7 +42,15 @@ public class HarvesterPylonTile extends AbstractPylonTile {
     }
 
     private boolean requiresTool() {
-        return Boolean.TRUE.equals(ConfigManager.SERVER.harvesterRequiresTool.get());
+        return !requiresPower() && ConfigManager.SERVER.harvesterRequiresTool.getAsBoolean();
+    }
+
+    public static boolean requiresPower() {
+        return ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean();
+    }
+
+    private int getPowerCost() {
+        return ConfigManager.SERVER.harvesterPowerCost.getAsInt();
     }
 
     private int getWorkDelay() {
@@ -58,6 +66,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
         MISSING_INVENTORY,
         INVENTORY_FULL,
         UPDATE_ERROR,
+        MISSING_ENERGY,
     }
 
 
@@ -135,7 +144,14 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                             continue;
                         }
 
-                        if (requiresTool()) {
+                        if (requiresPower()) {
+                            if (!energyStorage.consumeEnergy(getPowerCost(), true)) {
+                                workStatus = Status.MISSING_ENERGY;
+                                return;
+                            } else {
+                                energyStorage.consumeEnergy(getPowerCost(), false);
+                            }
+                        } else if (requiresTool()) {
                             if (hoeSlot == -1) {
                                 workStatus = Status.MISSING_TOOL;
                                 return;
@@ -183,13 +199,21 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                         int age = blockState.getValue(recipe.getAgeProperty());
 
                         if (age > recipe.getMinAge() && age == recipe.getMaxAge()) {
-                            if (requiresTool()) {
+                            if (requiresPower()) {
+                                if (!energyStorage.consumeEnergy(getPowerCost(), true)) {
+                                    workStatus = Status.MISSING_ENERGY;
+                                    return;
+                                } else {
+                                    energyStorage.consumeEnergy(getPowerCost(), false);
+                                }
+                            } else if (requiresTool()) {
                                 if (hoeSlot == -1) {
                                     workStatus = Status.MISSING_TOOL;
                                     return;
                                 } else {
                                     ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                    replace.hurtAndBreak(1, serverLevel, null, item -> {});
+                                    replace.hurtAndBreak(1, serverLevel, null, item -> {
+                                    });
                                     itemStackHandler.setStackInSlot(hoeSlot, replace);
                                 }
                             }

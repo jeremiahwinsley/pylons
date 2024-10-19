@@ -48,6 +48,9 @@ public class ConfigManager {
         public final ModConfigSpec.IntValue harvesterWorkDelay;
         public final ModConfigSpec.BooleanValue harvesterRequiresTool;
         public final ModConfigSpec.BooleanValue harvesterCanBeAutomated;
+        public final ModConfigSpec.BooleanValue harvesterRequiresPower;
+        public final ModConfigSpec.IntValue harvesterPowerCost;
+        public final ModConfigSpec.IntValue harvesterPowerBuffer;
 
 
         ServerConfig(ModConfigSpec.Builder builder) {
@@ -136,6 +139,19 @@ public class ConfigManager {
                 .comment("Whether the harvester can have tools piped in to automate it.",
                     "By default, unbreakable tools are required for full automation.")
                 .define("harvesterCanBeAutomated", false);
+
+            harvesterRequiresPower = builder
+                .comment("Whether the harvester requires power to work.",
+                    "If enabled, it will disable the tool requirement and instead have an RF cost per block.")
+                .define("harvesterRequiresPower", false);
+
+            harvesterPowerCost = builder
+                .comment("The RF cost per block harvested, if power usage is enabled.")
+                .defineInRange("harvesterPowerCost", 5, 1, 10_000);
+
+            harvesterPowerBuffer = builder
+                .comment("Buffer size should be greater than power cost per block * 80.")
+                .defineInRange("harvesterPowerBuffer", 1_000, 100, 1_000_000);
 
             builder.pop();
         }

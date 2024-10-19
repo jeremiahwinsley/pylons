@@ -34,9 +34,15 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     protected final DataHolder dataHolder;
     protected final String ownerName;
     protected final BlockPos blockPos;
+    protected final boolean usesEnergy;
 
     protected AbstractPylonContainer(@Nullable MenuType<?> containerType, int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer) {
+        this(containerType, windowId, playerInventory, packetBuffer, false);
+    }
+
+    protected AbstractPylonContainer(@Nullable MenuType<?> containerType, int windowId, Inventory playerInventory, FriendlyByteBuf packetBuffer, boolean usesEnergy) {
         super(containerType, windowId);
+        this.usesEnergy = usesEnergy;
 
         blockPos = packetBuffer.readBlockPos();
         Level level = playerInventory.player.getCommandSenderWorld();
@@ -134,6 +140,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     }
 
     public void registerHandlerSlots(IItemHandler inventory) {
+        if (usesEnergy) return;
         for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
             addSlot(new SlotItemHandler(inventory, slot, 8 + slot * 18, 54));
         }
@@ -154,6 +161,28 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
     public void registerDataSlots() {
         addDataSlot(dataHolder::getRange, dataHolder::setRange);
         addDataSlot(dataHolder::getEnabled, dataHolder::setEnabled);
+
+        // split max energy
+        addDataSlot(() -> dataHolder.getMaxEnergy() & 0xffff, value -> {
+            int energyStored = dataHolder.getMaxEnergy() & 0xffff0000;
+            dataHolder.setMaxEnergy(energyStored + (value & 0xffff));
+        });
+
+        addDataSlot(() -> (dataHolder.getMaxEnergy() >> 16) & 0xffff, value -> {
+            int energyStored = dataHolder.getMaxEnergy() & 0x0000ffff;
+            dataHolder.setMaxEnergy(energyStored | (value << 16));
+        });
+
+        // split current energy
+        addDataSlot(() -> dataHolder.getEnergy() & 0xffff, value -> {
+            int energyStored = dataHolder.getEnergy() & 0xffff0000;
+            dataHolder.setEnergy(energyStored + (value & 0xffff));
+        });
+
+        addDataSlot(() -> (dataHolder.getEnergy() >> 16) & 0xffff, value -> {
+            int energyStored = dataHolder.getEnergy() & 0x0000ffff;
+            dataHolder.setEnergy(energyStored | (value << 16));
+        });
     }
 
     private void addDataSlot(IntSupplier getter, IntConsumer setter) {

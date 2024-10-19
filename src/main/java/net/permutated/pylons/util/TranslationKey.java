@@ -1,5 +1,7 @@
 package net.permutated.pylons.util;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.permutated.pylons.Pylons;
 
 public class TranslationKey {
@@ -35,5 +37,9 @@ public class TranslationKey {
 
     public static String chat(String key) {
         return String.format(FORMAT, "chat", key);
+    }
+
+    public static MutableComponent translateJei(String key) {
+        return Component.translatable(TranslationKey.jei(key));
     }
 }
