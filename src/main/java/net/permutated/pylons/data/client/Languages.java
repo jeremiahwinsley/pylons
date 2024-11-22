@@ -82,6 +82,8 @@ public class Languages {
 
             add(tooltip("effect_denied"), "Effect is disabled in the config.");
 
+            add(tooltip("potency_capped"), "Capped at level %s");
+
             add(tooltip("insert1"), "Insert this filter into");
             add(tooltip("insert2"), "a pylon to use it!");
 

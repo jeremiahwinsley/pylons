@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.PotionComponent;
 import net.permutated.pylons.item.PotionFilterCard;
@@ -51,8 +52,10 @@ public class InfusionPylonTile extends AbstractPylonTile {
             if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(stack)) {
                 PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
                 if (data != null && data.duration() >= PotionFilterCard.getRequiredDuration()) {
+                    // cap amplifier to config value
+                    int amplifier = Math.min(data.amplifier(), ConfigManager.SERVER.infusionMaximumPotency.getAsInt());
                     // defaults to 400 ticks / 20 seconds of effect
-                    effects.add(new MobEffectInstance(data.effect(), PotionFilterCard.getAppliedDuration(), data.amplifier(), true, false));
+                    effects.add(new MobEffectInstance(data.effect(), PotionFilterCard.getAppliedDuration(), amplifier, true, false));
                 }
             }
         }

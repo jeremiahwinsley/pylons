@@ -151,6 +151,11 @@ public class PotionFilterCard extends Item {
                 tooltip.add(translate("effect_denied").withStyle(ChatFormatting.RED));
             }
 
+            if (limitedPotency(stack)) {
+                String potencyKey = String.format("potion.potency.%d", ConfigManager.SERVER.infusionMaximumPotency.getAsInt());
+                tooltip.add(translate("potency_capped", Component.translatable(potencyKey)).withStyle(ChatFormatting.YELLOW));
+            }
+
             tooltip.add(Component.empty());
 
             if (duration >= getRequiredDuration()) {
@@ -234,6 +239,13 @@ public class PotionFilterCard extends Item {
             .flatMap(Holder::unwrapKey)
             .map(ResourceKey::location)
             .map(location -> isAllowedEffect(location) && !isDeniedEffect(location))
+            .orElse(false);
+    }
+
+    public static boolean limitedPotency(ItemStack stack) {
+        return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
+            .map(PotionComponent::amplifier)
+            .map(amplifier -> amplifier > ConfigManager.SERVER.infusionMaximumPotency.getAsInt())
             .orElse(false);
     }
 

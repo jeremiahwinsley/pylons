@@ -43,6 +43,7 @@ public class ConfigManager {
         public final ModConfigSpec.BooleanValue infusionChunkloads;
         public final ModConfigSpec.ConfigValue<List<? extends String>> infusionAllowedEffects;
         public final ModConfigSpec.ConfigValue<List<? extends String>> infusionDeniedEffects;
+        public final ModConfigSpec.IntValue infusionMaximumPotency;
 
         // CATEGORY_HARVESTER
         public final ModConfigSpec.IntValue harvesterWorkDelay;
@@ -122,6 +123,10 @@ public class ConfigManager {
                     "This list will override the allowed effect list.")
                 .defineListAllowEmpty(List.of("infusionDeniedEffects"), ArrayList::new,
                     s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
+
+            infusionMaximumPotency = builder.comment("The maximum potency that can be applied in the Infusion Pylon.",
+                    "This value is 0-indexed, so a Resistance V potion would be potency 4.")
+                .defineInRange("infusionMaximumPotency", 3, 0, 255);
 
             builder.pop();
             builder.push(CATEGORY_HARVESTER);

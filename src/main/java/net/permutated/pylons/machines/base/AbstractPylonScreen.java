@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.ResourceUtil;
 import net.permutated.pylons.util.TextureHolder;
@@ -29,7 +28,7 @@ public abstract class AbstractPylonScreen<T extends AbstractPylonContainer> exte
 
     protected AbstractPylonScreen(T container, Inventory inv, Component name, boolean usesEnergy) {
         super(container, inv, name);
-        this.usesEnergy = ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean();
+        this.usesEnergy = usesEnergy;
         this.gui = usesEnergy ? ResourceUtil.gui("pylon_energy") : ResourceUtil.gui("pylon");
         this.imageWidth = 176;
         this.imageHeight = 172;

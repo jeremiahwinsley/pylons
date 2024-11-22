@@ -59,5 +59,6 @@
   "tooltip.pylons.no_mob": "Right-click on a mob to select it.",
   "tooltip.pylons.no_player": "Right-click on a player to select them.",
   "tooltip.pylons.player": "Player: %s",
+  "tooltip.pylons.potency_capped": "Capped at level %s",
   "tooltip.pylons.progress": "Progress: %d/%d seconds"
 }
