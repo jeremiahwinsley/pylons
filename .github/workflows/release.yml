@@ -38,13 +38,16 @@ jobs:
           curseforge-id: 518211
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
           name: ""
           loaders: |
             neoforge
-      - name: Upload jar and checksum to Github release
+          fail-mode: warn
+      - name: Upload checksum
         id: upload-release-assets
         uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          asset_paths: '["build/libs/*.jar", "build/checksums/*.sha512"]'
+          asset_paths: '["build/checksums/*.sha512"]'
