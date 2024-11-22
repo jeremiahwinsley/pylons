@@ -2,13 +2,15 @@ name: Release Build
 
 on:
   release:
+    permissions:
+      contents: write
     types:
       - published
 
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -36,15 +38,13 @@ jobs:
           curseforge-id: 518211
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
           name: ""
           loaders: |
             neoforge
-      - name: Upload checksum
+      - name: Upload jar and checksum to Github release
         id: upload-release-assets
         uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          asset_paths: '["build/checksums/*.sha512"]'
+          asset_paths: '["build/libs/*.jar", "build/checksums/*.sha512"]'
