@@ -61,7 +61,7 @@ public class PotionFilterCard extends Item {
                 if (hand == InteractionHand.MAIN_HAND && data != null) { // this should only run for cards held in the main hand
                     final ItemStack offhand = player.getItemInHand(InteractionHand.OFF_HAND);
                     if (offhand.getItem() instanceof PotionFilterCard) { // offhand is holding a potion filter card
-                        PotionComponent offhandData = stack.get(ModRegistry.POTION_COMPONENT);
+                        PotionComponent offhandData = offhand.get(ModRegistry.POTION_COMPONENT);
                         if (offhandData != null && data.matches(offhandData)) {
                             // main hand card has the same effect and amplifier
                             // merge effect from off hand card with main hand card
