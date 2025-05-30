@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
@@ -38,7 +39,12 @@ public class HarvesterPylonTile extends AbstractPylonTile {
 
     @Override
     protected boolean canAccessInventory() {
-        return ConfigManager.SERVER.harvesterCanBeAutomated.get();
+        return ConfigManager.SERVER.harvesterCanBeAutomated.getAsBoolean();
+    }
+
+    @Override
+    protected boolean canAccessEnergy() {
+        return ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean();
     }
 
     private boolean requiresTool() {
@@ -245,13 +251,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
      * @return the result of the attempt
      */
     private boolean insertItemOrDiscard(IItemHandler itemHandler, ItemStack itemStack) {
-        ItemStack progress = itemStack;
-        for (int slot = 0;slot < itemHandler.getSlots();slot++) {
-            progress = itemHandler.insertItem(slot, progress, false);
-            if (progress.isEmpty()) {
-                break;
-            }
-        }
+        ItemStack progress = ItemHandlerHelper.insertItemStacked(itemHandler, itemStack, false);
         return progress.isEmpty();
     }
 }

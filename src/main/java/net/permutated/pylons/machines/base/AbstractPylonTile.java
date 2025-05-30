@@ -54,17 +54,31 @@ public abstract class AbstractPylonTile extends BlockEntity {
     protected abstract boolean isItemValid(ItemStack stack);
 
     protected boolean canAccessInventory() {
+        return true;
+    }
+
+    protected boolean canAccessEnergy() {
         return false;
     }
 
     /**
-     * Helper method for registering capabilities. Called by ForgeEventHandler.
+     * Helper method for registering item capabilities. Called by Pylons#onRegisterCapabilitiesEvent
      * @param event the registration event
      * @param blockEntityType the block entity being registered
      */
-    public static void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, blockEntityType, (pylon, side) -> pylon.canAccessInventory() ? pylon.itemStackHandler : null);
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, blockEntityType, (pylon, side) -> ConfigManager.SERVER.harvesterRequiresPower.getAsBoolean() ? pylon.energyStorage : null);
+    public static void registerItemCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, blockEntityType,
+            (pylon, side) -> pylon.canAccessInventory() ? pylon.itemStackHandler : null);
+    }
+
+    /**
+     * Helper method for registering energy capabilities. Called by Pylons#onRegisterCapabilitiesEvent.
+     * @param event the registration event
+     * @param blockEntityType the block entity being registered
+     */
+    public static void registerEnergyCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, blockEntityType,
+            (pylon, side) -> pylon.canAccessEnergy() ? pylon.energyStorage : null);
     }
 
     public void dropItems() {

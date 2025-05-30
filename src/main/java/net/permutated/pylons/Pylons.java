@@ -58,7 +58,12 @@ public class Pylons
     }
 
     public void onRegisterCapabilitiesEvent(final RegisterCapabilitiesEvent event) {
-        AbstractPylonTile.registerCapabilities(event, ModRegistry.HARVESTER_PYLON_TILE.get());
+        AbstractPylonTile.registerItemCapability(event, ModRegistry.EXPULSION_PYLON_TILE.get());
+        AbstractPylonTile.registerItemCapability(event, ModRegistry.INFUSION_PYLON_TILE.get());
+        AbstractPylonTile.registerItemCapability(event, ModRegistry.HARVESTER_PYLON_TILE.get());
+        AbstractPylonTile.registerItemCapability(event, ModRegistry.INTERDICTION_PYLON_TILE.get());
+
+        AbstractPylonTile.registerEnergyCapability(event, ModRegistry.HARVESTER_PYLON_TILE.get());
     }
 
     public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
