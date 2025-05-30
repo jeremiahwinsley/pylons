@@ -134,6 +134,10 @@ Can be toggled automatically with redstone.
 This block allows you to expel other players from the selected chunk range (1x1 to 5x5 chunks).
 You can whitelist players with a Player Filter.
 
+OPs are automatically whitelisted.
+
+If team support is enabled, team members will be automatically whitelisted.
+
 Can be toggled automatically with redstone.
                 """);
 
