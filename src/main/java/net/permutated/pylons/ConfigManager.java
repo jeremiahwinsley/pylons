@@ -121,7 +121,7 @@ public class ConfigManager {
 
             infusionDeniedEffects = builder.comment("Effects that may not be used in the Infusion Pylon.",
                     "This list will override the allowed effect list.")
-                .defineListAllowEmpty(List.of("infusionDeniedEffects"), ArrayList::new,
+                .defineListAllowEmpty(List.of("infusionDeniedEffects"), List.of("minecraft:absorption", "tombstone:ghostly_shape"),
                     s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             infusionMaximumPotency = builder.comment("The maximum potency that can be applied in the Infusion Pylon.",
