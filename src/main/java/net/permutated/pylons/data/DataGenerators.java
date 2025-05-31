@@ -31,7 +31,9 @@ public final class DataGenerators {
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
 
         if (event.includeServer()) {
-            generator.addProvider(true, new BlockTags(packOutput, event.getLookupProvider(), fileHelper));
+            BlockTags blockTags = new BlockTags(packOutput, event.getLookupProvider(), fileHelper);
+            generator.addProvider(true, blockTags);
+//            generator.addProvider(true, new ItemTags(packOutput, event.getLookupProvider(), blockTags.contentsGetter(), fileHelper));
             generator.addProvider(true, new CraftingRecipes(packOutput, event.getLookupProvider()));
             generator.addProvider(true, new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(new LootTableProvider.SubProviderEntry(BlockLoot::new, LootContextParamSets.BLOCK)),

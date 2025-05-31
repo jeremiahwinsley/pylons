@@ -9,6 +9,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -77,6 +79,9 @@ public class ModRegistry {
             .forEach(output::accept))
         .build()
     );
+
+    // Tags
+    public static final TagKey<Item> HARVESTER_BANNED = ItemTags.create(prefix("harvester_banned"));
 
     // Items
     public static final Supplier<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);

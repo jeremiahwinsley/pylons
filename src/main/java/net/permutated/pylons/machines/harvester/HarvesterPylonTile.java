@@ -34,7 +34,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
     }
     @Override
     protected boolean isItemValid(ItemStack stack) {
-        return stack.getItem() instanceof HoeItem;
+        return stack.getItem() instanceof HoeItem && !stack.is(ModRegistry.HARVESTER_BANNED);
     }
 
     @Override
