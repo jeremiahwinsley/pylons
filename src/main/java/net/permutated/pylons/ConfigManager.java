@@ -70,7 +70,7 @@ public class ConfigManager {
             expulsionAllowedDimensions = builder
                 .comment("Which dimensions the Expulsion Pylon is allowed to operate in.")
                 .defineListAllowEmpty(List.of("expulsionAllowedDimensions"), () -> List.of("minecraft:overworld"),
-                    s -> s instanceof String string && string.matches("^\\w+:\\w+$"));
+                    () -> "minecraft:overworld", s -> s instanceof String string && string.matches("^\\w+:\\w+$"));
 
             expulsionWorldSpawnRadius = builder
                 .comment("The radius around the world spawn where the pylon is not allowed to operate.",
@@ -117,12 +117,12 @@ public class ConfigManager {
                     "List may include either effect IDs (like `minecraft:strength`) or an entire namespace (like `minecraft`).",
                     "If the list is empty, then all effects will be allowed except for those specifically denied.")
                 .defineListAllowEmpty(List.of("infusionAllowedEffects"), ArrayList::new,
-                    s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
+                    () -> "minecraft:strength", s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             infusionDeniedEffects = builder.comment("Effects that may not be used in the Infusion Pylon.",
                     "This list will override the allowed effect list.")
                 .defineListAllowEmpty(List.of("infusionDeniedEffects"), List.of("minecraft:absorption", "tombstone:ghostly_shape"),
-                    s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
+                    () -> "minecraft:strength", s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
             infusionMaximumPotency = builder.comment("The maximum potency that can be applied in the Infusion Pylon.",
                     "This value is 0-indexed, so a Resistance V potion would be potency 4.")

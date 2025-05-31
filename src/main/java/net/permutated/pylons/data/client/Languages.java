@@ -7,6 +7,7 @@ import net.permutated.pylons.Pylons;
 import net.permutated.pylons.util.Constants;
 
 import static net.permutated.pylons.util.TranslationKey.chat;
+import static net.permutated.pylons.util.TranslationKey.config;
 import static net.permutated.pylons.util.TranslationKey.gui;
 import static net.permutated.pylons.util.TranslationKey.jei;
 import static net.permutated.pylons.util.TranslationKey.tab;
@@ -36,6 +37,32 @@ public class Languages {
             addBlock(ModRegistry.INTERDICTION_PYLON, "Interdiction Pylon");
             addItem(ModRegistry.MOB_FILTER, "Mob Filter");
             addItem(ModRegistry.LIFELESS_FILTER, "Lifeless Filter");
+
+            add(config("general"), "General");
+            add(config("expulsion_pylon"), "Expulsion Pylon");
+            add(config("infusion_pylon"), "Infusion Pylon");
+            add(config("harvester_pylon"), "Harvester Pylon");
+            add(config("teamSupportEnabled"), "Team Support Enabled");
+
+            add(config("expulsionAllowedDimensions"), "Allowed Dimensions");
+            add(config("expulsionWorldSpawnRadius"), "World Spawn Radius");
+            add(config("expulsionPylonCanExplode"), "Can Explode");
+            add(config("expulsionPylonMaxRadius"), "Max Radius");
+
+            add(config("infusionMinimumDuration"), "Minimum Effect Duration");
+            add(config("infusionRequiredDuration"), "Required Effect Duration");
+            add(config("infusionAppliedDuration"), "Applied Effect Duration");
+            add(config("infusionChunkloads"), "Acts As Chunkloader");
+            add(config("infusionAllowedEffects"), "Allowed Effects");
+            add(config("infusionDeniedEffects"), "Denied Effects");
+            add(config("infusionMaximumPotency"), "Maximum Effect Potency");
+
+            add(config("harvesterWorkDelay"), "Work Delay");
+            add(config("harvesterRequiresTool"), "Requires Tool");
+            add(config("harvesterCanBeAutomated"), "Can Be Automated");
+            add(config("harvesterRequiresPower"), "Requires Power");
+            add(config("harvesterPowerCost"), "Power Cost");
+            add(config("harvesterPowerBuffer"), "Power Buffer");
 
             add(gui("owner"), "Owner: %s");
             add(gui("noOwner"), "Owner not found. Pylon disabled.");

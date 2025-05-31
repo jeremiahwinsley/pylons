@@ -27,6 +27,10 @@ public class TranslationKey {
         return String.format(FORMAT, "gui", key);
     }
 
+    public static String config(String key) {
+        return String.format(Pylons.MODID + ".%s.%s", "configuration", key);
+    }
+
     public static String tab() {
         return String.format("itemGroup.%s", Pylons.MODID);
     }
