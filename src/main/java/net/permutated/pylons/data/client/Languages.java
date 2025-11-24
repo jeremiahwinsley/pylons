@@ -94,7 +94,7 @@ public class Languages {
             add(tooltip("infusion3"), "at any distance.");
 
             add(tooltip("harvester1"), "Harvests crops in a configurable");
-            add(tooltip("harvester2"), "radius around the pylon. Just place");
+            add(tooltip("harvester2"), "cube area around the pylon. Just place");
             add(tooltip("harvester3"), "inside or above the water block.");
 
             add(tooltip("interdiction1"), "Configurable mob spawn prevention");
@@ -131,7 +131,7 @@ public class Languages {
             add(tooltip("interdiction"), "Used in the Interdiction Pylon.");
 
             add(jei(Constants.HARVESTER_PYLON), """
-Harvests crops in a radius (from 3x3 to 9x9 blocks) around the pylon and outputs to an inventory above.
+Harvests crops in a cube area (from 3x3 to 9x9 blocks) around the pylon and outputs to an inventory above.
 Place the pylon inside the water block of the farm, or level with the crops.
 
 By default (configurable) this will require a hoe in the pylon, and use 1 durability per harvest,
