@@ -147,6 +147,10 @@ public class PotionFilterCard extends Item {
                 tooltip.add(component.withStyle(ChatFormatting.RED));
             }
 
+            if (isBanned(stack)) {
+                tooltip.add(translate("effect_banned").withStyle(ChatFormatting.RED));
+            }
+
             if (!isAllowed(stack)) {
                 tooltip.add(translate("effect_denied").withStyle(ChatFormatting.RED));
             }
@@ -231,6 +235,13 @@ public class PotionFilterCard extends Item {
         ItemStack copy = stack.copy();
         copy.remove(ModRegistry.POTION_COMPONENT);
         return copy;
+    }
+
+    public static boolean isBanned(ItemStack stack) {
+        return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
+            .map(PotionComponent::effect)
+            .map(holder -> holder.is(ModRegistry.INFUSION_BANNED))
+            .orElse(false);
     }
 
     public static boolean isAllowed(ItemStack stack) {

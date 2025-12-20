@@ -88,7 +88,7 @@ public class ModRegistry {
 
     // Tags
     public static final TagKey<Item> HARVESTER_BANNED = ItemTags.create(prefix("harvester_banned"));
-    public static final TagKey<MobEffect> EFFECT_BANNED = TagKey.create(Registries.MOB_EFFECT, prefix("effect_banned"));
+    public static final TagKey<MobEffect> INFUSION_BANNED = TagKey.create(Registries.MOB_EFFECT, prefix("infusion_banned"));
 
     // Items
     public static final Supplier<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);

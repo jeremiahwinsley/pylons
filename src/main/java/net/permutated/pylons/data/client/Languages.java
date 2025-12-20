@@ -116,6 +116,7 @@ public class Languages {
             add(tooltip("no_effect2"), "to apply it to the card.");
             add(tooltip("minimum_duration"), "Minimum effect duration: %s seconds");
 
+            add(tooltip("effect_banned"), "Effect is disabled by tag.");
             add(tooltip("effect_denied"), "Effect is disabled in the config.");
 
             add(tooltip("potency_capped"), "Capped at level %s");

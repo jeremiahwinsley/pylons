@@ -49,7 +49,7 @@ public class InfusionPylonTile extends AbstractPylonTile {
         List<MobEffectInstance> effects = new ArrayList<>();
         for (int i = 0; i < itemStackHandler.getSlots(); i++) {
             ItemStack stack = itemStackHandler.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(stack)) {
+            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(stack) && !PotionFilterCard.isBanned(stack)) {
                 PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
                 if (data != null && data.duration() >= PotionFilterCard.getRequiredDuration()) {
                     // cap amplifier to config value
