@@ -1,0 +1,7 @@
+{
+  "parent": "pylons:block/pylon",
+  "textures": {
+    "center": "minecraft:block/honeycomb_block",
+    "particle": "minecraft:block/honeycomb_block"
+  }
+}

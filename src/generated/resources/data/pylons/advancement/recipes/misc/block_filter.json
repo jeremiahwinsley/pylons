@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_protection_pylon": {
+      "conditions": {
+        "items": [
+          {
+            "items": "pylons:protection_pylon"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "pylons:block_filter"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_protection_pylon"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "pylons:block_filter"
+    ]
+  }
+}

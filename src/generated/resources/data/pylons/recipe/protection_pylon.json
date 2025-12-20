@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "pylons",
+  "key": {
+    "b": {
+      "item": "minecraft:polished_blackstone"
+    },
+    "d": {
+      "item": "minecraft:honeycomb_block"
+    },
+    "i": {
+      "item": "minecraft:iron_bars"
+    },
+    "q": {
+      "item": "minecraft:quartz_slab"
+    }
+  },
+  "pattern": [
+    "qqq",
+    "idi",
+    "bbb"
+  ],
+  "result": {
+    "count": 1,
+    "id": "pylons:protection_pylon"
+  }
+}

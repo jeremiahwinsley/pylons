@@ -143,6 +143,29 @@ public class CraftingRecipes extends RecipeProvider {
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
             .save(consumer);
 
+        // Protection Pylon
+        shaped(ModRegistry.PROTECTION_PYLON.get())
+            .pattern("qqq")
+            .pattern("idi")
+            .pattern("bbb")
+            .define('d', Items.HONEYCOMB_BLOCK)
+            .define('b', Items.POLISHED_BLACKSTONE)
+            .define('q', Items.QUARTZ_SLAB)
+            .define('i', Items.IRON_BARS)
+            .unlockedBy("has_honey_block", has(Items.HONEY_BLOCK))
+            .save(consumer);
+
+        shaped(ModRegistry.BLOCK_FILTER.get())
+            .pattern("tct")
+            .pattern("gdg")
+            .pattern("ggg")
+            .define('t', Items.CYAN_TERRACOTTA)
+            .define('c', Tags.Items.DYES_GREEN)
+            .define('d', Items.HONEYCOMB)
+            .define('g', Tags.Items.GLASS_BLOCKS)
+            .unlockedBy("has_protection_pylon", has(ModRegistry.PROTECTION_PYLON.get()))
+            .save(consumer);
+
         harvestingRecipes(consumer);
     }
 

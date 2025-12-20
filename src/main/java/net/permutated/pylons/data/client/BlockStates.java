@@ -24,6 +24,7 @@ public class BlockStates extends BlockStateProvider {
         pylon(ModRegistry.INFUSION_PYLON, "emerald_block");
         pylon(ModRegistry.HARVESTER_PYLON, "hay_block_side");
         pylon(ModRegistry.INTERDICTION_PYLON, "netherite_block");
+        pylon(ModRegistry.PROTECTION_PYLON, "honeycomb_block");
     }
 
     protected void pylon(DeferredBlock<Block> block, String texture) {

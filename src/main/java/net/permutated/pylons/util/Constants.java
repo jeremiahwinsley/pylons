@@ -9,6 +9,7 @@ public class Constants {
     public static final String INFUSION_PYLON = "infusion_pylon";
     public static final String HARVESTER_PYLON = "harvester_pylon";
     public static final String INTERDICTION_PYLON = "interdiction_pylon";
+    public static final String PROTECTION_PYLON = "protection_pylon";
 
     public static final String HARVESTING = "harvesting";
     public static final String UNKNOWN = "unknown";

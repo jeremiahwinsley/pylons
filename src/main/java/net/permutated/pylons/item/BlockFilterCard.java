@@ -1,56 +1,58 @@
 package net.permutated.pylons.item;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.ModRegistry;
-import net.permutated.pylons.components.EntityComponent;
+import net.permutated.pylons.components.BlockComponent;
 import net.permutated.pylons.util.TranslationKey;
 
 import java.util.List;
 
-public class MobFilterCard extends Item {
+public class BlockFilterCard extends Item {
 
-    public MobFilterCard() {
+    public BlockFilterCard() {
         super(new Properties().stacksTo(1).setNoRepair());
     }
 
-    public static void onPlayerInteractEvent(final PlayerInteractEvent.EntityInteract event) {
-        ItemStack itemStack = event.getItemStack();
-        if (itemStack.getItem() instanceof MobFilterCard && event.getTarget() instanceof LivingEntity) {
-            if (event.getSide() == LogicalSide.SERVER) {
-                ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(event.getTarget().getType());
-                String name = event.getTarget().getType().getDescriptionId();
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        if (context.getItemInHand().getItem() instanceof BlockFilterCard && context.getLevel() instanceof ServerLevel level) {
+            BlockPos clickedPos = context.getClickedPos();
+            BlockState blockState = level.getBlockState(clickedPos);
+            if (!blockState.isAir()) {
+                Block block = blockState.getBlock();
+                ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
+                String name = block.getDescriptionId();
 
-                itemStack.set(ModRegistry.ENTITY_COMPONENT, new EntityComponent(key, name));
-
-                event.setCancellationResult(InteractionResult.SUCCESS);
-            } else {
-                event.setCancellationResult(InteractionResult.CONSUME);
+                context.getItemInHand().set(ModRegistry.BLOCK_COMPONENT, new BlockComponent(key, name));
+                return InteractionResult.SUCCESS;
             }
-            event.setCanceled(true);
         }
+        return super.useOn(context);
     }
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        return stack.getComponents().has(ModRegistry.ENTITY_COMPONENT.get());
+        return stack.getComponents().has(ModRegistry.BLOCK_COMPONENT.get());
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, context, tooltip, flagIn);
 
-        EntityComponent component = stack.get(ModRegistry.ENTITY_COMPONENT);
+        BlockComponent component = stack.get(ModRegistry.BLOCK_COMPONENT);
         if (component != null) {
             String name = component.descriptionId();
             tooltip.add(Component.translatable(name).withStyle(ChatFormatting.BLUE));
@@ -59,11 +61,10 @@ public class MobFilterCard extends Item {
             tooltip.add(translate("insert1"));
             tooltip.add(translate("insert2"));
         } else {
-            tooltip.add(translate("no_mob"));
+            tooltip.add(translate("no_block"));
         }
 
         tooltip.add(Component.empty());
-        tooltip.add(translate("interdiction"));
         tooltip.add(translate("protection"));
     }
 

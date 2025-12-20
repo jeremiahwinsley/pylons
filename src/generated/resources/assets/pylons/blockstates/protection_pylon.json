@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "pylons:block/protection_pylon"
+    }
+  }
+}

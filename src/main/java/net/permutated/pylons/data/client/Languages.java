@@ -38,6 +38,9 @@ public class Languages {
             addItem(ModRegistry.MOB_FILTER, "Mob Filter");
             addItem(ModRegistry.LIFELESS_FILTER, "Lifeless Filter");
 
+            addBlock(ModRegistry.PROTECTION_PYLON, "Protection Pylon");
+            addItem(ModRegistry.BLOCK_FILTER, "Block Filter");
+
             add(config("general"), "General");
             add(config("expulsion_pylon"), "Expulsion Pylon");
             add(config("infusion_pylon"), "Infusion Pylon");
@@ -75,6 +78,7 @@ public class Languages {
             add(gui("working"), "Pylon is working.");
             add(gui("whitelist"), "Add players to whitelist:");
             add(gui("blockedMobs"), "Add mobs to prevent spawns:");
+            add(gui("protectedMobsAndBlocks"), "Add mobs or blocks to protect:");
             add(gui("effects"), "Active potion effects:");
             add(gui("workArea"), "Work area (in chunks)");
             add(gui("workAreaBlocks"), "Work area (in blocks)");
@@ -94,13 +98,18 @@ public class Languages {
             add(tooltip("infusion3"), "at any distance.");
 
             add(tooltip("harvester1"), "Harvests crops in a configurable");
-            add(tooltip("harvester2"), "radius around the pylon. Just place");
-            add(tooltip("harvester3"), "inside or above the water block.");
+            add(tooltip("harvester2"), "block range around the pylon. Just");
+            add(tooltip("harvester3"), "place inside or above the water block.");
 
             add(tooltip("interdiction1"), "Configurable mob spawn prevention");
-            add(tooltip("interdiction2"), "in a radius around the pylon.");
+            add(tooltip("interdiction2"), "in a chunk range around the pylon.");
+
+            add(tooltip("protection1"), "Prevents you from accidentally");
+            add(tooltip("protection2"), "breaking blocks or killing mobs");
+            add(tooltip("protection3"), "based on the configured filters.");
 
             add(tooltip("no_player"), "Right-click on a player to select them.");
+            add(tooltip("no_block"), "Right-click on a block to select it.");
             add(tooltip("no_mob"), "Right-click on a mob to select it.");
 
             add(tooltip("no_effect1"), "Right-click with an active effect");
@@ -129,9 +138,10 @@ public class Languages {
             add(tooltip("expulsion"), "Used in the Expulsion Pylon.");
             add(tooltip("infusion"), "Used in the Infusion Pylon.");
             add(tooltip("interdiction"), "Used in the Interdiction Pylon.");
+            add(tooltip("protection"), "Used in the Protection Pylon.");
 
             add(jei(Constants.HARVESTER_PYLON), """
-Harvests crops in a radius (from 3x3 to 9x9 blocks) around the pylon and outputs to an inventory above.
+Harvests crops in a range (from 3x3 to 9x9 blocks) around the pylon and outputs to an inventory above.
 Place the pylon inside the water block of the farm, or level with the crops.
 
 By default (configurable) this will require a hoe in the pylon, and use 1 durability per harvest,
@@ -173,6 +183,13 @@ Prevents natural and forced spawns of specified mobs within the selected chunk r
 Add Mob Filters to specify which mobs to block.
 
 Using the lifeless filter will instead block all mobs, but only natural spawns, with a much larger range.
+
+Can be toggled automatically with redstone.
+                """);
+
+            add(jei(Constants.PROTECTION_PYLON), """
+Prevents the pylon owner from breaking blocks or killing mobs within the selected chunk range (1x1 to 5x5 chunks).
+Add Mob Filters and Block Filters to specify which mobs and blocks to protect.
 
 Can be toggled automatically with redstone.
                 """);
