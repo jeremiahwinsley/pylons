@@ -17,7 +17,7 @@ Place one card in each hand, and right click.
 The duration from the off hand card will be added to the card in your main hand.
 
 ### Harvest Pylon
-Harvests crops in a configurable radius (from 3x3 to 9x9) around the pylon and outputs to an inventory above.
+Harvests crops in a configurable cube area (from 3x3 to 9x9) around the pylon and outputs to an inventory above.
 Place the pylon inside the water block of the farm.
 
 By default, the pylon requires a hoe in the pylon inventory, and will consume 1 durability per crop harvest.
