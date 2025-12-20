@@ -121,7 +121,7 @@ public class ConfigManager {
 
             infusionDeniedEffects = builder.comment("Effects that may not be used in the Infusion Pylon.",
                     "This list will override the allowed effect list.",
-                    "Effects may also be added to the pylons:effect_banned tag.")
+                    "Effects may also be added to the pylons:infusion_banned tag.")
                 .defineListAllowEmpty(List.of("infusionDeniedEffects"), List.of("minecraft:absorption", "tombstone:ghostly_shape"),
                     () -> "minecraft:strength", s -> s instanceof String string && string.matches("^\\w+(:\\w+)?$"));
 
