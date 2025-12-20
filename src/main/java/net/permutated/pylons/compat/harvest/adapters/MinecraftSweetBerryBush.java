@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.compat.harvest.Harvestable;
 
+import java.util.List;
+
 public class MinecraftSweetBerryBush implements Harvestable {
     @Override
     public Block getBlock() {
@@ -17,13 +19,13 @@ public class MinecraftSweetBerryBush implements Harvestable {
     }
 
     @Override
-    public boolean isHarvestable(BlockState blockState) {
+    public boolean isHarvestable(Level level, BlockPos pos, BlockState blockState) {
         return blockState.getValue(SweetBerryBushBlock.AGE) == 3;
     }
 
     @Override
-    public ItemStack harvest(Level level, BlockPos blockPos, BlockState blockState) {
+    public List<ItemStack> harvest(Level level, BlockPos blockPos, BlockState blockState) {
         level.setBlock(blockPos, blockState.setValue(SweetBerryBushBlock.AGE, 1), Block.UPDATE_CLIENTS);
-        return new ItemStack(Items.SWEET_BERRIES, 2);
+        return List.of(new ItemStack(Items.SWEET_BERRIES, 2));
     }
 }

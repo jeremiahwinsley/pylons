@@ -6,8 +6,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
+
 public interface Harvestable {
     Block getBlock();
-    boolean isHarvestable(BlockState blockState);
-    ItemStack harvest(Level level, BlockPos blockPos, BlockState blockState);
+    boolean isHarvestable(Level level, BlockPos blockPos, BlockState blockState);
+    List<ItemStack> harvest(Level level, BlockPos blockPos, BlockState blockState);
 }

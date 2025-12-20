@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.permutated.pylons.compat.harvest.Harvestable;
 
+import java.util.List;
+
 public class MinecraftNetherWart implements Harvestable {
     @Override
     public Block getBlock() {
@@ -17,13 +19,13 @@ public class MinecraftNetherWart implements Harvestable {
     }
 
     @Override
-    public boolean isHarvestable(BlockState blockState) {
+    public boolean isHarvestable(Level level, BlockPos pos, BlockState blockState) {
         return blockState.getValue(NetherWartBlock.AGE) == 3;
     }
 
     @Override
-    public ItemStack harvest(Level level, BlockPos blockPos, BlockState blockState) {
+    public List<ItemStack> harvest(Level level, BlockPos blockPos, BlockState blockState) {
         level.setBlock(blockPos, blockState.setValue(NetherWartBlock.AGE, 0), Block.UPDATE_CLIENTS);
-        return new ItemStack(Items.NETHER_WART, 3);
+        return List.of(new ItemStack(Items.NETHER_WART, 3));
     }
 }

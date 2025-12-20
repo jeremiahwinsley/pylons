@@ -30,6 +30,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
     protected byte[] getRange() {
         return new byte[]{3, 5, 7, 9};
     }
+
     @Override
     protected boolean isItemValid(ItemStack stack) {
         return stack.getItem() instanceof HoeItem;
@@ -60,7 +61,6 @@ public class HarvesterPylonTile extends AbstractPylonTile {
     }
 
 
-
     @Override
     public void updateContainer(FriendlyByteBuf packetBuffer) {
         super.updateContainer(packetBuffer);
@@ -88,7 +88,7 @@ public class HarvesterPylonTile extends AbstractPylonTile {
 
             int hoeSlot = -1;
             if (requiresTool()) {
-                for (int i = 0; i < itemStackHandler.getSlots();i++) {
+                for (int i = 0; i < itemStackHandler.getSlots(); i++) {
                     if (isItemValid(itemStackHandler.getStackInSlot(i))) {
                         hoeSlot = i;
                         break;
@@ -110,8 +110,8 @@ public class HarvesterPylonTile extends AbstractPylonTile {
             int minZ = above.getZ() - radius;
             int maxX = above.getX() + radius;
             int maxZ = above.getZ() + radius;
-            for (int x = minX;x <= maxX;x++) {
-                for (int z = minZ;z <= maxZ;z++) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
                     BlockPos workPos = new BlockPos(x, workY, z);
                     if (!level.isLoaded(workPos)) {
                         continue;
@@ -173,33 +173,32 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                             }
                         }
                     } else if (HarvestCompat.hasCompat(blockState.getBlock())) {
-                          Harvestable harvestable = HarvestCompat.getCompat(blockState.getBlock());
-                          if (harvestable.isHarvestable(blockState)) {
-                              if (requiresTool()) {
-                                  if (hoeSlot == -1) {
-                                      workStatus = Status.MISSING_TOOL;
-                                      return;
-                                  } else {
-                                      ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
-                                      if (replace.hurt(1, level.getRandom(), null)) {
-                                          replace.shrink(1);
-                                      }
-                                      itemStackHandler.setStackInSlot(hoeSlot, replace);
-                                  }
-                              }
+                        Harvestable harvestable = HarvestCompat.getCompat(blockState.getBlock());
+                        if (harvestable.isHarvestable(level, workPos, blockState)) {
+                            if (requiresTool()) {
+                                if (hoeSlot == -1) {
+                                    workStatus = Status.MISSING_TOOL;
+                                    return;
+                                } else {
+                                    ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
+                                    if (replace.hurt(1, level.getRandom(), null)) {
+                                        replace.shrink(1);
+                                    }
+                                    itemStackHandler.setStackInSlot(hoeSlot, replace);
+                                }
+                            }
 
-                              ItemStack stack = harvestable.harvest(level, workPos, blockState);
-                              if (stack.isEmpty()) {
-                                  continue;
-                              }
+                            List<ItemStack> stacks = harvestable.harvest(level, workPos, blockState);
 
-                              // try to insert as many drops as possible, discard the rest
-                              boolean result = insertItemOrDiscard(itemHandler, stack);
-                              if (!result) {
-                                  workStatus = Status.INVENTORY_FULL;
-                                  return;
-                              }
-                          }
+                            for (ItemStack stack : stacks) {
+                                // try to insert as many drops as possible, discard the rest
+                                boolean result = insertItemOrDiscard(itemHandler, stack);
+                                if (!result) {
+                                    workStatus = Status.INVENTORY_FULL;
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -211,13 +210,14 @@ public class HarvesterPylonTile extends AbstractPylonTile {
      * Iterates all slots in the IItemHandler attempting to insert the stack.
      * Returns true if the stack was successfully inserted, or false if there was anything left over.
      * Discards the remaining stack in either case.
+     *
      * @param itemHandler the inventory to insert into
-     * @param itemStack the ItemStack to insert
+     * @param itemStack   the ItemStack to insert
      * @return the result of the attempt
      */
     private boolean insertItemOrDiscard(IItemHandler itemHandler, ItemStack itemStack) {
         ItemStack progress = itemStack;
-        for (int slot = 0;slot < itemHandler.getSlots();slot++) {
+        for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
             progress = itemHandler.insertItem(slot, progress, false);
             if (progress.isEmpty()) {
                 break;

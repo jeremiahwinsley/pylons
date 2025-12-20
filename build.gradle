@@ -153,10 +153,12 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:jade-324717:4711195")
     compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4623116")
 
-    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
+    compileOnly fg.deobf("maven.modrinth:odyssey-allies:1.0.2")
     compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
 
     compileOnly fg.deobf("curse.maven:ars-nouveau-401955:4683698")
+    compileOnly fg.deobf("curse.maven:agricraft-225635:7257465")
+    compileOnly fg.deobf("curse.maven:resourceful-config-714059:6231176")
 }
 
 jar {
