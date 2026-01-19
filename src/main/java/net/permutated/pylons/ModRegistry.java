@@ -68,7 +68,7 @@ public class ModRegistry {
 
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Pylons.MODID);
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Pylons.MODID);
-    public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Pylons.MODID);
+    public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Pylons.MODID);
     public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Pylons.MODID);
     public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(Registries.MENU, Pylons.MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Pylons.MODID);

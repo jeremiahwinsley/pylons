@@ -11,6 +11,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.permutated.pylons.compat.dye.DyeCompat;
 import net.permutated.pylons.compat.harvest.HarvestCompat;
 import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.item.MobFilterCard;
@@ -50,6 +51,7 @@ public class Pylons
 
     public void onCommonSetupEvent(final FMLCommonSetupEvent event) {
         event.enqueueWork(HarvestCompat::init);
+        event.enqueueWork(DyeCompat::init);
     }
 
     public void onRegisterPayloadHandlersEvent(final RegisterPayloadHandlersEvent event) {

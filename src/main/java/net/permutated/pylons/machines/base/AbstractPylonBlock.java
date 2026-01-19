@@ -6,12 +6,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -30,11 +34,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.compat.dye.DyeCompat;
 import net.permutated.pylons.util.TranslationKey;
 
 import javax.annotation.Nullable;
@@ -152,6 +158,25 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
             level.setBlock(pos, state.setValue(ENABLED, flag), Block.UPDATE_ALL);
         }
 
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.is(Tags.Items.DYES) && level instanceof ServerLevel serverLevel) {
+            BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+            if (blockEntity instanceof AbstractPylonTile pylonTile && canAccessPylon(pylonTile, player)) {
+                int color = DyeCompat.getColor(stack);
+                
+                // remove tint with white dye
+                if (color == DyeColor.WHITE.getTextureDiffuseColor()) {
+                    color = -1;
+                }
+
+                pylonTile.setColor(color);
+                return ItemInteractionResult.SUCCESS;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override

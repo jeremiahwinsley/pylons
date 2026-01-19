@@ -3,6 +3,7 @@ package net.permutated.pylons.machines.base;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -88,6 +89,20 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void removeChunkloads() {
         if (owner != null && level instanceof ServerLevel serverLevel) {
             ChunkManager.unloadChunk(owner, serverLevel, getBlockPos());
+        }
+    }
+
+    protected int color = -1;
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int newColor) {
+        if (color != newColor && level != null) {
+            color = newColor;
+            setChanged();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -183,6 +198,8 @@ public abstract class AbstractPylonTile extends BlockEntity {
         tag.put(Constants.NBT.ENERGY, energyStorage.serializeNBT(registries));
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
         tag.putUUID(Constants.NBT.OWNER, owner);
+        tag.putInt(Constants.NBT.COLOR, color);
+        super.saveAdditional(tag, registries);
     }
 
     // Load TE data from disk
@@ -192,6 +209,9 @@ public abstract class AbstractPylonTile extends BlockEntity {
         energyStorage.deserializeNBT(registries, tag.get(Constants.NBT.ENERGY));
         range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
         owner = tag.getUUID(Constants.NBT.OWNER);
+        if (tag.contains(Constants.NBT.COLOR)) {
+            color = tag.getInt(Constants.NBT.COLOR);
+        }
         super.loadAdditional(tag, registries);
     }
 
@@ -200,6 +220,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putUUID(Constants.NBT.OWNER, owner);
+        tag.putInt(Constants.NBT.COLOR, color);
         return tag;
     }
 
@@ -207,6 +228,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         if (!tag.isEmpty()) {
             owner = tag.getUUID(Constants.NBT.OWNER);
+            color = tag.getInt(Constants.NBT.COLOR);
             super.handleUpdateTag(tag, lookupProvider);
         }
     }
@@ -216,6 +238,14 @@ public abstract class AbstractPylonTile extends BlockEntity {
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        super.onDataPacket(net, pkt, lookupProvider);
+        if (level != null) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
+        }
     }
 
     public class PylonItemStackHandler extends ItemStackHandler {
@@ -255,7 +285,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
         if (getRange().length > 1 && this.level != null) {
             this.range.next();
             this.setChanged();
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 2);
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 }
