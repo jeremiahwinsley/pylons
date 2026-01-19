@@ -6,7 +6,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +21,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.compat.teams.TeamCompat;
-import net.permutated.pylons.util.ChunkManager;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.Range;
 
@@ -86,11 +84,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
         AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
     }
 
-    public void removeChunkloads() {
-        if (owner != null && level instanceof ServerLevel serverLevel) {
-            ChunkManager.unloadChunk(owner, serverLevel, getBlockPos());
-        }
-    }
+    public abstract void removeChunkloads();
 
     protected int color = -1;
 
@@ -199,6 +193,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
         tag.put(Constants.NBT.RANGE, range.serializeNBT());
         tag.putUUID(Constants.NBT.OWNER, owner);
         tag.putInt(Constants.NBT.COLOR, color);
+        tag.putBoolean(Constants.NBT.ENABLED, enabled);
         super.saveAdditional(tag, registries);
     }
 
@@ -211,6 +206,9 @@ public abstract class AbstractPylonTile extends BlockEntity {
         owner = tag.getUUID(Constants.NBT.OWNER);
         if (tag.contains(Constants.NBT.COLOR)) {
             color = tag.getInt(Constants.NBT.COLOR);
+        }
+        if (tag.contains(Constants.NBT.ENABLED)) {
+            enabled = tag.getBoolean(Constants.NBT.ENABLED);
         }
         super.loadAdditional(tag, registries);
     }
@@ -259,15 +257,23 @@ public abstract class AbstractPylonTile extends BlockEntity {
         }
     }
 
+    boolean enabled = true;
+
     public boolean shouldWork() {
-        return getBlockState().getValue(AbstractPylonBlock.ENABLED);
+        return enabled && getBlockState().getValue(AbstractPylonBlock.ENABLED);
     }
 
     public void handleWorkPacket() {
         if (this.level != null) {
             boolean shouldWork = !shouldWork();
-            level.setBlock(getBlockPos(), getBlockState().setValue(AbstractPylonBlock.ENABLED, shouldWork), Block.UPDATE_ALL);
-            if (!shouldWork) removeChunkloads();
+
+            if (enabled != shouldWork) {
+                enabled = shouldWork;
+                setChanged();
+
+                if (!enabled) removeChunkloads();
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
         }
     }
 

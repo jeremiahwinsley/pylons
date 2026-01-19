@@ -110,21 +110,7 @@ configurations {
 }
 
 repositories {
-    mavenLocal()
     exclusiveContent {
-        forRepository {repositories.mavenLocal()}
-        forRepository {
-            maven {
-                name "Modrinth"
-                url "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
-        }
-    }
-    exclusiveContent {
-        forRepository {repositories.mavenLocal()}
         forRepository {
             maven {
                 name "CurseMaven"
@@ -140,8 +126,7 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    runtimeOnly "curse.maven:emi-580555:5704405"
-    implementation "curse.maven:jei-238222:5802637"
+    implementation "curse.maven:jei-238222:7391682"
     runtimeOnly "curse.maven:jade-324717:5493270"
     compileOnly "curse.maven:ftb-teams-forge-404468:5448371"
     runtimeOnly "curse.maven:powah-rearchitected-633483:5735677"
@@ -150,22 +135,12 @@ dependencies {
     runtimeOnly "curse.maven:mystical-agriculture-246640:5654250"
     runtimeOnly "curse.maven:mystical-agradditions-256247:5648567"
     runtimeOnly "curse.maven:cucumber-272335:5654155"
-//    compileOnly fg.deobf("maven.modrinth:argonauts:1.0.2")
-//    compileOnly fg.deobf("maven.modrinth:resourceful-lib:2.0.8")
-//
+
     implementation "curse.maven:dyenamics-509276:7138991"
-    implementation "curse.maven:ars-nouveau-401955:5721123"
+    implementation "curse.maven:ars-nouveau-401955:7417840"
     runtimeOnly "curse.maven:geckolib-388172:7415496"
     runtimeOnly "curse.maven:adorned-1036809:5740650"
 
-}
-
-sourceSets {
-    main {
-        java {
-            exclude '**/ArgonautTeamSupport.java'
-        }
-    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

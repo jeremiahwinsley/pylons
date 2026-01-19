@@ -14,8 +14,6 @@ public class TeamCompat {
     public static void init() {
         if (ModList.get().isLoaded("ftbteams")) {
             instance = new FTBTeamSupport();
-//        } else if (ModList.get().isLoaded("argonauts")) {
-//            instance = new ArgonautTeamSupport();
         }
     }
 }

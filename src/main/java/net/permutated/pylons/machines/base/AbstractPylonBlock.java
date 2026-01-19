@@ -156,8 +156,10 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
         boolean flag = !level.hasNeighborSignal(pos);
         if (!Boolean.valueOf(flag).equals((state.getValue(ENABLED)))) {
             level.setBlock(pos, state.setValue(ENABLED, flag), Block.UPDATE_ALL);
+            if (!flag && level.getBlockEntity(pos) instanceof AbstractPylonTile pylonTile) {
+                pylonTile.removeChunkloads();
+            }
         }
-
     }
 
     @Override
@@ -166,7 +168,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
             if (blockEntity instanceof AbstractPylonTile pylonTile && canAccessPylon(pylonTile, player)) {
                 int color = DyeCompat.getColor(stack);
-                
+
                 // remove tint with white dye
                 if (color == DyeColor.WHITE.getTextureDiffuseColor()) {
                     color = -1;

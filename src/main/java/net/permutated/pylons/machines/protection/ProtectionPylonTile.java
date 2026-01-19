@@ -57,19 +57,7 @@ public class ProtectionPylonTile extends AbstractPylonTile {
     }
 
     @Override
-    public boolean shouldWork() {
-        if (super.shouldWork()) {
-            return true;
-        } else {
-            //TODO move redstone handling to an update method fired by checkPoweredState instead of ticking
-            removeChunkloads();
-            return false;
-        }
-    }
-
-    @Override
     public void removeChunkloads() {
-        super.removeChunkloads();
         if (level instanceof ServerLevel serverLevel) {
             ProtectionManager.unregister(serverLevel, worldPosition);
             this.dirty = true;

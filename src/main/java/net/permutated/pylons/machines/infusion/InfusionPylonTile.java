@@ -28,6 +28,13 @@ public class InfusionPylonTile extends AbstractPylonTile {
     }
 
     @Override
+    public void removeChunkloads() {
+        if (owner != null && level instanceof ServerLevel serverLevel) {
+            ChunkManager.unloadChunk(owner, serverLevel, getBlockPos());
+        }
+    }
+
+    @Override
     public void tick() {
         if (level != null && !level.isClientSide && canTick(60) && owner != null) {
             MinecraftServer server = level.getServer();

@@ -75,7 +75,10 @@ public class HarvesterPylonTile extends AbstractPylonTile {
         MISSING_ENERGY,
     }
 
-
+    @Override
+    public void removeChunkloads() {
+        //nothing to do
+    }
 
     @Override
     public void updateContainer(FriendlyByteBuf packetBuffer) {

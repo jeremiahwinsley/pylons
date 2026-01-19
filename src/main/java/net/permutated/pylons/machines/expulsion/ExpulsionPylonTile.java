@@ -37,6 +37,11 @@ public class ExpulsionPylonTile extends AbstractPylonTile {
     }
 
     @Override
+    public void removeChunkloads() {
+        // nothing to do
+    }
+
+    @Override
     protected byte[] getRange() {
         return new byte[]{1, 3, 5};
     }
