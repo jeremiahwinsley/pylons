@@ -6,17 +6,9 @@
     }
   ],
   "type": "pylons:harvesting",
-  "block": "cobblemon:white_apricorn",
+  "block": "cobblemon:grepa_berry",
   "output": {
-    "count": 1,
-    "id": "cobblemon:white_apricorn"
+    "count": 2,
+    "id": "cobblemon:grepa_berry"
   }
 }
-
-
-
-
-
-
-
-

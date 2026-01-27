@@ -6,17 +6,9 @@
     }
   ],
   "type": "pylons:harvesting",
-  "block": "cobblemon:green_apricorn",
+  "block": "cobblemon:tanga_berry",
   "output": {
-    "count": 1,
-    "id": "cobblemon:green_apricorn"
+    "count": 2,
+    "id": "cobblemon:tanga_berry"
   }
 }
-
-
-
-
-
-
-
-

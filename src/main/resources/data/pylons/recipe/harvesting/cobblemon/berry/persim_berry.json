@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "cobblemon"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "cobblemon:persim_berry",
+  "output": {
+    "count": 2,
+    "id": "cobblemon:persim_berry"
+  }
+}

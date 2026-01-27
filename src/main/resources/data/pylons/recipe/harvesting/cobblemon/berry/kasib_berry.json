@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "cobblemon"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "cobblemon:kasib_berry",
+  "output": {
+    "count": 2,
+    "id": "cobblemon:kasib_berry"
+  }
+}

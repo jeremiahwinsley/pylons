@@ -6,17 +6,9 @@
     }
   ],
   "type": "pylons:harvesting",
-  "block": "cobblemon:yellow_apricorn",
+  "block": "cobblemon:magost_berry",
   "output": {
-    "count": 1,
-    "id": "cobblemon:yellow_apricorn"
+    "count": 2,
+    "id": "cobblemon:magost_berry"
   }
 }
-
-
-
-
-
-
-
-

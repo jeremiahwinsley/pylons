@@ -6,17 +6,9 @@
     }
   ],
   "type": "pylons:harvesting",
-  "block": "cobblemon:black_apricorn",
+  "block": "cobblemon:lansat_berry",
   "output": {
-    "count": 1,
-    "id": "cobblemon:black_apricorn"
+    "count": 2,
+    "id": "cobblemon:lansat_berry"
   }
 }
-
-
-
-
-
-
-
-

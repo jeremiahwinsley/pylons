@@ -6,17 +6,9 @@
     }
   ],
   "type": "pylons:harvesting",
-  "block": "cobblemon:pink_apricorn",
+  "block": "cobblemon:green_mint",
   "output": {
-    "count": 1,
-    "id": "cobblemon:pink_apricorn"
+    "count": 2,
+    "id": "cobblemon:green_mint_leaf"
   }
 }
-
-
-
-
-
-
-
-

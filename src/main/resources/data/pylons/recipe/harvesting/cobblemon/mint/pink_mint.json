@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "cobblemon"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "cobblemon:pink_mint",
+  "output": {
+    "count": 2,
+    "id": "cobblemon:pink_mint_leaf"
+  }
+}
