@@ -130,6 +130,13 @@ $datagen = @(
             "white"
         )
     }
+    @{
+        mod = "cobblemon"
+        count = 2
+        block_template = "hearty_grains"
+        item_template = "hearty_grains"
+        variants = @("")
+    }
 )
 
 foreach ($entry in $datagen) {

@@ -1,0 +1,14 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "cobblemon"
+    }
+  ],
+  "type": "pylons:harvesting",
+  "block": "cobblemon:hearty_grains",
+  "output": {
+    "count": 2,
+    "id": "cobblemon:hearty_grains"
+  }
+}
