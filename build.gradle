@@ -136,6 +136,8 @@ dependencies {
     runtimeOnly "curse.maven:mystical-agradditions-256247:5648567"
     runtimeOnly "curse.maven:cucumber-272335:5654155"
 
+    compileOnly "curse.maven:cobblemon-687131:7553231"
+
     implementation "curse.maven:dyenamics-509276:7138991"
     implementation "curse.maven:ars-nouveau-401955:7417840"
     runtimeOnly "curse.maven:geckolib-388172:7415496"

@@ -17,9 +17,12 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.Pylons;
+import net.permutated.pylons.compat.harvest.HarvestCompat;
+import net.permutated.pylons.compat.harvest.Harvestable;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.recipe.HarvestingRecipe;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -201,6 +204,43 @@ public class HarvesterPylonTile extends AbstractPylonTile {
                             if (!result) {
                                 workStatus = Status.INVENTORY_FULL;
                                 return;
+                            }
+                        }
+                    } else if (HarvestCompat.hasCompat(blockState.getBlock())) {
+                        Harvestable harvestable = HarvestCompat.getCompat(blockState.getBlock());
+                        if (harvestable.isHarvestable(blockState)) {
+                            if (requiresPower()) {
+                                if (!energyStorage.consumeEnergy(getPowerCost(), true)) {
+                                    workStatus = Status.MISSING_ENERGY;
+                                    return;
+                                } else {
+                                    energyStorage.consumeEnergy(getPowerCost(), false);
+                                }
+                            } else if (requiresTool()) {
+                                if (hoeSlot == -1) {
+                                    workStatus = Status.MISSING_TOOL;
+                                    return;
+                                } else {
+                                    ItemStack replace = itemStackHandler.getStackInSlot(hoeSlot).copy();
+                                    replace.hurtAndBreak(1, serverLevel, null, item -> {
+                                    });
+                                    itemStackHandler.setStackInSlot(hoeSlot, replace);
+                                }
+                            }
+
+                            Collection<ItemStack> drops = harvestable.harvest(level, workPos, blockState);
+
+                            for (ItemStack drop : drops) {
+                                if (drop.isEmpty()) {
+                                    continue;
+                                }
+
+                                // try to insert as many drops as possible, discard the rest
+                                boolean result = insertItemOrDiscard(itemHandler, drop);
+                                if (!result) {
+                                    workStatus = Status.INVENTORY_FULL;
+                                    return;
+                                }
                             }
                         }
                     } else if ((optionalRecipe = ModRegistry.HARVESTING_REGISTRY.findRecipe(blockState.getBlock())).isPresent()) {
