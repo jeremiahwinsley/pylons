@@ -18,11 +18,11 @@ public class DataHolderServer implements DataHolder {
 
     @Override
     public int getEnergy() {
-        return blockEntity.energyStorage.getEnergyStored();
+        return blockEntity.energyStorage.getAmountAsInt();
     }
 
     @Override
     public int getMaxEnergy() {
-        return blockEntity.energyStorage.getMaxEnergyStored();
+        return blockEntity.energyStorage.getCapacityAsInt();
     }
 }

@@ -1,14 +1,11 @@
 package net.permutated.pylons;
 
-import com.mojang.datafixers.types.Type;
-import com.mojang.datafixers.types.constant.EmptyPart;
-import com.mojang.datafixers.util.Unit;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
@@ -17,6 +14,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -38,18 +36,23 @@ import net.permutated.pylons.item.PlayerFilterCard;
 import net.permutated.pylons.item.PotionFilterCard;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 import net.permutated.pylons.machines.expulsion.ExpulsionPylonBlock;
+import net.permutated.pylons.machines.expulsion.ExpulsionPylonBlockItem;
 import net.permutated.pylons.machines.expulsion.ExpulsionPylonContainer;
 import net.permutated.pylons.machines.expulsion.ExpulsionPylonTile;
 import net.permutated.pylons.machines.harvester.HarvesterPylonBlock;
+import net.permutated.pylons.machines.harvester.HarvesterPylonBlockItem;
 import net.permutated.pylons.machines.harvester.HarvesterPylonContainer;
 import net.permutated.pylons.machines.harvester.HarvesterPylonTile;
 import net.permutated.pylons.machines.infusion.InfusionPylonBlock;
+import net.permutated.pylons.machines.infusion.InfusionPylonBlockItem;
 import net.permutated.pylons.machines.infusion.InfusionPylonContainer;
 import net.permutated.pylons.machines.infusion.InfusionPylonTile;
 import net.permutated.pylons.machines.interdiction.InterdictionPylonBlock;
+import net.permutated.pylons.machines.interdiction.InterdictionPylonBlockItem;
 import net.permutated.pylons.machines.interdiction.InterdictionPylonContainer;
 import net.permutated.pylons.machines.interdiction.InterdictionPylonTile;
 import net.permutated.pylons.machines.protection.ProtectionPylonBlock;
+import net.permutated.pylons.machines.protection.ProtectionPylonBlockItem;
 import net.permutated.pylons.machines.protection.ProtectionPylonContainer;
 import net.permutated.pylons.machines.protection.ProtectionPylonTile;
 import net.permutated.pylons.recipe.HarvestingRecipe;
@@ -57,6 +60,7 @@ import net.permutated.pylons.recipe.HarvestingRegistry;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.TranslationKey;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import static net.permutated.pylons.util.ResourceUtil.prefix;
@@ -74,6 +78,7 @@ public class ModRegistry {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Pylons.MODID);
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, Pylons.MODID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, Pylons.MODID);
+    public static final DeferredRegister<RecipeBookCategory> RECIPE_BOOK_CATEGORIES = DeferredRegister.create(Registries.RECIPE_BOOK_CATEGORY, Pylons.MODID);
     public static final HarvestingRegistry HARVESTING_REGISTRY = new HarvestingRegistry();
 
     public static final Supplier<CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register("creative_tab", () -> CreativeModeTab.builder()
@@ -91,11 +96,11 @@ public class ModRegistry {
     public static final TagKey<MobEffect> INFUSION_BANNED = TagKey.create(Registries.MOB_EFFECT, prefix("infusion_banned"));
 
     // Items
-    public static final Supplier<Item> PLAYER_FILTER = ITEMS.register("player_filter", PlayerFilterCard::new);
-    public static final Supplier<Item> POTION_FILTER = ITEMS.register("potion_filter", PotionFilterCard::new);
-    public static final Supplier<Item> MOB_FILTER = ITEMS.register("mob_filter", MobFilterCard::new);
-    public static final Supplier<Item> LIFELESS_FILTER = ITEMS.register("lifeless_filter", LifelessFilterCard::new);
-    public static final Supplier<Item> BLOCK_FILTER = ITEMS.register("block_filter", BlockFilterCard::new);
+    public static final Supplier<Item> PLAYER_FILTER = ITEMS.registerItem("player_filter", PlayerFilterCard::new);
+    public static final Supplier<Item> POTION_FILTER = ITEMS.registerItem("potion_filter", PotionFilterCard::new);
+    public static final Supplier<Item> MOB_FILTER = ITEMS.registerItem("mob_filter", MobFilterCard::new);
+    public static final Supplier<Item> LIFELESS_FILTER = ITEMS.registerItem("lifeless_filter", LifelessFilterCard::new);
+    public static final Supplier<Item> BLOCK_FILTER = ITEMS.registerItem("block_filter", BlockFilterCard::new);
 
     // Components
     public static final Supplier<DataComponentType<PlayerComponent>> PLAYER_COMPONENT = COMPONENTS.registerComponentType(
@@ -115,18 +120,18 @@ public class ModRegistry {
     );
 
     // Blocks
-    public static final DeferredBlock<Block> EXPULSION_PYLON = BLOCKS.register(Constants.EXPULSION_PYLON, ExpulsionPylonBlock::new);
-    public static final DeferredBlock<Block> INFUSION_PYLON = BLOCKS.register(Constants.INFUSION_PYLON, InfusionPylonBlock::new);
-    public static final DeferredBlock<Block> HARVESTER_PYLON = BLOCKS.register(Constants.HARVESTER_PYLON, HarvesterPylonBlock::new);
-    public static final DeferredBlock<Block> INTERDICTION_PYLON = BLOCKS.register(Constants.INTERDICTION_PYLON, InterdictionPylonBlock::new);
-    public static final DeferredBlock<Block> PROTECTION_PYLON = BLOCKS.register(Constants.PROTECTION_PYLON, ProtectionPylonBlock::new);
+    public static final DeferredBlock<Block> EXPULSION_PYLON = BLOCKS.registerBlock(Constants.EXPULSION_PYLON, ExpulsionPylonBlock::new);
+    public static final DeferredBlock<Block> INFUSION_PYLON = BLOCKS.registerBlock(Constants.INFUSION_PYLON, InfusionPylonBlock::new);
+    public static final DeferredBlock<Block> HARVESTER_PYLON = BLOCKS.registerBlock(Constants.HARVESTER_PYLON, HarvesterPylonBlock::new);
+    public static final DeferredBlock<Block> INTERDICTION_PYLON = BLOCKS.registerBlock(Constants.INTERDICTION_PYLON, InterdictionPylonBlock::new);
+    public static final DeferredBlock<Block> PROTECTION_PYLON = BLOCKS.registerBlock(Constants.PROTECTION_PYLON, ProtectionPylonBlock::new);
 
     // BlockItems
-    public static final Supplier<BlockItem> EXPULSION_PYLON_ITEM = blockItem(EXPULSION_PYLON);
-    public static final Supplier<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON);
-    public static final Supplier<BlockItem> HARVESTER_PYLON_ITEM = blockItem(HARVESTER_PYLON);
-    public static final Supplier<BlockItem> INTERDICTION_PYLON_ITEM = blockItem(INTERDICTION_PYLON);
-    public static final Supplier<BlockItem> PROTECTION_PYLON_ITEM = blockItem(PROTECTION_PYLON);
+    public static final Supplier<BlockItem> EXPULSION_PYLON_ITEM = blockItem(EXPULSION_PYLON, ExpulsionPylonBlockItem::new);
+    public static final Supplier<BlockItem> INFUSION_PYLON_ITEM = blockItem(INFUSION_PYLON, InfusionPylonBlockItem::new);
+    public static final Supplier<BlockItem> HARVESTER_PYLON_ITEM = blockItem(HARVESTER_PYLON, HarvesterPylonBlockItem::new);
+    public static final Supplier<BlockItem> INTERDICTION_PYLON_ITEM = blockItem(INTERDICTION_PYLON, InterdictionPylonBlockItem::new);
+    public static final Supplier<BlockItem> PROTECTION_PYLON_ITEM = blockItem(PROTECTION_PYLON, ProtectionPylonBlockItem::new);
 
     // Tiles
     public static final Supplier<BlockEntityType<ExpulsionPylonTile>> EXPULSION_PYLON_TILE = blockEntity(EXPULSION_PYLON, ExpulsionPylonTile::new);
@@ -144,7 +149,8 @@ public class ModRegistry {
 
     // Recipe Types
     public static final Supplier<RecipeType<HarvestingRecipe>> HARVESTING_RECIPE_TYPE = RECIPE_TYPES.register(Constants.HARVESTING, () -> RecipeType.simple(prefix(Constants.HARVESTING)));
-    public static final Supplier<HarvestingRecipe.Serializer> HARVESTING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(Constants.HARVESTING, HarvestingRecipe.Serializer::new);
+    public static final Supplier<RecipeBookCategory> HARVESTING_RECIPE_CATEGORY = RECIPE_BOOK_CATEGORIES.register(Constants.HARVESTING, RecipeBookCategory::new);
+    public static final Supplier<RecipeSerializer<HarvestingRecipe>> HARVESTING_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(Constants.HARVESTING, () -> HarvestingRecipe.SERIALIZER);
 
     /**
      * Register a BlockItem for a Block
@@ -152,9 +158,9 @@ public class ModRegistry {
      * @param holder the Block
      * @return the new registry object
      */
-    private static DeferredItem<BlockItem> blockItem(Holder<Block> holder) {
-        return ITEMS.register(holder.unwrapKey().map(ResourceKey::location).map(ResourceLocation::getPath).orElseThrow(),
-            () -> new BlockItem(holder.value(), new Item.Properties()));
+    private static DeferredItem<BlockItem> blockItem(Holder<Block> holder, BiFunction<Block, Item.Properties, BlockItem> supplier) {
+        return ITEMS.registerItem(holder.unwrapKey().map(ResourceKey::identifier).map(Identifier::getPath).orElseThrow(),
+            properties -> supplier.apply(holder.value(), properties.useBlockDescriptionPrefix()));
     }
 
     /**
@@ -168,14 +174,6 @@ public class ModRegistry {
     }
 
     /**
-     * Used as a NOOP type for the tile registry builder to avoid passing null
-     *
-     * @see BlockEntityType.Builder#build(Type)
-     * @see #blockEntity(Holder, BlockEntityType.BlockEntitySupplier)
-     */
-    private static final Type<Unit> EMPTY_PART = new EmptyPart();
-
-    /**
      * Register a tile entity for a Block
      *
      * @param holder   a Holder containing a Block
@@ -183,8 +181,8 @@ public class ModRegistry {
      * @return the new registry object
      */
     private static <T extends AbstractPylonTile> Supplier<BlockEntityType<T>> blockEntity(Holder<Block> holder, BlockEntityType.BlockEntitySupplier<T> supplier) {
-        return TILES.register(holder.unwrapKey().map(ResourceKey::location).map(ResourceLocation::getPath).orElseThrow(),
-            () -> BlockEntityType.Builder.of(supplier, holder.value()).build(EMPTY_PART));
+        return TILES.register(holder.unwrapKey().map(ResourceKey::identifier).map(Identifier::getPath).orElseThrow(),
+            () -> new BlockEntityType<>(supplier, holder.value()));
     }
 
     private static <T extends AbstractContainerMenu> Supplier<MenuType<T>> container(String path, IContainerFactory<T> supplier) {
@@ -200,5 +198,6 @@ public class ModRegistry {
         CREATIVE_TABS.register(bus);
         RECIPE_TYPES.register(bus);
         RECIPE_SERIALIZERS.register(bus);
+        RECIPE_BOOK_CATEGORIES.register(bus);
     }
 }

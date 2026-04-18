@@ -1,6 +1,6 @@
 package net.permutated.pylons.machines.protection;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.permutated.pylons.machines.base.AbstractPylonScreen;
@@ -12,8 +12,8 @@ public class ProtectionPylonScreen extends AbstractPylonScreen<ProtectionPylonCo
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
         drawText(graphics, translate("protectedMobsAndBlocks"), 42);
     }
 }

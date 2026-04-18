@@ -1,13 +1,11 @@
 package net.permutated.pylons.data.server;
 
-import com.hollingsworth.arsnouveau.setup.registry.BlockRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -18,21 +16,22 @@ import net.permutated.pylons.builder.HarvestingRecipeBuilder;
 
 import java.util.concurrent.CompletableFuture;
 
-import static net.permutated.pylons.util.ResourceUtil.prefix;
+import static net.permutated.pylons.util.ResourceUtil.recipe;
 
 public class CraftingRecipes extends RecipeProvider {
-    public CraftingRecipes(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> provider) {
-        super(packOutput, provider);
+    public CraftingRecipes(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
+
+
     private ShapedRecipeBuilder shaped(ItemLike provider) {
-        return ShapedRecipeBuilder.shaped(RecipeCategory.MISC, provider)
+        return super.shaped(RecipeCategory.MISC, provider)
             .group(Pylons.MODID);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput consumer) {
-
+    protected void buildRecipes() {
         // Expulsion Pylon
         shaped(ModRegistry.EXPULSION_PYLON.get())
             .pattern("qqq")
@@ -43,7 +42,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('q', Items.QUARTZ_SLAB)
             .define('i', Items.IRON_BARS)
             .unlockedBy("has_diamond_block", has(Items.DIAMOND_BLOCK))
-            .save(consumer);
+            .save(output);
 
         shaped(ModRegistry.PLAYER_FILTER.get())
             .pattern("tct")
@@ -54,13 +53,13 @@ public class CraftingRecipes extends RecipeProvider {
             .define('d', Tags.Items.GEMS_DIAMOND)
             .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_expulsion_pylon", has(ModRegistry.EXPULSION_PYLON_ITEM.get()))
-            .save(consumer);
+            .save(output);
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.PLAYER_FILTER.get())
+        shapeless(RecipeCategory.MISC, ModRegistry.PLAYER_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.PLAYER_FILTER.get())
             .unlockedBy("has_player_filter", has(ModRegistry.PLAYER_FILTER.get()))
-            .save(consumer, prefix("clear_player_filter"));
+            .save(output, recipe("clear_player_filter"));
 
         // Infusion Pylon
         shaped(ModRegistry.INFUSION_PYLON.get())
@@ -72,7 +71,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('q', Items.QUARTZ_SLAB)
             .define('i', Items.IRON_BARS)
             .unlockedBy("has_emerald_block", has(Items.EMERALD_BLOCK))
-            .save(consumer);
+            .save(output);
 
         shaped(ModRegistry.POTION_FILTER.get())
             .pattern("tct")
@@ -83,13 +82,13 @@ public class CraftingRecipes extends RecipeProvider {
             .define('d', Tags.Items.GEMS_EMERALD)
             .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_infusion_pylon", has(ModRegistry.INFUSION_PYLON_ITEM.get()))
-            .save(consumer);
+            .save(output);
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.POTION_FILTER.get())
+        shapeless(RecipeCategory.MISC, ModRegistry.POTION_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.POTION_FILTER.get())
             .unlockedBy("has_potion_filter", has(ModRegistry.POTION_FILTER.get()))
-            .save(consumer, prefix("clear_potion_filter"));
+            .save(output, recipe("clear_potion_filter"));
 
         // Harvester Pylon
         shaped(ModRegistry.HARVESTER_PYLON.get())
@@ -101,7 +100,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('q', Items.QUARTZ_SLAB)
             .define('i', Items.IRON_BARS)
             .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
-            .save(consumer);
+            .save(output);
 
         // Interdiction Pylon
         shaped(ModRegistry.INTERDICTION_PYLON.get())
@@ -113,7 +112,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('q', Items.QUARTZ_SLAB)
             .define('i', Items.IRON_BARS)
             .unlockedBy("has_netherite_block", has(Items.NETHERITE_BLOCK))
-            .save(consumer);
+            .save(output);
 
         shaped(ModRegistry.MOB_FILTER.get())
             .pattern("tct")
@@ -124,13 +123,13 @@ public class CraftingRecipes extends RecipeProvider {
             .define('d', Tags.Items.INGOTS_NETHERITE)
             .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
-            .save(consumer);
+            .save(output);
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModRegistry.MOB_FILTER.get())
+        shapeless(RecipeCategory.MISC, ModRegistry.MOB_FILTER.get())
             .group(Pylons.MODID)
             .requires(ModRegistry.MOB_FILTER.get())
             .unlockedBy("has_mob_filter", has(ModRegistry.MOB_FILTER.get()))
-            .save(consumer, prefix("clear_mob_filter"));
+            .save(output, recipe("clear_mob_filter"));
 
         shaped(ModRegistry.LIFELESS_FILTER.get())
             .pattern("tct")
@@ -141,7 +140,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('d', Tags.Items.NETHER_STARS)
             .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_interdiction_pylon", has(ModRegistry.INTERDICTION_PYLON.get()))
-            .save(consumer);
+            .save(output);
 
         // Protection Pylon
         shaped(ModRegistry.PROTECTION_PYLON.get())
@@ -153,7 +152,7 @@ public class CraftingRecipes extends RecipeProvider {
             .define('q', Items.QUARTZ_SLAB)
             .define('i', Items.IRON_BARS)
             .unlockedBy("has_honey_block", has(Items.HONEY_BLOCK))
-            .save(consumer);
+            .save(output);
 
         shaped(ModRegistry.BLOCK_FILTER.get())
             .pattern("tct")
@@ -164,22 +163,38 @@ public class CraftingRecipes extends RecipeProvider {
             .define('d', Items.HONEYCOMB)
             .define('g', Tags.Items.GLASS_BLOCKS)
             .unlockedBy("has_protection_pylon", has(ModRegistry.PROTECTION_PYLON.get()))
-            .save(consumer);
+            .save(output);
 
-        harvestingRecipes(consumer);
+        harvestingRecipes(output);
     }
 
-    protected void harvestingRecipes(RecipeOutput consumer) {
+    protected void harvestingRecipes(RecipeOutput output) {
         HarvestingRecipeBuilder.forBlock(Blocks.SWEET_BERRY_BUSH)
             .setOutput(Items.SWEET_BERRIES, 2)
-            .build(consumer);
+            .build(output);
 
         HarvestingRecipeBuilder.forBlock(Blocks.NETHER_WART)
             .setOutput(Items.NETHER_WART, 3)
-            .build(consumer);
+            .build(output);
+//
+//        HarvestingRecipeBuilder.forBlock(BlockRegistry.SOURCEBERRY_BUSH.get())
+//            .setOutput(BlockRegistry.SOURCEBERRY_BUSH.asItem(), 2)
+//            .build(output);
+    }
 
-        HarvestingRecipeBuilder.forBlock(BlockRegistry.SOURCEBERRY_BUSH.get())
-            .setOutput(BlockRegistry.SOURCEBERRY_BUSH.asItem(), 2)
-            .build(consumer);
+    public static class Runner extends RecipeProvider.Runner {
+        @Override
+        public String getName() {
+            return "pylons:crafting_recipes";
+        }
+
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, lookupProvider);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput output) {
+            return new CraftingRecipes(provider, output);
+        }
     }
 }

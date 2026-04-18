@@ -5,10 +5,10 @@ import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,16 +32,16 @@ public class SpawnManager {
 
     private static boolean dirty = false;
     // All chunks in range of a pylon, mapped to a set of entity IDs to block
-    private static Map<Location, Set<ResourceLocation>> chunkMap = new ConcurrentHashMap<>();
+    private static Map<Location, Set<Identifier>> chunkMap = new ConcurrentHashMap<>();
     // All pylon locations, mapped to a set of chunks and a set of entity IDs
-    private static final Map<Location, Pair<Set<Location>, Set<ResourceLocation>>> pylonMap = new ConcurrentHashMap<>();
+    private static final Map<Location, Pair<Set<Location>, Set<Identifier>>> pylonMap = new ConcurrentHashMap<>();
     // Spawn types that will be blocked by the lifeless filter
-    private static final List<MobSpawnType> blockedSpawnTypes = List.of(MobSpawnType.NATURAL, MobSpawnType.STRUCTURE);
+    private static final List<EntitySpawnReason> blockedSpawnTypes = List.of(EntitySpawnReason.NATURAL, EntitySpawnReason.STRUCTURE);
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         if (dirty) {
-            Map<Location, Set<ResourceLocation>> replace = new ConcurrentHashMap<>();
+            Map<Location, Set<Identifier>> replace = new ConcurrentHashMap<>();
             // given a set of Locations, apply the filter set to each Location
             pylonMap.values().forEach(pair -> pair.getLeft()
                 .forEach(location -> replace.merge(location, pair.getRight(), Sets::union)));
@@ -57,10 +57,10 @@ public class SpawnManager {
             int chunkZ = SectionPos.posToSectionCoord(entity.getZ());
 
             Location location = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
-            Set<ResourceLocation> filterSet = chunkMap.get(location);
+            Set<Identifier> filterSet = chunkMap.get(location);
             if (filterSet == null) return;
 
-            ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(event.getEntity().getType());
+            Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(event.getEntity().getType());
             if (filterSet.contains(key)) {
                 event.setCanceled(true);
             }
@@ -74,7 +74,7 @@ public class SpawnManager {
             int chunkZ = SectionPos.posToSectionCoord(event.getPos().getZ());
 
             Location location = new Location(level.dimension(), BlockPos.ZERO, chunkX, chunkZ);
-            Set<ResourceLocation> filterSet = chunkMap.get(location);
+            Set<Identifier> filterSet = chunkMap.get(location);
             if (filterSet == null) return;
 
             if (filterSet.isEmpty()) {
@@ -103,7 +103,7 @@ public class SpawnManager {
      * @param range    the current range setting of the pylon
      * @param filters  the list of filters currently in the pylon
      */
-    public static void register(ServerLevel level, BlockPos blockPos, Range range, Collection<ResourceLocation> filters) {
+    public static void register(ServerLevel level, BlockPos blockPos, Range range, Collection<Identifier> filters) {
         if (filters.isEmpty()) {
             unregister(level, blockPos);
             return;

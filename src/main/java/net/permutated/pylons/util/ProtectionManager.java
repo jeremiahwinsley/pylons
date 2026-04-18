@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -34,27 +34,27 @@ public class ProtectionManager {
     }
 
     public interface Filter {
-        boolean matches(UUID owner, ResourceLocation location);
+        boolean matches(UUID owner, Identifier location);
     }
 
-    public static Filter mobFilter(UUID owner, ResourceLocation location) {
+    public static Filter mobFilter(UUID owner, Identifier location) {
         return new MobFilter(owner, location);
     }
 
-    public static Filter blockFilter(UUID owner, ResourceLocation location) {
+    public static Filter blockFilter(UUID owner, Identifier location) {
         return new BlockFilter(owner, location);
     }
 
-    record MobFilter(UUID owner, ResourceLocation filter) implements Filter {
+    record MobFilter(UUID owner, Identifier filter) implements Filter {
         @Override
-        public boolean matches(UUID player, ResourceLocation location) {
+        public boolean matches(UUID player, Identifier location) {
             return owner.equals(player) && filter.equals(location);
         }
     }
 
-    record BlockFilter(UUID owner, ResourceLocation filter) implements Filter {
+    record BlockFilter(UUID owner, Identifier filter) implements Filter {
         @Override
-        public boolean matches(UUID player, ResourceLocation location) {
+        public boolean matches(UUID player, Identifier location) {
             return owner.equals(player) && filter.equals(location);
         }
     }
@@ -90,7 +90,7 @@ public class ProtectionManager {
             if (filterSet == null) return;
 
             UUID player = event.getEntity().getUUID();
-            ResourceLocation target = BuiltInRegistries.ENTITY_TYPE.getKey(event.getTarget().getType());
+            Identifier target = BuiltInRegistries.ENTITY_TYPE.getKey(event.getTarget().getType());
             for (Filter filter : filterSet) {
                 if (filter instanceof MobFilter && filter.matches(player, target)) {
                     event.setCanceled(true);
@@ -114,7 +114,7 @@ public class ProtectionManager {
 
             if (entity instanceof Player) {
                 UUID player = entity.getUUID();
-                ResourceLocation target = BuiltInRegistries.ENTITY_TYPE.getKey(event.getEntity().getType());
+                Identifier target = BuiltInRegistries.ENTITY_TYPE.getKey(event.getEntity().getType());
                 for (Filter filter : filterSet) {
                     if (filter instanceof MobFilter && filter.matches(player, target)) {
                         event.setCanceled(true);
@@ -135,7 +135,7 @@ public class ProtectionManager {
             if (filterSet == null) return;
 
             UUID player = event.getPlayer().getUUID();
-            ResourceLocation target = BuiltInRegistries.BLOCK.getKey(level.getBlockState(event.getPos()).getBlock());
+            Identifier target = BuiltInRegistries.BLOCK.getKey(level.getBlockState(event.getPos()).getBlock());
             for (Filter filter : filterSet) {
                 if (filter instanceof BlockFilter && filter.matches(player, target)) {
                     event.setCanceled(true);

@@ -33,7 +33,7 @@ public record PacketButtonClicked(ButtonType buttonType, BlockPos blockPos) impl
     @SuppressWarnings("java:S1172")
     public static void handle(final PacketButtonClicked event, final IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            if (ctx.player().getCommandSenderWorld() instanceof ServerLevel serverLevel && serverLevel.isLoaded(event.blockPos)) {
+            if (ctx.player().level() instanceof ServerLevel serverLevel && serverLevel.isLoaded(event.blockPos)) {
                 var be = serverLevel.getBlockEntity(event.blockPos);
                 if (be instanceof AbstractPylonTile pylonTile) {
                     switch (event.buttonType) {

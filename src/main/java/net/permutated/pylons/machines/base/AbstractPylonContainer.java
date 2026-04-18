@@ -16,11 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.network.PacketButtonClicked;
 
@@ -45,7 +43,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         this.usesEnergy = usesEnergy;
 
         blockPos = packetBuffer.readBlockPos();
-        Level level = playerInventory.player.getCommandSenderWorld();
+        Level level = playerInventory.player.level();
         if (level instanceof ServerLevel serverLevel) { // server
             this.containerLevelAccess = ContainerLevelAccess.create(level, blockPos);
             BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
@@ -59,9 +57,9 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         } else { // client
             containerLevelAccess = ContainerLevelAccess.NULL;
             dataHolder = new DataHolderClient();
-            registerHandlerSlots(new ItemStackHandler(AbstractPylonTile.SLOTS));
+            registerHandlerSlots(new ItemStacksResourceHandler(AbstractPylonTile.SLOTS));
         }
-        registerPlayerSlots(new InvWrapper(playerInventory));
+        registerPlayerSlots(playerInventory);
         registerDataSlots();
 
         dataHolder.setEnabled(packetBuffer.readInt());
@@ -89,7 +87,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     @SuppressWarnings("java:S1172") // parameter required
     public void sendWorkPacket(Button button) {
-        PacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.WORK, blockPos));
+        ClientPacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.WORK, blockPos));
     }
 
     public boolean shouldRenderRange() {
@@ -103,7 +101,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
     @SuppressWarnings("java:S1172") // parameter required
     public void sendRangePacket(Button button) {
-        PacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.RANGE, blockPos));
+        ClientPacketDistributor.sendToServer(new PacketButtonClicked(PacketButtonClicked.ButtonType.RANGE, blockPos));
     }
 
     @Override
@@ -118,7 +116,7 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
 
         int inventorySize = getInventorySize();
 
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack stack = slot.getItem();
             itemstack = stack.copy();
 
@@ -139,22 +137,22 @@ public abstract class AbstractPylonContainer extends AbstractContainerMenu {
         return itemstack;
     }
 
-    public void registerHandlerSlots(IItemHandler inventory) {
+    public void registerHandlerSlots(ItemStacksResourceHandler inventory) {
         if (usesEnergy) return;
         for (int slot = 0; slot < AbstractPylonTile.SLOTS; slot++) {
-            addSlot(new SlotItemHandler(inventory, slot, 8 + slot * 18, 54));
+            addSlot(new ResourceHandlerSlot(inventory, inventory::set, slot, 8 + slot * 18, 54));
         }
     }
 
-    public void registerPlayerSlots(IItemHandler wrappedInventory) {
+    public void registerPlayerSlots(Inventory playerInventory) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
-                addSlot(new SlotItemHandler(wrappedInventory, j + i * 9 + 9, 8 + j * 18, 90 + i * 18));
+                addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 90 + i * 18));
             }
         }
 
         for (int i = 0; i < 9; i++) {
-            addSlot(new SlotItemHandler(wrappedInventory, i, 8 + i * 18, 148));
+            addSlot(new Slot(playerInventory, i, 8 + i * 18, 148));
         }
     }
 

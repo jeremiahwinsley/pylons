@@ -2,8 +2,8 @@ package net.permutated.pylons.machines.protection;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.BlockComponent;
 import net.permutated.pylons.components.EntityComponent;
@@ -26,8 +26,8 @@ public class ProtectionPylonTile extends AbstractPylonTile {
     }
 
     @Override
-    protected boolean isItemValid(ItemStack stack) {
-        return stack.getItem() instanceof MobFilterCard || stack.getItem() instanceof BlockFilterCard;
+    protected boolean isItemValid(ItemResource resource) {
+        return resource.getItem() instanceof MobFilterCard || resource.getItem() instanceof BlockFilterCard;
     }
 
     private boolean dirty = true;
@@ -36,15 +36,15 @@ public class ProtectionPylonTile extends AbstractPylonTile {
     public void tick() {
         if (level instanceof ServerLevel serverLevel && canTick(20) && dirty) {
             HashSet<ProtectionManager.Filter> filters = new HashSet<>();
-            for (int i = 0; i < itemStackHandler.getSlots(); i++) {
-                ItemStack stack = itemStackHandler.getStackInSlot(i);
-                if (!stack.isEmpty() && stack.getItem() instanceof MobFilterCard) {
-                    EntityComponent data = stack.get(ModRegistry.ENTITY_COMPONENT);
+            for (int i = 0; i < itemStackHandler.size(); i++) {
+                ItemResource resource = itemStackHandler.getResource(i);
+                if (!resource.isEmpty() && resource.getItem() instanceof MobFilterCard) {
+                    EntityComponent data = resource.get(ModRegistry.ENTITY_COMPONENT);
                     if (data != null) {
                         filters.add(ProtectionManager.mobFilter(owner, data.registryKey()));
                     }
-                } else if (!stack.isEmpty() && stack.getItem() instanceof BlockFilterCard) {
-                    BlockComponent data = stack.get(ModRegistry.BLOCK_COMPONENT);
+                } else if (!resource.isEmpty() && resource.getItem() instanceof BlockFilterCard) {
+                    BlockComponent data = resource.get(ModRegistry.BLOCK_COMPONENT);
                     if (data != null) {
                         filters.add(ProtectionManager.blockFilter(owner, data.registryKey()));
                     }

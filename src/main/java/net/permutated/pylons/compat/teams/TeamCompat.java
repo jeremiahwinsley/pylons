@@ -13,7 +13,7 @@ public class TeamCompat {
 
     public static void init() {
         if (ModList.get().isLoaded("ftbteams")) {
-            instance = new FTBTeamSupport();
+//            instance = new FTBTeamSupport();
         }
     }
 }

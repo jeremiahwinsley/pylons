@@ -2,32 +2,34 @@ package net.permutated.pylons.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.PotionComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class PotionFilterCard extends Item {
 
-    public PotionFilterCard() {
-        super(new Item.Properties().stacksTo(1).setNoRepair());
+    public PotionFilterCard(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     // minimum duration of effect that can be copied to the filter
@@ -45,16 +47,17 @@ public class PotionFilterCard extends Item {
         return ConfigManager.SERVER.infusionAppliedDuration.get() * 20;
     }
 
+
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
 
         if (stack.getItem() instanceof PotionFilterCard) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
 
                 if (data != null && data.duration() >= PotionFilterCard.getRequiredDuration()) {
-                    return InteractionResultHolder.success(stack);
+                    return InteractionResult.SUCCESS;
                 }
 
                 // handle transferring effects between cards
@@ -65,10 +68,10 @@ public class PotionFilterCard extends Item {
                         if (offhandData != null && data.matches(offhandData)) {
                             // main hand card has the same effect and amplifier
                             // merge effect from off hand card with main hand card
-                            ItemStack copy = addDuration(stack, offhandData.duration());
+                            player.setItemInHand(hand, addDuration(stack, offhandData.duration()));
                             // clear potion data from offhand card
                             player.setItemInHand(InteractionHand.OFF_HAND, clearEffect(offhand));
-                            return InteractionResultHolder.success(copy);
+                            return InteractionResult.SUCCESS;
                         }
                     }
                 }
@@ -105,14 +108,15 @@ public class PotionFilterCard extends Item {
                         copy = addDuration(stack, activeDuration);
                     }
 
+                    player.setItemInHand(hand, copy);
                     player.removeEffect(activeEffect);
-                    return InteractionResultHolder.success(copy);
+                    return InteractionResult.SUCCESS;
                 }
             } else {
-                return InteractionResultHolder.consume(stack);
+                return InteractionResult.CONSUME;
             }
         }
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -121,8 +125,9 @@ public class PotionFilterCard extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, builder, tooltipFlag);
 
         PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
 
@@ -133,7 +138,7 @@ public class PotionFilterCard extends Item {
 
             // if duration in ticks is less than 20, display 0.
             // Otherwise, divide by 20 to get duration in seconds.
-            int display = (duration < 20) ? 0 : duration / 20;
+            int seconds = (duration < 20) ? 0 : duration / 20;
 
 
             MutableComponent component = effect.getDisplayName().copy();
@@ -142,43 +147,43 @@ public class PotionFilterCard extends Item {
             }
 
             if (effect.isBeneficial()) {
-                tooltip.add(component.withStyle(ChatFormatting.BLUE));
+                builder.accept(component.withStyle(ChatFormatting.BLUE));
             } else {
-                tooltip.add(component.withStyle(ChatFormatting.RED));
+                builder.accept(component.withStyle(ChatFormatting.RED));
             }
 
             if (isBanned(stack)) {
-                tooltip.add(translate("effect_banned").withStyle(ChatFormatting.RED));
+                builder.accept(translate("effect_banned").withStyle(ChatFormatting.RED));
             }
 
             if (!isAllowed(stack)) {
-                tooltip.add(translate("effect_denied").withStyle(ChatFormatting.RED));
+                builder.accept(translate("effect_denied").withStyle(ChatFormatting.RED));
             }
 
             if (limitedPotency(stack)) {
                 String potencyKey = String.format("potion.potency.%d", ConfigManager.SERVER.infusionMaximumPotency.getAsInt());
-                tooltip.add(translate("potency_capped", Component.translatable(potencyKey)).withStyle(ChatFormatting.YELLOW));
+                builder.accept(translate("potency_capped", Component.translatable(potencyKey)).withStyle(ChatFormatting.YELLOW));
             }
 
-            tooltip.add(Component.empty());
+            builder.accept(Component.empty());
 
             if (duration >= getRequiredDuration()) {
-                tooltip.add(translate("insert1"));
-                tooltip.add(translate("insert2"));
-                tooltip.add(translate("activated").withStyle(ChatFormatting.GREEN));
+                builder.accept(translate("insert1"));
+                builder.accept(translate("insert2"));
+                builder.accept(translate("activated").withStyle(ChatFormatting.GREEN));
             } else {
-                tooltip.add(translate("increase1"));
-                tooltip.add(translate("increase2"));
-                tooltip.add(translate("progress", display, getRequiredDuration() / 20).withStyle(ChatFormatting.RED));
+                builder.accept(translate("increase1"));
+                builder.accept(translate("increase2"));
+                builder.accept(translate("progress", seconds, getRequiredDuration() / 20).withStyle(ChatFormatting.RED));
             }
         } else {
-            tooltip.add(translate("no_effect1"));
-            tooltip.add(translate("no_effect2"));
-            tooltip.add(translate("minimum_duration", getMinimumDuration() / 20));
+            builder.accept(translate("no_effect1"));
+            builder.accept(translate("no_effect2"));
+            builder.accept(translate("minimum_duration", getMinimumDuration() / 20));
         }
 
-        tooltip.add(Component.empty());
-        tooltip.add(translate("infusion"));
+        builder.accept(Component.empty());
+        builder.accept(translate("infusion"));
     }
 
 
@@ -237,35 +242,35 @@ public class PotionFilterCard extends Item {
         return copy;
     }
 
-    public static boolean isBanned(ItemStack stack) {
+    public static boolean isBanned(DataComponentHolder stack) {
         return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
             .map(PotionComponent::effect)
             .map(holder -> holder.is(ModRegistry.INFUSION_BANNED))
             .orElse(false);
     }
 
-    public static boolean isAllowed(ItemStack stack) {
+    public static boolean isAllowed(DataComponentHolder stack) {
         return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
             .map(PotionComponent::effect)
             .flatMap(Holder::unwrapKey)
-            .map(ResourceKey::location)
+            .map(ResourceKey::identifier)
             .map(location -> isAllowedEffect(location) && !isDeniedEffect(location))
             .orElse(false);
     }
 
-    public static boolean limitedPotency(ItemStack stack) {
+    public static boolean limitedPotency(DataComponentHolder stack) {
         return Optional.ofNullable(stack.get(ModRegistry.POTION_COMPONENT))
             .map(PotionComponent::amplifier)
             .map(amplifier -> amplifier > ConfigManager.SERVER.infusionMaximumPotency.getAsInt())
             .orElse(false);
     }
 
-    protected static boolean isAllowedEffect(ResourceLocation location) {
+    protected static boolean isAllowedEffect(Identifier location) {
         var allowed = ConfigManager.SERVER.infusionAllowedEffects.get();
         return allowed.isEmpty() || allowed.contains(location.getNamespace()) || allowed.contains(location.toString());
     }
 
-    protected static boolean isDeniedEffect(ResourceLocation location) {
+    protected static boolean isDeniedEffect(Identifier location) {
         var denied = ConfigManager.SERVER.infusionDeniedEffects.get();
         return denied.contains(location.getNamespace()) || denied.contains(location.toString());
     }

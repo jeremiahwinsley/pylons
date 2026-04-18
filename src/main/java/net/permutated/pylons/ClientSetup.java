@@ -9,7 +9,7 @@ import net.permutated.pylons.machines.infusion.InfusionPylonScreen;
 import net.permutated.pylons.machines.interdiction.InterdictionPylonScreen;
 import net.permutated.pylons.machines.protection.ProtectionPylonScreen;
 
-@EventBusSubscriber(modid = Pylons.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Pylons.MODID)
 public class ClientSetup {
     private ClientSetup() {
         // nothing to do

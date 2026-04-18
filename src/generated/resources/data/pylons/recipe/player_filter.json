@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "pylons",
   "key": {
-    "c": {
-      "tag": "c:dyes/green"
-    },
-    "d": {
-      "tag": "c:gems/diamond"
-    },
-    "g": {
-      "tag": "c:glass_blocks"
-    },
-    "t": {
-      "item": "minecraft:cyan_terracotta"
-    }
+    "c": "#c:dyes/green",
+    "d": "#c:gems/diamond",
+    "g": "#c:glass_blocks",
+    "t": "minecraft:cyan_terracotta"
   },
   "pattern": [
     "tct",
@@ -22,7 +14,6 @@
     "ggg"
   ],
   "result": {
-    "count": 1,
     "id": "pylons:player_filter"
   }
 }

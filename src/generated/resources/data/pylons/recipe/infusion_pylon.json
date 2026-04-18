@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "pylons",
   "key": {
-    "b": {
-      "item": "minecraft:polished_blackstone"
-    },
-    "d": {
-      "item": "minecraft:emerald_block"
-    },
-    "i": {
-      "item": "minecraft:iron_bars"
-    },
-    "q": {
-      "item": "minecraft:quartz_slab"
-    }
+    "b": "minecraft:polished_blackstone",
+    "d": "minecraft:emerald_block",
+    "i": "minecraft:iron_bars",
+    "q": "minecraft:quartz_slab"
   },
   "pattern": [
     "qqq",
@@ -22,7 +14,6 @@
     "bbb"
   ],
   "result": {
-    "count": 1,
     "id": "pylons:infusion_pylon"
   }
 }

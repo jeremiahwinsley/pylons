@@ -5,12 +5,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,12 +19,12 @@ import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.BlockComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class BlockFilterCard extends Item {
 
-    public BlockFilterCard() {
-        super(new Properties().stacksTo(1).setNoRepair());
+    public BlockFilterCard(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
@@ -33,7 +34,7 @@ public class BlockFilterCard extends Item {
             BlockState blockState = level.getBlockState(clickedPos);
             if (!blockState.isAir()) {
                 Block block = blockState.getBlock();
-                ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
+                Identifier key = BuiltInRegistries.BLOCK.getKey(block);
                 String name = block.getDescriptionId();
 
                 context.getItemInHand().set(ModRegistry.BLOCK_COMPONENT, new BlockComponent(key, name));
@@ -49,23 +50,24 @@ public class BlockFilterCard extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, builder, flagIn);
 
         BlockComponent component = stack.get(ModRegistry.BLOCK_COMPONENT);
         if (component != null) {
             String name = component.descriptionId();
-            tooltip.add(Component.translatable(name).withStyle(ChatFormatting.BLUE));
+            builder.accept(Component.translatable(name).withStyle(ChatFormatting.BLUE));
 
-            tooltip.add(Component.empty());
-            tooltip.add(translate("insert1"));
-            tooltip.add(translate("insert2"));
+            builder.accept(Component.empty());
+            builder.accept(translate("insert1"));
+            builder.accept(translate("insert2"));
         } else {
-            tooltip.add(translate("no_block"));
+            builder.accept(translate("no_block"));
         }
 
-        tooltip.add(Component.empty());
-        tooltip.add(translate("protection"));
+        builder.accept(Component.empty());
+        builder.accept(translate("protection"));
     }
 
     protected MutableComponent translate(String key) {

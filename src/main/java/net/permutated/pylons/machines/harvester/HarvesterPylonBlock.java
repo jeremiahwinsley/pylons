@@ -1,10 +1,6 @@
 package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -23,14 +19,13 @@ import net.permutated.pylons.machines.base.AbstractPylonContainer;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class HarvesterPylonBlock extends AbstractPylonBlock implements SimpleWaterloggedBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public HarvesterPylonBlock() {
-        super();
+    public HarvesterPylonBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
     }
 
@@ -68,14 +63,5 @@ public class HarvesterPylonBlock extends AbstractPylonBlock implements SimpleWat
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new HarvesterPylonTile(pos, state);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
-
-        tooltip.add(translate("harvester1"));
-        tooltip.add(translate("harvester2"));
-        tooltip.add(translate("harvester3"));
     }
 }

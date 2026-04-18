@@ -9,18 +9,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.PlayerComponent;
 import net.permutated.pylons.util.TranslationKey;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class PlayerFilterCard extends Item {
 
-    public PlayerFilterCard() {
-        super(new Properties().stacksTo(1).setNoRepair());
+    public PlayerFilterCard(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     public static void onPlayerInteractEvent(final PlayerInteractEvent.EntityInteract event) {
@@ -43,7 +44,7 @@ public class PlayerFilterCard extends Item {
 
     protected static String getProfileName(Entity entity) {
         if (entity instanceof Player player) {
-            return player.getGameProfile().getName();
+            return player.getGameProfile().name();
         }
         return "unknown";
     }
@@ -54,23 +55,24 @@ public class PlayerFilterCard extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, builder, tooltipFlag);
 
         PlayerComponent component = stack.get(ModRegistry.PLAYER_COMPONENT);
         if (component != null) {
             String username = component.name();
-            tooltip.add(translate("player", username).withStyle(ChatFormatting.BLUE));
+            builder.accept(translate("player", username).withStyle(ChatFormatting.BLUE));
 
-            tooltip.add(Component.empty());
-            tooltip.add(translate("insert1"));
-            tooltip.add(translate("insert2"));
+            builder.accept(Component.empty());
+            builder.accept(translate("insert1"));
+            builder.accept(translate("insert2"));
         } else {
-            tooltip.add(translate("no_player"));
+            builder.accept(translate("no_player"));
         }
 
-        tooltip.add(Component.empty());
-        tooltip.add(translate("expulsion"));
+        builder.accept(Component.empty());
+        builder.accept(translate("expulsion"));
     }
 
     protected MutableComponent translate(String key) {

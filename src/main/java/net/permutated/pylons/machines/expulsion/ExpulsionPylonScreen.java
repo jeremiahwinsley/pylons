@@ -1,7 +1,7 @@
 package net.permutated.pylons.machines.expulsion;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.permutated.pylons.machines.base.AbstractPylonScreen;
@@ -13,8 +13,8 @@ public class ExpulsionPylonScreen extends AbstractPylonScreen<ExpulsionPylonCont
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
 
         if (!this.menu.isAllowedDimension()) {
             drawText(graphics, translate("wrongDimension").withStyle(ChatFormatting.RED), 42);

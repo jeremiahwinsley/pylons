@@ -2,6 +2,7 @@ package net.permutated.pylons.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
@@ -12,6 +13,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.Pylons;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -43,17 +45,20 @@ public class ChunkManager {
         unloaded.clear();
     }
 
+    @SuppressWarnings("resource")
+    private static @Nullable ServerLevel getLevelFromPlayer(ServerPlayer player, Location location) {
+        return player.level().getServer().getLevel(location.level());
+    }
+
     @SubscribeEvent
     public static void onLoginEvent(PlayerEvent.PlayerLoggedInEvent event) {
         var uuid = event.getEntity().getUUID();
-        if (uuid != null && unloaded.containsKey(uuid)) {
+        if (event.getEntity() instanceof ServerPlayer player && unloaded.containsKey(uuid)) {
             var location = unloaded.get(uuid);
-            var server = event.getEntity().getServer();
-            if (location != null && server != null) {
-                var level = server.getLevel(location.level());
-                if (level != null) {
-                    loadChunk(uuid, level, location.blockPos());
-                }
+            var level = getLevelFromPlayer(player, location);
+
+            if (level != null) {
+                loadChunk(uuid, level, location.blockPos());
             }
         }
     }
@@ -61,14 +66,12 @@ public class ChunkManager {
     @SubscribeEvent
     public static void onLogoutEvent(PlayerEvent.PlayerLoggedOutEvent event) {
         var uuid = event.getEntity().getUUID();
-        if (uuid != null && loaded.containsKey(uuid)) {
+        if (event.getEntity() instanceof ServerPlayer player && loaded.containsKey(uuid)) {
             var location = loaded.get(uuid);
-            var server = event.getEntity().getServer();
-            if (location != null && server != null) {
-                var level = server.getLevel(location.level());
-                if (level != null) {
-                    unloadChunk(uuid, level, location.blockPos());
-                }
+            var level = getLevelFromPlayer(player, location);
+
+            if (level != null) {
+                unloadChunk(uuid, level, location.blockPos());
             }
         }
     }

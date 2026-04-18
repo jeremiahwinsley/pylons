@@ -5,8 +5,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.ModRegistry;
 import net.permutated.pylons.components.PotionComponent;
@@ -23,20 +23,20 @@ public class InfusionPylonTile extends AbstractPylonTile {
     }
 
     @Override
-    protected boolean isItemValid(ItemStack stack) {
-        return stack.getItem() instanceof PotionFilterCard;
+    protected boolean isItemValid(ItemResource resource) {
+        return resource.getItem() instanceof PotionFilterCard;
     }
 
     @Override
     public void removeChunkloads() {
-        if (owner != null && level instanceof ServerLevel serverLevel) {
+        if (level instanceof ServerLevel serverLevel) {
             ChunkManager.unloadChunk(owner, serverLevel, getBlockPos());
         }
     }
 
     @Override
     public void tick() {
-        if (level != null && !level.isClientSide && canTick(60) && owner != null) {
+        if (level != null && !level.isClientSide() && canTick(60)) {
             MinecraftServer server = level.getServer();
 
             if (server != null) {
@@ -54,10 +54,10 @@ public class InfusionPylonTile extends AbstractPylonTile {
 
     public List<MobEffectInstance> getEffects() {
         List<MobEffectInstance> effects = new ArrayList<>();
-        for (int i = 0; i < itemStackHandler.getSlots(); i++) {
-            ItemStack stack = itemStackHandler.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(stack) && !PotionFilterCard.isBanned(stack)) {
-                PotionComponent data = stack.get(ModRegistry.POTION_COMPONENT);
+        for (int i = 0; i < itemStackHandler.size(); i++) {
+            ItemResource resource = itemStackHandler.getResource(i);
+            if (!resource.isEmpty() && resource.getItem() instanceof PotionFilterCard && PotionFilterCard.isAllowed(resource) && !PotionFilterCard.isBanned(resource)) {
+                PotionComponent data = resource.get(ModRegistry.POTION_COMPONENT);
                 if (data != null && data.duration() >= PotionFilterCard.getRequiredDuration()) {
                     // cap amplifier to config value
                     int amplifier = Math.min(data.amplifier(), ConfigManager.SERVER.infusionMaximumPotency.getAsInt());

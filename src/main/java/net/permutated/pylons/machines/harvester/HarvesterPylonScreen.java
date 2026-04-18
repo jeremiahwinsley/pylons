@@ -1,7 +1,7 @@
 package net.permutated.pylons.machines.harvester;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,8 +19,8 @@ public class HarvesterPylonScreen extends AbstractPylonScreen<HarvesterPylonCont
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
         switch (this.menu.getWorkStatus()) {
             case MISSING_INVENTORY:
                 drawText(graphics, translate("inventoryMissing").withStyle(ChatFormatting.RED), 42);

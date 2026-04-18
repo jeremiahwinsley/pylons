@@ -2,10 +2,13 @@ package net.permutated.pylons.machines.base;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,17 +17,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.UsernameCache;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.permutated.pylons.ConfigManager;
 import net.permutated.pylons.compat.teams.TeamCompat;
 import net.permutated.pylons.util.Constants;
 import net.permutated.pylons.util.Range;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,14 +48,9 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     protected final PylonEnergyStorage energyStorage;
 
-    protected final ItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS) {
-        @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return AbstractPylonTile.this.isItemValid(stack);
-        }
-    };
+    protected final PylonItemStackHandler itemStackHandler = new PylonItemStackHandler(SLOTS);
 
-    protected abstract boolean isItemValid(ItemStack stack);
+    protected abstract boolean isItemValid(ItemResource resource);
 
     protected boolean canAccessInventory() {
         return true;
@@ -66,7 +66,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
      * @param blockEntityType the block entity being registered
      */
     public static void registerItemCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, blockEntityType,
+        event.registerBlockEntity(Capabilities.Item.BLOCK, blockEntityType,
             (pylon, side) -> pylon.canAccessInventory() ? pylon.itemStackHandler : null);
     }
 
@@ -76,12 +76,19 @@ public abstract class AbstractPylonTile extends BlockEntity {
      * @param blockEntityType the block entity being registered
      */
     public static void registerEnergyCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractPylonTile> blockEntityType) {
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, blockEntityType,
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, blockEntityType,
             (pylon, side) -> pylon.canAccessEnergy() ? pylon.energyStorage : null);
     }
 
     public void dropItems() {
         AbstractPylonTile.dropItems(level, worldPosition, itemStackHandler);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        dropItems();
+        removeChunkloads();
     }
 
     public abstract void removeChunkloads();
@@ -117,7 +124,7 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     public boolean canAccess(Player player) {
-        return Objects.equals(player.getUUID(), owner) || owner == NONE || player.hasPermissions(2) || hasTeamAccess(player);
+        return Objects.equals(player.getUUID(), owner) || owner == NONE || player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || hasTeamAccess(player);
     }
 
     private long lastTicked = 0L;
@@ -153,9 +160,10 @@ public abstract class AbstractPylonTile extends BlockEntity {
         }
     }
 
-    protected static void dropItems(@Nullable Level world, BlockPos pos, IItemHandler itemHandler) {
-        for (int i = 0; i < itemHandler.getSlots(); ++i) {
-            ItemStack itemstack = itemHandler.getStackInSlot(i);
+    protected static void dropItems(@Nullable Level world, BlockPos pos, ResourceHandler<ItemResource> itemHandler) {
+        for (int i = 0; i < itemHandler.size(); ++i) {
+            ItemResource resource = itemHandler.getResource(i);
+            ItemStack itemstack = resource.toStack();
 
             if (itemstack.getCount() > 0 && world != null) {
                 Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), itemstack);
@@ -187,48 +195,45 @@ public abstract class AbstractPylonTile extends BlockEntity {
 
     // Save TE data to disk
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put(Constants.NBT.INV, itemStackHandler.serializeNBT(registries));
-        tag.put(Constants.NBT.ENERGY, energyStorage.serializeNBT(registries));
-        tag.put(Constants.NBT.RANGE, range.serializeNBT());
-        tag.putUUID(Constants.NBT.OWNER, owner);
-        tag.putInt(Constants.NBT.COLOR, color);
-        tag.putBoolean(Constants.NBT.ENABLED, enabled);
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        itemStackHandler.serialize(output);
+        energyStorage.serialize(output);
+        range.serialize(output);
+
+        output.store(Constants.NBT.OWNER, UUIDUtil.CODEC, owner);
+        output.putInt(Constants.NBT.COLOR, color);
+        output.putBoolean(Constants.NBT.ENABLED, enabled);
+        super.saveAdditional(output);
     }
 
-    // Load TE data from disk
+
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        itemStackHandler.deserializeNBT(registries, tag.getCompound(Constants.NBT.INV));
-        energyStorage.deserializeNBT(registries, tag.get(Constants.NBT.ENERGY));
-        range.deserializeNBT(tag.getCompound(Constants.NBT.RANGE));
-        owner = tag.getUUID(Constants.NBT.OWNER);
-        if (tag.contains(Constants.NBT.COLOR)) {
-            color = tag.getInt(Constants.NBT.COLOR);
-        }
-        if (tag.contains(Constants.NBT.ENABLED)) {
-            enabled = tag.getBoolean(Constants.NBT.ENABLED);
-        }
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        itemStackHandler.deserialize(input);
+        energyStorage.deserialize(input);
+        range.deserialize(input);
+
+        owner = input.read(Constants.NBT.OWNER, UUIDUtil.CODEC).orElse(NONE);
+        color = input.getIntOr(Constants.NBT.COLOR, -1);
+        enabled = input.getBooleanOr(Constants.NBT.ENABLED, true);
+
+        super.loadAdditional(input);
     }
 
     // Called whenever a client loads a new chunk
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putUUID(Constants.NBT.OWNER, owner);
+        tag.store(Constants.NBT.OWNER, UUIDUtil.CODEC, owner);
         tag.putInt(Constants.NBT.COLOR, color);
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        if (!tag.isEmpty()) {
-            owner = tag.getUUID(Constants.NBT.OWNER);
-            color = tag.getInt(Constants.NBT.COLOR);
-            super.handleUpdateTag(tag, lookupProvider);
-        }
+    public void handleUpdateTag(ValueInput input) {
+        owner = input.read(Constants.NBT.OWNER, UUIDUtil.CODEC).orElse(NONE);
+        color = input.getIntOr(Constants.NBT.COLOR, -1);
+        super.handleUpdateTag(input);
     }
 
     // Called whenever a block update happens on the client
@@ -239,20 +244,33 @@ public abstract class AbstractPylonTile extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+        super.onDataPacket(net, valueInput);
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
         }
     }
 
-    public class PylonItemStackHandler extends ItemStackHandler {
+    public class PylonItemStackHandler extends ItemStacksResourceHandler {
         public PylonItemStackHandler(int size) {
             super(size);
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int index, ItemStack previousContents) {
+            setChanged();
+        }
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            return isItemValid(resource);
+        }
+
+        public void hurtAndBreak(int index, ServerLevel level) {
+            Objects.checkIndex(index, size());
+            ItemStack modified = stacks.get(index).copy();
+            modified.hurtAndBreak(1, level, null, item -> {});
+            stacks.set(index, modified);
             setChanged();
         }
     }

@@ -3,12 +3,9 @@
   "category": "misc",
   "group": "pylons",
   "ingredients": [
-    {
-      "item": "pylons:player_filter"
-    }
+    "pylons:player_filter"
   ],
   "result": {
-    "count": 1,
     "id": "pylons:player_filter"
   }
 }

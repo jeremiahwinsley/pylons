@@ -1,13 +1,41 @@
 package net.permutated.pylons.util;
 
-import net.minecraft.nbt.CompoundTag;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import java.nio.ByteBuffer;
 
 public class Range {
+    private static final Codec<byte[]> BYTE_ARRAY_CODEC = Codec.BYTE_BUFFER.xmap(ByteBuffer::array, ByteBuffer::wrap);
+    public static final Codec<Range> CODEC;
+
+    static {
+        CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BYTE_ARRAY_CODEC.fieldOf(Constants.NBT.CONTENTS).forGetter(Range::contents),
+            Codec.BYTE.fieldOf(Constants.NBT.POSITION).forGetter(Range::position)
+        ).apply(instance, Range::new));
+    }
+
     private byte[] contents;
     private byte position = 0;
 
+    public Range(byte[] contents, byte position) {
+        this.contents = contents;
+        this.position = position;
+    }
+
     public Range(byte[] contents) {
         this.contents = contents;
+    }
+
+    private byte position() {
+        return position;
+    }
+
+    private byte[] contents() {
+        return contents;
     }
 
     public void next() {
@@ -25,23 +53,19 @@ public class Range {
     public byte max() {
         return contents[contents.length - 1];
     }
+
     public int toRadius() {
         return (contents[position] - 1) / 2;
     }
 
-    public CompoundTag serializeNBT() {
-        var tag = new CompoundTag();
-        tag.putByteArray(Constants.NBT.CONTENTS, this.contents);
-        tag.putByte(Constants.NBT.POSITION, this.position);
-        return tag;
+    public void serialize(ValueOutput output) {
+        output.store(Constants.NBT.RANGE, CODEC, this);
     }
 
-    public void deserializeNBT(CompoundTag tag) {
-        contents = getOrDefault(tag.getByteArray(Constants.NBT.CONTENTS));
-        position = tag.getByte(Constants.NBT.POSITION);
-    }
-
-    private static byte[] getOrDefault(byte[] test) {
-        return test.length > 0 ? test : new byte[]{1};
+    public void deserialize(ValueInput input) {
+        input.read(Constants.NBT.RANGE, CODEC).ifPresent(range -> {
+            this.contents = range.contents;
+            this.position = range.position;
+        });
     }
 }

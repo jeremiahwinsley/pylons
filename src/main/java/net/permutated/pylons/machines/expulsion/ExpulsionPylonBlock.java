@@ -1,10 +1,6 @@
 package net.permutated.pylons.machines.expulsion;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,9 +14,12 @@ import net.permutated.pylons.machines.base.AbstractPylonContainer;
 import net.permutated.pylons.machines.base.AbstractPylonTile;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class ExpulsionPylonBlock extends AbstractPylonBlock {
+    public ExpulsionPylonBlock(Properties properties) {
+        super(properties);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -35,15 +34,6 @@ public class ExpulsionPylonBlock extends AbstractPylonBlock {
     @Override
     public IContainerFactory<AbstractPylonContainer> containerFactory() {
         return ExpulsionPylonContainer::new;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
-
-        tooltip.add(translate("expulsion1"));
-        tooltip.add(translate("expulsion2"));
-        tooltip.add(translate("expulsion3"));
     }
 
     @Override

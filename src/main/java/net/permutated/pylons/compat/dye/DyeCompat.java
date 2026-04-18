@@ -12,7 +12,7 @@ public class DyeCompat {
 
     public static void init() {
         if (ModList.get().isLoaded("dyenamics")) {
-            resolvers.add(new Dyenamics());
+//            resolvers.add(new Dyenamics());
         }
     }
 

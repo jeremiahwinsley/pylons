@@ -6,25 +6,27 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.permutated.pylons.util.TranslationKey;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class LifelessFilterCard extends Item {
-    public LifelessFilterCard() {
-        super(new Properties().stacksTo(1).setNoRepair());
+    public LifelessFilterCard(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, display, builder, tooltipFlag);
 
-        tooltip.add(translate("lifeless1").withStyle(ChatFormatting.DARK_GREEN));
-        tooltip.add(translate("lifeless2").withStyle(ChatFormatting.DARK_GREEN));
-        tooltip.add(translate("lifeless3").withStyle(ChatFormatting.DARK_RED));
+        builder.accept(translate("lifeless1").withStyle(ChatFormatting.DARK_GREEN));
+        builder.accept(translate("lifeless2").withStyle(ChatFormatting.DARK_GREEN));
+        builder.accept(translate("lifeless3").withStyle(ChatFormatting.DARK_RED));
 
-        tooltip.add(Component.empty());
-        tooltip.add(translate("interdiction").withStyle(ChatFormatting.GRAY));
+        builder.accept(Component.empty());
+        builder.accept(translate("interdiction").withStyle(ChatFormatting.GRAY));
     }
 
     protected MutableComponent translate(String key) {

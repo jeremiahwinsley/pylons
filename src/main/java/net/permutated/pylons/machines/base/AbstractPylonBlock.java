@@ -9,7 +9,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,17 +18,18 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -42,8 +42,8 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.permutated.pylons.Pylons;
 import net.permutated.pylons.compat.dye.DyeCompat;
 import net.permutated.pylons.util.TranslationKey;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -52,8 +52,8 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
         Block.box(1.0D, 3.0D, 1.0D, 15.0D, 16.0D, 15.0D)
     );
 
-    protected AbstractPylonBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).strength(INDESTRUCTIBLE, 1200F));
+    protected AbstractPylonBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(INDESTRUCTIBLE, 1200F));
         this.registerDefaultState(this.defaultBlockState()
             .setValue(ENABLED, Boolean.TRUE));
     }
@@ -94,7 +94,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (!level.isClientSide && entity instanceof Player && !(entity instanceof FakePlayer)) {
+        if (!level.isClientSide() && entity instanceof Player && !(entity instanceof FakePlayer)) {
             BlockEntity tileEntity = level.getBlockEntity(blockPos);
             if (tileEntity instanceof AbstractPylonTile pylonTile) {
                 pylonTile.setOwner(entity.getUUID());
@@ -103,38 +103,14 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void destroy(LevelAccessor world, BlockPos blockPos, BlockState blockState) {
-        if (world.getBlockEntity(blockPos) instanceof AbstractPylonTile pylonTile) {
-            pylonTile.removeChunkloads();
-            pylonTile.dropItems();
-        }
-
-        super.destroy(world, blockPos, blockState);
-    }
-
-    @Override
     @SuppressWarnings("java:S1874") // deprecated method from super class
     public float getDestroyProgress(BlockState state, Player player, BlockGetter getter, BlockPos blockPos) {
         BlockEntity blockEntity = getter.getBlockEntity(blockPos);
         if (canAccessPylon(blockEntity, player)) {
             int i = EventHooks.doPlayerHarvestCheck(player, state, getter, blockPos) ? 30 : 100;
-            return player.getDigSpeed(state, blockPos) / 2.0F / i;
+            return player.getDestroySpeed(state, blockPos) / 2.0F / i;
         }
         return 0.0F;
-    }
-
-    @Override
-    @SuppressWarnings("java:S1874") // deprecated method from super class
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof AbstractPylonTile pylonTile) {
-                pylonTile.removeChunkloads();
-                pylonTile.dropItems();
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, level, pos, newState, isMoving);
-        }
     }
 
     @Override
@@ -146,8 +122,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @SuppressWarnings("java:S1874") // deprecated method from super class
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos neighborPos, boolean isMoving) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
         this.checkPoweredState(level, pos, state);
     }
 
@@ -163,7 +138,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.is(Tags.Items.DYES) && level instanceof ServerLevel serverLevel) {
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
             if (blockEntity instanceof AbstractPylonTile pylonTile && canAccessPylon(pylonTile, player)) {
@@ -175,7 +150,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
                 }
 
                 pylonTile.setColor(color);
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
@@ -183,7 +158,7 @@ public abstract class AbstractPylonBlock extends Block implements EntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult blockRayTraceResult) {
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             BlockEntity tileEntity = world.getBlockEntity(pos);
             if (tileEntity instanceof AbstractPylonTile pylonTile) {
                 MenuProvider containerProvider = new MenuProvider() {

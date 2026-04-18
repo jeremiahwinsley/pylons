@@ -4,14 +4,16 @@ import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -23,21 +25,36 @@ import net.permutated.pylons.util.Constants;
 import java.util.Optional;
 
 public class HarvestingRecipe implements Recipe<HarvestingRecipeInput> {
+    private static final Codec<Block> BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec();
+    private static final MapCodec<HarvestingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        BLOCK_CODEC.fieldOf(Constants.JSON.BLOCK).forGetter(HarvestingRecipe::getInput),
+        ItemStackTemplate.CODEC.fieldOf(Constants.JSON.OUTPUT).forGetter(HarvestingRecipe::getOutput)
+    ).apply(instance, HarvestingRecipe::new));
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, Block> BLOCK_STREAM_CODEC = ByteBufCodecs.registry(Registries.BLOCK);
+    private static final StreamCodec<RegistryFriendlyByteBuf, HarvestingRecipe> STREAM_CODEC = StreamCodec.composite(
+        BLOCK_STREAM_CODEC, HarvestingRecipe::getInput,
+        ItemStackTemplate.STREAM_CODEC, HarvestingRecipe::getOutput,
+        HarvestingRecipe::new
+    );
+
+    public static final RecipeSerializer<HarvestingRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final Block input;
-    private final ItemStack output;
+    private final ItemStackTemplate output;
     private final IntegerProperty ageProperty;
 
-    public HarvestingRecipe(Block input, ItemStack output) {
+    public HarvestingRecipe(Block input, ItemStackTemplate output) {
         Preconditions.checkNotNull(input, "block cannot be null.");
         Preconditions.checkNotNull(output, "output cannot be null.");
 
-        Optional<IntegerProperty> property = input.defaultBlockState().getValues().keySet().stream()
+        Optional<IntegerProperty> property = input.defaultBlockState().getProperties().stream()
             .filter(key -> key instanceof IntegerProperty ip && ip.getName().equals("age"))
             .map(IntegerProperty.class::cast)
             .findFirst();
 
         Preconditions.checkState(property.isPresent(), "block must have an age property.");
-        Preconditions.checkState(!output.isEmpty(), "output cannot be empty.");
+        Preconditions.checkState(output.count() > 0, "output cannot be empty.");
 
         this.input = input;
         this.output = output;
@@ -45,20 +62,20 @@ public class HarvestingRecipe implements Recipe<HarvestingRecipeInput> {
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<HarvestingRecipe> getType() {
         return ModRegistry.HARVESTING_RECIPE_TYPE.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRegistry.HARVESTING_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<HarvestingRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     public Block getInput() {
         return input;
     }
 
-    public ItemStack getOutput() {
+    public ItemStackTemplate getOutput() {
         return output;
     }
 
@@ -74,48 +91,33 @@ public class HarvestingRecipe implements Recipe<HarvestingRecipeInput> {
         return ageProperty.min;
     }
 
-    public static class Serializer implements RecipeSerializer<HarvestingRecipe> {
-        private static final Codec<Block> BLOCK_CODEC = BuiltInRegistries.BLOCK.byNameCodec();
-        private static final MapCodec<HarvestingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BLOCK_CODEC.fieldOf(Constants.JSON.BLOCK).forGetter(HarvestingRecipe::getInput),
-            ItemStack.CODEC.fieldOf(Constants.JSON.OUTPUT).forGetter(HarvestingRecipe::getOutput)
-        ).apply(instance, HarvestingRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, Block> BLOCK_STREAM_CODEC = ByteBufCodecs.registry(Registries.BLOCK);
-        private static final StreamCodec<RegistryFriendlyByteBuf, HarvestingRecipe> STREAM_CODEC = StreamCodec.composite(
-            BLOCK_STREAM_CODEC, HarvestingRecipe::getInput,
-            ItemStack.STREAM_CODEC, HarvestingRecipe::getOutput,
-            HarvestingRecipe::new
-        );
-
-        @Override
-        public MapCodec<HarvestingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, HarvestingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-    }
-
     @Override
     public boolean matches(HarvestingRecipeInput input, Level level) {
         return this.input.equals(input.block());
     }
 
     @Override
-    public ItemStack assemble(HarvestingRecipeInput input, HolderLookup.Provider registries) {
-        return this.output.copy();
+    public ItemStack assemble(HarvestingRecipeInput harvestingRecipeInput) {
+        return this.output.create();
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
+    public boolean showNotification() {
         return false;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return this.output.copy();
+    public String group() {
+        return "";
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return ModRegistry.HARVESTING_RECIPE_CATEGORY.get();
     }
 }

@@ -2,7 +2,6 @@ package net.permutated.pylons.compat.harvest;
 
 import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.ModList;
-import net.permutated.pylons.compat.harvest.adapters.CobblemonBerryBush;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +28,7 @@ public class HarvestCompat {
     // FMLCommonSetupEvent
     public static void init() {
         if (ModList.get().isLoaded("cobblemon")) {
-            register(new CobblemonBerryBush());
+//            register(new CobblemonBerryBush());
         }
     }
 }
