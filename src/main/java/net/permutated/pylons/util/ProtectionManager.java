@@ -16,7 +16,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.permutated.pylons.Pylons;
 import org.apache.commons.lang3.tuple.Pair;
@@ -125,7 +125,7 @@ public class ProtectionManager {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+    public static void onBlockBreakEvent(BreakBlockEvent event) {
         if (event.getLevel() instanceof ServerLevel level) {
             int chunkX = SectionPos.posToSectionCoord(event.getPos().getX());
             int chunkZ = SectionPos.posToSectionCoord(event.getPos().getZ());

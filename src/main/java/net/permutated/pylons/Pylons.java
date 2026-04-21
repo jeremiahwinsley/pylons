@@ -8,7 +8,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.permutated.pylons.compat.dye.DyeCompat;
@@ -68,7 +68,7 @@ public class Pylons
         AbstractPylonTile.registerEnergyCapability(event, ModRegistry.HARVESTER_PYLON_TILE.get());
     }
 
-    public static void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+    public static void onBlockBreakEvent(BreakBlockEvent event) {
         if (event.getState().getBlock() instanceof AbstractPylonBlock) {
             BlockEntity tileEntity = event.getLevel().getBlockEntity(event.getPos());
 
